@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  DEALER
+  INSPECTOR
+  DRIVER
+  ADMIN
+}
+
+enum AuctionStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+enum VehicleCondition {
+  NEW
+  USED
+  SALVAGE
+  REBUILT
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  CREATED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SupportStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum ImportQuoteStatus {
+  REQUESTED
+  QUOTED
+  BOOKED
+  CANCELLED
+}
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  phone       String?   @unique
+  name        String?
+  role        UserRole  @default(CUSTOMER)
+  password    String?   // hashed password (nullable for social/OTP users)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sessions    Session[]
+  passwordResets PasswordReset[]
+  dealer      Dealer?   @relation(fields: [dealerId], references: [id])
+  dealerId    String?
+  auctions    Auction[] @relation("seller")
+  bids        Bid[]
+  financeApplications FinanceApplication[]
+  payments    Payment[]
+  inspectionReports InspectionReport[]
+  notifications Notification[]
+  auditLogs    AuditLog[]
+  assignedSupportTickets SupportTicket[] @relation("assignedSupport")
+  blogPosts   BlogPost[]
+  supportTickets SupportTicket[]
+  supportMessages SupportMessage[]
+  importQuotes ImportQuote[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  refreshToken String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}
+
+model PasswordReset {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  token      String   @unique
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+}
+
+model Dealer {
+  id          String    @id @default(cuid())
+  name        String
+  code        String    @unique
+  contactName String?
+  contactPhone String?
+  address     String?
+  createdAt   DateTime  @default(now())
+  vehicles    Vehicle[]
+  users       User[]
+}
+
+model Vehicle {
+  id            String          @id @default(cuid())
+  vin           String          @unique
+  make          String
+  model         String
+  trim          String?
+  year          Int
+  mileage       Int?
+  condition     VehicleCondition @default(USED)
+  color         String?
+  transmission  String?
+  engine        String?
+  description   String?
+  dealerId      String
+  dealer        Dealer          @relation(fields: [dealerId], references: [id])
+  brandId       String?
+  brand         Brand?          @relation(fields: [brandId], references: [id])
+  categoryId    String?
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  images        VehicleImage[]
+  auctions      Auction[]
+  inspections   InspectionReport[]
+  financeApplications FinanceApplication[]
+  shipments     Shipment[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  index_vin     String?         @map("vin_index")
+}
+
+model VehicleImage {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+  url        String
+  publicId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+}
+
+model Auction {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  vehicleId      String
+  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
+  sellerId       String
+  seller         User         @relation("seller", fields: [sellerId], references: [id])
+  startingPrice  Float
+  reservePrice   Float?
+  currentPrice   Float?
+  startAt        DateTime
+  endAt          DateTime
+  status         AuctionStatus @default(DRAFT)
+  bids           Bid[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Bid {
+  id        String   @id @default(cuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id])
+  bidderId  String
+  bidder    User     @relation(fields: [bidderId], references: [id])
+  amount    Float
+  createdAt DateTime @default(now())
+}
+
+model FinanceApplication {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  vehicleId      String?
+  vehicle        Vehicle? @relation(fields: [vehicleId], references: [id])
+  amount         Float
+  termMonths     Int
+  status         String   // e.g., PENDING, APPROVED, REJECTED
+  providerData   Json?    // provider-specific payload
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  amount        Float
+  currency      String        @default("USD")
+  provider      String
+  providerRef   String?
+  status        PaymentStatus @default(PENDING)
+  metadata      Json?
+  createdAt     DateTime      @default(now())
+}
+
+model Shipment {
+  id            String         @id @default(cuid())
+  bookingRef    String?        @unique
+  carrier       String?
+  containerNo   String?
+  status        ShipmentStatus @default(CREATED)
+  origin        String?
+  destination   String?
+  eta           DateTime?
+  vehicleId     String?
+  vehicle       Vehicle?       @relation(fields: [vehicleId], references: [id])
+  trackingMeta  Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model InspectionReport {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  inspectorId String
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
+  inspector  User     @relation(fields: [inspectorId], references: [id])
+  photos     Json?
+  notes      String?
+  score      Int?
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  channel   String   // email, sms, push, whatsapp
+  payload   Json
+  read      Boolean  @default(false)
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  name      String
+  params    Json
+  result    Json?
+  generatedBy String?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  action    String
+  resource  String?
+  resourceId String?
+  payload   Json?
+  createdAt DateTime @default(now())
+}
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  base      String
+  target    String
+  rate      Float
+  fetchedAt DateTime @default(now())
+  source    String?
+}
+
+model VinDecodeCache {
+  id        String   @id @default(cuid())
+  vin       String   @unique
+  data      Json
+  cachedAt  DateTime @default(now())
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  logoUrl     String?
+  featured    Boolean   @default(false)
+  vehicles    Vehicle[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  vehicles    Vehicle[]
+  featured    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Page {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  heroText    String?
+  content     Json?
+  metadata    Json?
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model BlogPost {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  summary     String?
+  content     Json?
+  authorId    String?
+  author      User?         @relation(fields: [authorId], references: [id])
+  publishedAt DateTime?
+  status      ContentStatus @default(DRAFT)
+  featured    Boolean       @default(false)
+  tags        String[]      @default([])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model SupportTicket {
+  id             String        @id @default(cuid())
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id])
+  name           String?
+  email          String?
+  phone          String?
+  subject        String
+  message        String
+  status         SupportStatus @default(OPEN)
+  assignedToId   String?
+  assignedTo     User?         @relation("assignedSupport", fields: [assignedToId], references: [id])
+  messages       SupportMessage[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model SupportMessage {
+  id         String        @id @default(cuid())
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id])
+  senderId   String?
+  sender     User?         @relation(fields: [senderId], references: [id])
+  content    String
+  metadata   Json?
+  createdAt  DateTime      @default(now())
+}
+
+model ContactInquiry {
+  id          String        @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  subject     String
+  message     String
+  status      SupportStatus @default(OPEN)
+  response    String?
+  respondedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ImportQuote {
+  id           String           @id @default(cuid())
+  userId       String?
+  user         User?            @relation(fields: [userId], references: [id])
+  origin       String
+  destination  String
+  vehicleType  String
+  priceRange   String
+  estimatedFee Float?
+  currency     String           @default("USD")
+  status       ImportQuoteStatus @default(REQUESTED)
+  metadata     Json?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+// Helpful indexes for common queries
+// Prisma doesn't support indexing across models in DSL directly; create raw SQL migrations when needed.

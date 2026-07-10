@@ -1,0 +1,13 @@
+{
+  "name": "lumana-db",
+  "private": true,
+  "version": "0.1.0",
+  "main": "./index.js",
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "prisma": "^5.0.0",
+    "@prisma/client": "^5.0.0"
+  }
+}
