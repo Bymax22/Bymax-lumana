@@ -13,7 +13,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminBrandService } from '../services/admin-brand.service';
 import { CloudinaryService } from '../services/cloudinary.service';
-import type { File as MulterFile } from 'multer';
 
 @Controller('admin/brands')
 export class AdminBrandController {
@@ -26,7 +25,7 @@ export class AdminBrandController {
   @UseInterceptors(FileInterceptor('logo'))
   async create(
     @Body() createBrandDto: { name: string; description?: string },
-    @UploadedFile() file?: MulterFile,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     let logoUrl: string | undefined;
     if (file) {
@@ -51,7 +50,7 @@ export class AdminBrandController {
   async update(
     @Param('id') id: string,
     @Body() updateBrandDto: { name?: string; description?: string },
-    @UploadedFile() file?: MulterFile,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     let data: any = { ...updateBrandDto };
     if (file) {

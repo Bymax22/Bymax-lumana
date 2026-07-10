@@ -128,7 +128,7 @@ export default async function HomePage() {
                     <h3 className="mt-3 text-lg font-semibold text-white">{auction.title}</h3>
                     <div className="mt-3 flex items-center justify-between text-sm text-slate-300">
                       <span className="rounded-[14px] bg-[#0d0d0d] px-3 py-1 uppercase text-slate-400">{new Date(auction.endAt).toLocaleTimeString()}</span>
-                      <span className="text-red-400">{auction.currentPrice ? <ConvertedAmount amount={auction.currentPrice} currency="USD" /> : <ConvertedAmount amount={auction.startingPrice} currency="USD" />}</span>
+                      <span className="text-red-400">{auction.currentPrice ? <ConvertedAmount amountUsd={auction.currentPrice} /> : <ConvertedAmount amountUsd={auction.startingPrice} />}</span>
                     </div>
                   </div>
                 </div>

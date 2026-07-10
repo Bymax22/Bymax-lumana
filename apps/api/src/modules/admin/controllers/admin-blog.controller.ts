@@ -13,7 +13,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminBlogService } from '../services/admin-blog.service';
 import { CloudinaryService } from '../services/cloudinary.service';
-import type { File as MulterFile } from 'multer';
 
 @Controller('admin/blogs')
 export class AdminBlogController {
@@ -26,7 +25,7 @@ export class AdminBlogController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body() createBlogDto: { title: string; content: string; authorId: string; status?: string },
-    @UploadedFile() file?: MulterFile,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     let imageUrl: string | undefined;
     if (file) {
@@ -51,7 +50,7 @@ export class AdminBlogController {
   async update(
     @Param('id') id: string,
     @Body() updateBlogDto: any,
-    @UploadedFile() file?: MulterFile,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     let data = { ...updateBlogDto };
     if (file) {
