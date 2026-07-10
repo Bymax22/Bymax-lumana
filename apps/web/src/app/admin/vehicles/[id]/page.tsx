@@ -1,4 +1,4 @@
-import VehicleForm from '../../form';
+import VehicleForm from '../form';
 
 export default function EditVehicle() {
   return <VehicleForm />;
