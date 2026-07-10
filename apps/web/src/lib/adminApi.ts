@@ -8,21 +8,25 @@ function resolveApiBase() {
   if (!/^https?:\/\//i.test(base)) {
     if (base.startsWith('/')) {
       if (typeof window !== 'undefined') return window.location.origin + base;
-      return `https://${base.replace(/^\//, '')}`;
+      return `https://${base.replace(/^\/*/, '')}`;
     }
-    return `https://${base}`;
+    return `https://${base.replace(/^\/*/, '')}`;
   }
 
-  return base.replace(/\/$/, '');
+  return base.replace(/\/*$/, '');
 }
 
 const API_BASE_URL = resolveApiBase();
+
+function buildApiUrl(endpoint: string) {
+  return new URL(endpoint.replace(/^\/*/, ''), `${API_BASE_URL}/`).toString();
+}
 
 export async function adminApi(
   endpoint: string,
   options: RequestInit = {}
 ) {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = buildApiUrl(endpoint);
   const response = await fetch(url, {
     ...options,
     headers: {
