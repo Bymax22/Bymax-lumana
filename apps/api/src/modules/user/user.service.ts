@@ -8,11 +8,34 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.user.findMany({ select: { password: false } });
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        dealerId: true,
+      },
+    });
   }
 
   async findOne(id: string) {
-    return this.prisma.user.findUnique({ where: { id }, select: { password: false } });
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        dealerId: true,
+      },
+    });
   }
 
   async create(data: { email: string; name?: string; role?: UserRole; password?: string }) {
@@ -22,9 +45,18 @@ export class UserService {
         email: data.email,
         name: data.name,
         role: data.role,
-        password
+        password,
       },
-      select: { password: false }
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        dealerId: true,
+      },
     });
   }
 }
