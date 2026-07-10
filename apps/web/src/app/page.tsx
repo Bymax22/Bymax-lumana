@@ -190,7 +190,7 @@ export default async function HomePage() {
                   <div className="h-40 w-full rounded-md bg-[#0d0d0d] bg-center bg-cover" style={{ backgroundImage: v.images?.[0]?.url ? `url(${v.images[0].url})` : undefined }} />
                   <h3 className="mt-3 text-lg font-semibold text-white">{v.make} {v.model}</h3>
                   <p className="text-sm text-slate-400">{v.year}</p>
-                  <div className="mt-2 text-red-400 font-semibold">{v.price ? <ConvertedAmount amount={v.price} currency="USD" /> : 'Contact'}</div>
+                  <div className="mt-2 text-red-400 font-semibold">{v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact'}</div>
                 </Link>
               ))}
             </div>
