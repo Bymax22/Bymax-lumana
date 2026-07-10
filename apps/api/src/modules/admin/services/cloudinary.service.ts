@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
-import type { Multer } from 'multer';
+import type { File as MulterFile } from 'multer';
 
 @Injectable()
 export class CloudinaryService {
@@ -13,7 +13,7 @@ export class CloudinaryService {
   }
 
   async uploadImage(
-    file: Multer.File,
+    file: MulterFile,
     folder: string = 'lumana',
   ): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ export class CloudinaryService {
   }
 
   async uploadMultiple(
-    files: Multer.File[],
+    files: MulterFile[],
     folder: string = 'lumana',
   ): Promise<{ url: string; publicId: string }[]> {
     return Promise.all(files.map((file) => this.uploadImage(file, folder)));

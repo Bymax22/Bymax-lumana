@@ -14,7 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminVehicleService } from '../services/admin-vehicle.service';
 import { CloudinaryService } from '../services/cloudinary.service';
 import { CreateVehicleDto, UpdateVehicleDto } from '../dtos/vehicle.dto';
-import type { Multer } from 'multer';
+import type { File as MulterFile } from 'multer';
 
 @Controller('admin/vehicles')
 export class AdminVehicleController {
@@ -27,7 +27,7 @@ export class AdminVehicleController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @Body() createVehicleDto: CreateVehicleDto,
-    @UploadedFile() file?: Multer.File,
+    @UploadedFile() file?: MulterFile,
   ) {
     let imageUrl = createVehicleDto.imageUrl;
     if (file) {
@@ -52,7 +52,7 @@ export class AdminVehicleController {
   async update(
     @Param('id') id: string,
     @Body() updateVehicleDto: UpdateVehicleDto,
-    @UploadedFile() file?: Multer.File,
+    @UploadedFile() file?: MulterFile,
   ) {
     let data = { ...updateVehicleDto };
     if (file) {
