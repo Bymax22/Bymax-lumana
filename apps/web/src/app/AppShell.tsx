@@ -104,12 +104,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="overflow-hidden bg-yellow-400 px-3 py-2 text-sm text-[#0b0b0b] sm:px-4">
           <div className="mx-auto max-w-[1660px]">
             <div className="relative overflow-hidden">
-              <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap font-medium">
-                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd...........</span>
+              <div className="animate-[marquee_30s_linear_infinite] whitespace-nowrap font-medium">
+                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd.............</span>
                 <span className="mr-12">We are still setting up your premium experience.</span>
                 <span className="mr-12">Order any car from Lumana with just 30% down payment.</span>
                 <span className="mr-12">For more info click to chat with us on WhatsApp +260977635060.</span>
-                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd...........</span>
+                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd.............</span>
                 <span className="mr-12">We are still setting up your premium experience.</span>
                 <span className="mr-12">Order any car from Lumana with just 30% down payment.</span>
                 <span className="mr-12">For more info click to chat with us on WhatsApp +260977635060.</span>
