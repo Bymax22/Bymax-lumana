@@ -1,25 +1,45 @@
+const DEFAULT_TIMEOUT_MS = 5000;
+
 function resolveApiBase() {
-  let base = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!base) {
-    if (typeof window !== 'undefined') return window.location.origin;
+  const configuredBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredBase) {
+    return configuredBase.replace(/\/+$/, '');
+  }
+
+  if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:4000';
   }
 
-  if (!/^https?:\/\//i.test(base)) {
-    if (base.startsWith('/')) {
-      if (typeof window !== 'undefined') return window.location.origin + base;
-      return `https://${base.replace(/^\/*/, '')}`;
-    }
-    return `https://${base.replace(/^\/*/, '')}`;
-  }
-
-  return base.replace(/\/*$/, '');
+  return '';
 }
 
 const API_BASE_URL = resolveApiBase();
 
 function buildApiUrl(endpoint: string) {
-  return new URL(endpoint.replace(/^\/*/, ''), `${API_BASE_URL}/`).toString();
+  const normalizedEndpoint = endpoint.replace(/^\/*/, '');
+  if (!API_BASE_URL) {
+    return normalizedEndpoint ? `/${normalizedEndpoint}` : '/';
+  }
+
+  return new URL(normalizedEndpoint, `${API_BASE_URL}/`).toString();
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function adminApi(
@@ -27,20 +47,23 @@ export async function adminApi(
   options: RequestInit = {}
 ) {
   const url = buildApiUrl(endpoint);
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `API error: ${response.statusText}`);
+  try {
+    const response = await fetchWithTimeout(url, options);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `API error: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('API request timed out');
+    }
+
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function adminApiFormData(
@@ -48,16 +71,25 @@ export async function adminApiFormData(
   formData: FormData,
   options: RequestInit = {}
 ) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const response = await fetch(url, {
-    ...options,
-    body: formData,
-  });
+  const url = buildApiUrl(endpoint);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `API error: ${response.statusText}`);
+  try {
+    const response = await fetchWithTimeout(url, {
+      ...options,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `API error: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('API request timed out');
+    }
+
+    throw error;
   }
-
-  return response.json();
 }
