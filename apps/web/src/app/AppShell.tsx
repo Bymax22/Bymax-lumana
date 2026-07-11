@@ -201,7 +201,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <section className="flex-1 space-y-6">
+        <section className="flex-1 space-y-6 pb-24 lg:pb-0">
           <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <SearchBox />
@@ -217,6 +217,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {children}
         </section>
+
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0b]/95 backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-[1660px] items-center justify-between gap-1 overflow-x-auto px-2 py-2">
+            {navItems.map((item) => {
+              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={item.label}
+                  title={item.label}
+                  className={
+                    'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[16px] px-2 py-2 transition ' +
+                    (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
+                  }
+                >
+                  <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-[14px]">
+                    {item.icon}
+                    {item.badge ? (
+                      <span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white">
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </div>
     </main>
     </CurrencyProvider>
