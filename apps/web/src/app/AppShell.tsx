@@ -101,6 +101,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <CurrencyProvider>
       <main className="min-h-screen bg-[#050505] text-white">
+        <div className="overflow-hidden border-b border-white/10 bg-[#0b0b0b] px-3 py-2 text-sm text-slate-200 sm:px-4">
+          <div className="mx-auto flex max-w-[1660px] items-center gap-3">
+            <span className="rounded-full bg-red-600/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-red-400">Update</span>
+            <div className="relative flex-1 overflow-hidden">
+              <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap">
+                <span className="mr-8">Lumana AutoPlanet is your favorite vehicle hub — we are still setting up your premium experience.</span>
+                <span className="mr-8">Order any car from Lumana with just 30% down payment.</span>
+                <span className="mr-8">For more info click to chat with us on WhatsApp +260977635060.</span>
+                <span className="mr-8">Lumana AutoPlanet is your favorite vehicle hub — we are still setting up your premium experience.</span>
+                <span className="mr-8">Order any car from Lumana with just 30% down payment.</span>
+                <span className="mr-8">For more info click to chat with us on WhatsApp +260977635060.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
           <div className="flex items-center gap-3 rounded-[22px] bg-[#101010] px-4 py-4">
@@ -213,7 +229,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 h-full w-[82vw] max-w-[280px] transform overflow-y-auto rounded-r-[30px] border-r border-white/10 bg-[#0b0b0b] p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <nav className={`fixed left-0 top-0 z-50 h-full w-[74vw] max-w-[240px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-red-600 text-sm font-bold text-white">L</div>
@@ -227,7 +243,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
 
-            <div className="mt-4 space-y-1">
+            <div className="mt-4 space-y-1.5">
               {navItems.map((item) => {
                 const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                 return (
@@ -236,11 +252,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     onClick={() => setMobileNavOpen(false)}
                     className={
-                      'flex items-center gap-3 rounded-[18px] px-3 py-3 text-sm transition ' +
+                      'flex items-center gap-2.5 rounded-[16px] px-2.5 py-2.5 text-sm transition ' +
                       (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
                     }
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-white/5 text-red-400">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-[12px] text-red-400">
                       {item.icon}
                     </span>
                     <span className="flex-1 font-medium">{item.label}</span>
