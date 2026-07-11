@@ -101,17 +101,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <CurrencyProvider>
       <main className="min-h-screen bg-[#050505] text-white">
-        <div className="overflow-hidden border-b border-white/10 bg-[#0b0b0b] px-3 py-2 text-sm text-slate-200 sm:px-4">
-          <div className="mx-auto flex max-w-[1660px] items-center gap-3">
-            <span className="rounded-full bg-red-600/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-red-400">Update</span>
-            <div className="relative flex-1 overflow-hidden">
-              <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap">
-                <span className="mr-8">Lumana AutoPlanet is your favorite vehicle hub — we are still setting up your premium experience.</span>
-                <span className="mr-8">Order any car from Lumana with just 30% down payment.</span>
-                <span className="mr-8">For more info click to chat with us on WhatsApp +260977635060.</span>
-                <span className="mr-8">Lumana AutoPlanet is your favorite vehicle hub — we are still setting up your premium experience.</span>
-                <span className="mr-8">Order any car from Lumana with just 30% down payment.</span>
-                <span className="mr-8">For more info click to chat with us on WhatsApp +260977635060.</span>
+        <div className="overflow-hidden bg-yellow-400 px-3 py-2 text-sm text-[#0b0b0b] sm:px-4">
+          <div className="mx-auto max-w-[1660px]">
+            <div className="relative overflow-hidden">
+              <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap font-medium">
+                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd...........</span>
+                <span className="mr-12">We are still setting up your premium experience.</span>
+                <span className="mr-12">Order any car from Lumana with just 30% down payment.</span>
+                <span className="mr-12">For more info click to chat with us on WhatsApp +260977635060.</span>
+                <span className="mr-12">Lumana AutoPlanet by Lumana Investment Ltd...........</span>
+                <span className="mr-12">We are still setting up your premium experience.</span>
+                <span className="mr-12">Order any car from Lumana with just 30% down payment.</span>
+                <span className="mr-12">For more info click to chat with us on WhatsApp +260977635060.</span>
               </div>
             </div>
           </div>
