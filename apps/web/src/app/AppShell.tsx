@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown, Menu, X } from 'lucide-react';
 import { CurrencyProvider, useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 
 const navItems = [
@@ -92,6 +92,8 @@ const navItems = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   if (pathname.startsWith('/admin')) {
     return <>{children}</>;
   }
@@ -202,38 +204,76 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="flex flex-1 gap-3">
-          <nav className="flex w-14 shrink-0 flex-col items-center gap-2 rounded-[22px] bg-[#0b0b0b] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] lg:hidden">
-            <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-[16px] bg-red-600 text-sm font-bold text-white">L</div>
-            {navItems.map((item) => {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-label={item.label}
-                  title={item.label}
-                  className={
-                    'flex min-h-11 min-w-11 items-center justify-center rounded-[16px] p-2 transition ' +
-                    (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
-                  }
-                >
-                  <span className="relative inline-flex h-6 w-6 items-center justify-center">
-                    {item.icon}
+          {mobileNavOpen ? (
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={() => setMobileNavOpen(false)}
+              className="fixed inset-0 z-40 bg-black/55 backdrop-blur-[1px] lg:hidden"
+            />
+          ) : null}
+
+          <nav className={`fixed left-0 top-0 z-50 h-full w-[82vw] max-w-[280px] transform overflow-y-auto rounded-r-[30px] border-r border-white/10 bg-[#0b0b0b] p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-red-600 text-sm font-bold text-white">L</div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Lumana</p>
+                  <p className="text-sm font-semibold text-white">AutoPlanet</p>
+                </div>
+              </div>
+              <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-white/5 text-slate-200">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-1">
+              {navItems.map((item) => {
+                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={
+                      'flex items-center gap-3 rounded-[18px] px-3 py-3 text-sm transition ' +
+                      (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
+                    }
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-white/5 text-red-400">
+                      {item.icon}
+                    </span>
+                    <span className="flex-1 font-medium">{item.label}</span>
                     {item.badge ? (
-                      <span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1 py-0.5 text-[8px] font-semibold uppercase text-white">
+                      <span className="rounded-[12px] bg-red-600 px-2 py-1 text-[10px] font-semibold uppercase text-white">
                         {item.badge}
                       </span>
                     ) : null}
-                  </span>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-[20px] bg-[#101010] p-4 text-sm text-slate-300">
+              <p className="text-sm uppercase text-yellow-400">Need Help?</p>
+              <p className="mt-2">Our support team is ready to assist you 24/7.</p>
+            </div>
           </nav>
 
           <section className="flex-1 space-y-6 pb-24 lg:pb-0">
             <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  aria-label="Open navigation"
+                  onClick={() => setMobileNavOpen(true)}
+                  className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#121212] text-slate-100 lg:hidden"
+                >
+                  {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
                 <SearchBox />
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <CurrencySwitcher />
                 <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300">♡</button>
