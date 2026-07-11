@@ -99,7 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <CurrencyProvider>
       <main className="min-h-screen bg-[#050505] text-white">
-        <div className="mx-auto flex min-h-screen max-w-[1660px] gap-6 px-4 py-6 lg:px-8">
+        <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
           <div className="flex items-center gap-3 rounded-[22px] bg-[#101010] px-4 py-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-red-600 text-white">L</div>
@@ -201,8 +201,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <section className="flex-1 space-y-6 pb-24 lg:pb-0">
-          <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
+        <div className="flex flex-1 gap-3">
+          <nav className="flex w-14 shrink-0 flex-col items-center gap-2 rounded-[22px] bg-[#0b0b0b] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.35)] lg:hidden">
+            <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-[16px] bg-red-600 text-sm font-bold text-white">L</div>
+            {navItems.map((item) => {
+              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={item.label}
+                  title={item.label}
+                  className={
+                    'flex min-h-11 min-w-11 items-center justify-center rounded-[16px] p-2 transition ' +
+                    (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
+                  }
+                >
+                  <span className="relative inline-flex h-6 w-6 items-center justify-center">
+                    {item.icon}
+                    {item.badge ? (
+                      <span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1 py-0.5 text-[8px] font-semibold uppercase text-white">
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <section className="flex-1 space-y-6 pb-24 lg:pb-0">
+            <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <SearchBox />
               <div className="flex flex-wrap items-center gap-2">
@@ -215,37 +244,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {children}
-        </section>
-
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0b0b0b]/95 backdrop-blur lg:hidden">
-          <div className="mx-auto flex max-w-[1660px] items-center justify-between gap-1 overflow-x-auto px-2 py-2">
-            {navItems.map((item) => {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-label={item.label}
-                  title={item.label}
-                  className={
-                    'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[16px] px-2 py-2 transition ' +
-                    (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
-                  }
-                >
-                  <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-[14px]">
-                    {item.icon}
-                    {item.badge ? (
-                      <span className="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white">
-                        {item.badge}
-                      </span>
-                    ) : null}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+            {children}
+          </section>
+        </div>
       </div>
     </main>
     </CurrencyProvider>
