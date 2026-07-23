@@ -7,7 +7,7 @@ export default async function HomePage() {
     publicApi('/vehicles').catch(() => []),
     publicApi('/auctions').catch(() => []),
     publicApi('/dealers').catch(() => []),
-    publicApi('/admin/brands?take=8').catch(() => []),
+    publicApi('/brands?take=8').catch(() => []),
   ]);
 
   // stats and computed lists

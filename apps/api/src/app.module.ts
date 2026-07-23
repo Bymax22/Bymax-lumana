@@ -12,6 +12,7 @@ import { PaymentModule } from "./modules/payment/payment.module";
 import { NotificationModule } from "./modules/notification/notification.module";
 import { ReportingModule } from "./modules/reporting/reporting.module";
 import { AdminModule } from "./modules/admin/admin.module";
+import { BrandModule } from "./modules/brand/brand.module";
 import { HealthModule } from "./modules/health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
@@ -31,6 +32,7 @@ import { PrismaModule } from "./prisma/prisma.module";
     NotificationModule,
     ReportingModule,
     AdminModule,
+    BrandModule,
     HealthModule,
   ]
 })

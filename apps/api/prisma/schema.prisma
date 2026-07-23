@@ -27,6 +27,7 @@ model User {
   notifications          Notification[]
   payments               Payment[]
   sessions               Session[]
+  passwordResets         PasswordReset[]
   supportMessages        SupportMessage[]
   assignedSupportTickets SupportTicket[]      @relation("assignedSupport")
   supportTickets         SupportTicket[]
@@ -40,6 +41,17 @@ model Session {
   createdAt    DateTime @default(now())
   expiresAt    DateTime
   user         User     @relation(fields: [userId], references: [id])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Dealer {
