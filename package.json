@@ -1,7 +1,7 @@
 {
   "name": "lumana-autoplanet",
   "private": true,
-  "packageManager": "npm@latest",
+  "packageManager": "npm@11.13.0",
   "workspaces": [
     "apps/*"
   ],
