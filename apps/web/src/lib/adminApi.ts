@@ -30,6 +30,7 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
 
   try {
     return await fetch(url, {
+      cache: 'no-store',
       ...options,
       headers: {
         'Content-Type': 'application/json',

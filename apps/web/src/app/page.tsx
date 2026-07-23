@@ -207,18 +207,34 @@ export default async function HomePage() {
             <span className="text-sm text-slate-300">Top</span>
           </div>
           <div className="mt-6 space-y-4">
-            {(popularBrands || []).slice(0,6).map((b: any) => (
-              <div key={b.id || b.name || b} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">{(b.name || b).charAt(0)}</div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{b.name || b.name || b}</p>
-                    <p className="text-[11px] text-slate-500">{b.count ? `${b.count} Vehicles` : ''}</p>
+            {(popularBrands || []).slice(0,6).map((b: any) => {
+              const logoUrl = b.logoUrl?.trim();
+              const title = b.name || b.name || b;
+              return (
+                <div key={b.id || title || b} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-11 w-11 overflow-hidden rounded-full bg-red-600 text-sm font-bold text-white flex items-center justify-center">
+                      {!logoUrl && <span>{String(title).charAt(0)}</span>}
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt={`${title} logo`}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          onError={(event) => {
+                            (event.currentTarget as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{title}</p>
+                      <p className="text-[11px] text-slate-500">{b.count ? `${b.count} Vehicles` : ''}</p>
+                    </div>
                   </div>
+                  <span className="text-xs text-red-400">›</span>
                 </div>
-                <span className="text-xs text-red-400">›</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <Link href="/dealers" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
         </div>

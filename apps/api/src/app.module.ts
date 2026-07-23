@@ -12,6 +12,7 @@ import { PaymentModule } from "./modules/payment/payment.module";
 import { NotificationModule } from "./modules/notification/notification.module";
 import { ReportingModule } from "./modules/reporting/reporting.module";
 import { AdminModule } from "./modules/admin/admin.module";
+import { HealthModule } from "./modules/health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
@@ -29,7 +30,8 @@ import { PrismaModule } from "./prisma/prisma.module";
     PaymentModule,
     NotificationModule,
     ReportingModule,
-    AdminModule
+    AdminModule,
+    HealthModule,
   ]
 })
 export class AppModule {}

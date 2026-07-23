@@ -12,6 +12,25 @@ interface Brand {
   createdAt: string;
 }
 
+const renderBrandLogo = (brand: Brand) => {
+  const logo = brand.logoUrl?.trim();
+  return (
+    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-gray-200 text-sm text-gray-600 flex items-center justify-center">
+      <span>{brand.name.charAt(0)}</span>
+      {logo ? (
+        <img
+          src={logo}
+          alt={`${brand.name} logo`}
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={(event) => {
+            (event.currentTarget as HTMLImageElement).style.display = 'none';
+          }}
+        />
+      ) : null}
+    </div>
+  );
+};
+
 export default function AdminBrands() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,6 +150,7 @@ export default function AdminBrands() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Logo</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Description</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
@@ -139,6 +159,7 @@ export default function AdminBrands() {
             <tbody>
               {brands.map((brand) => (
                 <tr key={brand.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">{renderBrandLogo(brand)}</td>
                   <td className="px-6 py-4 font-medium">{brand.name}</td>
                   <td className="px-6 py-4 text-gray-600">
                     {brand.description || '-'}
