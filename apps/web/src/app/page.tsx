@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 import ConvertedAmount from '@/components/ConvertedAmount';
 import { publicApi } from '@/lib/publicApi';
 
@@ -251,19 +252,7 @@ export default async function HomePage() {
               return (
                 <div key={b.id || title || b} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative h-11 w-11 overflow-hidden rounded-full bg-red-600 text-sm font-bold text-white flex items-center justify-center">
-                      {!logoUrl && <span>{String(title).charAt(0)}</span>}
-                      {logoUrl ? (
-                        <img
-                          src={logoUrl}
-                          alt={`${title} logo`}
-                          className="absolute inset-0 h-full w-full object-cover"
-                          onError={(event) => {
-                            (event.currentTarget as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      ) : null}
-                    </div>
+                    <BrandLogo title={String(title)} logoUrl={logoUrl} />
                     <div>
                       <p className="text-sm font-semibold text-white">{title}</p>
                       <p className="text-[11px] text-slate-500">{b.count ? `${b.count} Vehicles` : ''}</p>
