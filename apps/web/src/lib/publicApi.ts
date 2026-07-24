@@ -1,27 +1,32 @@
 const DEFAULT_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 20000);
 
-function resolveApiBase() {
-  const configuredBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+export function resolveApiBase() {
+  const configuredBase = [process.env.NEXT_PUBLIC_API_BASE_URL, process.env.NEXT_PUBLIC_API_URL]
+    .map((value) => value?.trim())
+    .find((value) => Boolean(value));
+
   if (configuredBase) {
     return configuredBase.replace(/\/+$/, '');
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:4000';
-  }
-
-  return '';
+  return '/api';
 }
 
 const API_BASE_URL = resolveApiBase();
 
-function buildApiUrl(endpoint: string) {
+export function buildApiUrl(endpoint: string, apiBaseUrl = API_BASE_URL) {
   const normalizedEndpoint = endpoint.replace(/^\/*/, '');
-  if (!API_BASE_URL) {
+  const normalizedBase = apiBaseUrl?.trim().replace(/\/+$/, '');
+
+  if (!normalizedBase) {
     return normalizedEndpoint ? `/${normalizedEndpoint}` : '/';
   }
 
-  return new URL(normalizedEndpoint, `${API_BASE_URL}/`).toString();
+  if (normalizedBase.startsWith('http://') || normalizedBase.startsWith('https://')) {
+    return normalizedEndpoint ? new URL(normalizedEndpoint, `${normalizedBase}/`).toString() : normalizedBase;
+  }
+
+  return normalizedEndpoint ? `${normalizedBase}/${normalizedEndpoint}` : normalizedBase;
 }
 
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
@@ -56,6 +61,10 @@ export async function publicApi<T = any>(endpoint: string, options: RequestInit 
 
     return response.json() as Promise<T>;
   } catch (error) {
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error('Unable to reach the API service. Please verify the API URL and network connection.');
+    }
+
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('API request timed out');
     }
