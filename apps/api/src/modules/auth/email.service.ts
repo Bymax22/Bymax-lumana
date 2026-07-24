@@ -53,13 +53,4 @@ export async function sendBrevoMail({ to, name, subject, html }: SendMailOptions
   } finally {
     clearTimeout(timeout);
   }
-
-
-  if (!response.ok) {
-    const text = await response.text();
-    console.error('Brevo email send failed:', response.status, text);
-    return { ok: false, skipped: false, status: response.status, error: text };
-  }
-
-  return { ok: true, skipped: false };
 }
