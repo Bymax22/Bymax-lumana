@@ -2,13 +2,40 @@ import Link from 'next/link';
 import ConvertedAmount from '@/components/ConvertedAmount';
 import { publicApi } from '@/lib/publicApi';
 
-export default async function HomePage() {
-  const [vehicles, auctions, dealers, brands] = await Promise.all([
-    publicApi('/vehicles').catch(() => []),
-    publicApi('/auctions').catch(() => []),
-    publicApi('/dealers').catch(() => []),
-    publicApi('/brands?take=8').catch(() => []),
+function normalizeArrayPayload(payload: unknown): any[] {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as Record<string, unknown>;
+    const nested = candidate.data ?? candidate.items ?? candidate.results;
+    if (Array.isArray(nested)) {
+      return nested;
+    }
+  }
+
+  return [];
+}
+
+async function loadHomePageData() {
+  const settled = await Promise.allSettled([
+    publicApi('/vehicles'),
+    publicApi('/auctions'),
+    publicApi('/dealers'),
+    publicApi('/brands?take=8'),
   ]);
+
+  return {
+    vehicles: normalizeArrayPayload(settled[0].status === 'fulfilled' ? settled[0].value : undefined),
+    auctions: normalizeArrayPayload(settled[1].status === 'fulfilled' ? settled[1].value : undefined),
+    dealers: normalizeArrayPayload(settled[2].status === 'fulfilled' ? settled[2].value : undefined),
+    brands: normalizeArrayPayload(settled[3].status === 'fulfilled' ? settled[3].value : undefined),
+  };
+}
+
+export default async function HomePage() {
+  const { vehicles, auctions, dealers, brands } = await loadHomePageData();
 
   // stats and computed lists
   const stats = {
@@ -116,28 +143,39 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 space-y-4">
-            {liveList.map((auction: any) => (
-              <div key={auction.id} className="rounded-[20px] bg-[#121212] p-4">
-                <div className="flex items-start gap-4">
-                  <div className="h-20 w-28 rounded-[20px] bg-[#0d0d0d]" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 text-[11px] uppercase text-slate-500">
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-[14px] bg-red-600/10 text-red-300">●</span>
-                      <span>{auction.vehicle?.make ?? 'Auction'}</span>
-                    </div>
-                    <h3 className="mt-3 text-lg font-semibold text-white">{auction.title}</h3>
-                    <div className="mt-3 flex items-center justify-between text-sm text-slate-300">
-                      <span className="rounded-[14px] bg-[#0d0d0d] px-3 py-1 uppercase text-slate-400">{new Date(auction.endAt).toLocaleTimeString()}</span>
-                      <span className="text-red-400">{auction.currentPrice ? <ConvertedAmount amountUsd={auction.currentPrice} /> : <ConvertedAmount amountUsd={auction.startingPrice} />}</span>
+            {liveList.map((auction: any) => {
+              const auctionTitle = typeof auction?.title === 'string' ? auction.title : 'Live auction';
+              const auctionTime = (() => {
+                try {
+                  return auction?.endAt ? new Date(auction.endAt).toLocaleTimeString() : 'TBD';
+                } catch {
+                  return 'TBD';
+                }
+              })();
+
+              return (
+                <div key={auction.id ?? auctionTitle} className="rounded-[20px] bg-[#121212] p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="h-20 w-28 rounded-[20px] bg-[#0d0d0d]" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 text-[11px] uppercase text-slate-500">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-[14px] bg-red-600/10 text-red-300">●</span>
+                        <span>{auction?.vehicle?.make ?? 'Auction'}</span>
+                      </div>
+                      <h3 className="mt-3 text-lg font-semibold text-white">{auctionTitle}</h3>
+                      <div className="mt-3 flex items-center justify-between text-sm text-slate-300">
+                        <span className="rounded-[14px] bg-[#0d0d0d] px-3 py-1 uppercase text-slate-400">{auctionTime}</span>
+                        <span className="text-red-400">{auction?.currentPrice ? <ConvertedAmount amountUsd={auction.currentPrice} /> : <ConvertedAmount amountUsd={auction?.startingPrice ?? 0} />}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs uppercase text-slate-500">{auctionTitle}</span>
+                    <Link href="/auctions" className="rounded-[18px] bg-red-600 px-4 py-1 text-xs font-semibold uppercase text-white">Place Bid</Link>
+                  </div>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs uppercase text-slate-500">{auction.title}</span>
-                  <Link href="/auctions" className="rounded-[18px] bg-red-600 px-4 py-1 text-xs font-semibold uppercase text-white">Place Bid</Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
