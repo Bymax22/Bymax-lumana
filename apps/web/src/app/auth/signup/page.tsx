@@ -34,9 +34,9 @@ export default function SignupPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed.';
       if (message.includes('timed out')) {
-        setError('The signup service is taking longer than expected. Please try again in a moment.');
+        setError('The signup service is taking longer than expected. Please try again in a moment. If the problem persists, check the API logs for the registration request.');
       } else {
-        setError(message);
+        setError(message || 'Signup failed. Please try again.');
       }
     } finally {
       setLoading(false);
