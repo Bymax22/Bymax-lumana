@@ -1,4 +1,4 @@
-const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 20000);
 
 function resolveApiBase() {
   const configuredBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();

@@ -31,7 +31,12 @@ export default function SignupPage() {
       setSuccess('Account created successfully. Redirecting to login...');
       setTimeout(() => router.push('/auth/login'), 900);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed.');
+      const message = err instanceof Error ? err.message : 'Signup failed.';
+      if (message.includes('timed out')) {
+        setError('The signup service is taking longer than expected. Please try again in a moment.');
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }

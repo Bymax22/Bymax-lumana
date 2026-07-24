@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, ChevronDown, Menu, X } from 'lucide-react';
 import { CurrencyProvider, useCurrency, CurrencyCode } from '@/context/CurrencyContext';
+import { publicApi } from '@/lib/publicApi';
 
 const navItems = [
   { href: '/', label: 'Home', badge: null, icon: (
@@ -90,9 +91,45 @@ const navItems = [
     ) },
 ];
 
+function normalizeBrandPayload(payload: unknown) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as Record<string, unknown>;
+    const nested = candidate.data ?? candidate.items ?? candidate.results;
+    if (Array.isArray(nested)) {
+      return nested;
+    }
+  }
+
+  return [];
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [popularBrands, setPopularBrands] = useState<any[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    publicApi('/brands?take=6')
+      .then((response) => {
+        if (!active) return;
+        setPopularBrands(normalizeBrandPayload(response));
+      })
+      .catch(() => {
+        if (active) {
+          setPopularBrands([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (pathname.startsWith('/admin')) {
     return <>{children}</>;
@@ -105,11 +142,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mx-auto max-w-[1660px]">
             <div className="relative overflow-hidden">
               <div className="animate-[marquee_50s_linear_infinite] whitespace-nowrap font-medium">
-                <span className="mr-16">Lumana AutoPlanet by Lumana Investment Ltd.............</span>
+                <span className="mr-16">Lumana AutoPlanet by Lumana Investment Ltd is under development</span>
                 <span className="mr-16">We are still setting up your premium experience.</span>
                 <span className="mr-16">Order any car from Lumana with just 30% down payment.</span>
                 <span className="mr-16">For more info click to chat with us on WhatsApp +260977635060.</span>
-                <span className="mr-16">Lumana AutoPlanet by Lumana Investment Ltd.............</span>
                 <span className="mr-16">We are still setting up your premium experience.</span>
                 <span className="mr-16">Order any car from Lumana with just 30% down payment.</span>
                 <span className="mr-16">For more info click to chat with us on WhatsApp +260977635060.</span>
@@ -168,26 +204,36 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
             <h2 className="text-sm uppercase text-slate-400">Popular Brands</h2>
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">T</div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">Toyota</p>
-                    <p className="text-[11px] text-slate-500">12,458 Vehicles</p>
-                  </div>
+              {popularBrands.length > 0 ? (
+                popularBrands.slice(0, 4).map((brand: any) => {
+                  const logoUrl = typeof brand?.logoUrl === 'string' ? brand.logoUrl.trim() : '';
+                  const title = brand?.name || brand?.brand?.name || 'Brand';
+                  const countText = brand?.vehicleCount ? `${brand.vehicleCount} Vehicles` : '';
+
+                  return (
+                    <div key={brand?.id || title} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-red-600 text-sm font-bold text-white">
+                          {!logoUrl ? (
+                            <span>{String(title).charAt(0).toUpperCase()}</span>
+                          ) : (
+                            <img src={logoUrl} alt={`${title} logo`} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">{title}</p>
+                          {countText ? <p className="text-[11px] text-slate-500">{countText}</p> : null}
+                        </div>
+                      </div>
+                      <span className="text-xs text-red-400">›</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="rounded-[18px] bg-[#121212] px-4 py-3 text-sm text-slate-400">
+                  No brands available right now.
                 </div>
-                <span className="text-xs text-red-400">›</span>
-              </div>
-              <div className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">N</div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">Nissan</p>
-                    <p className="text-[11px] text-slate-500">8,256 Vehicles</p>
-                  </div>
-                </div>
-                <span className="text-xs text-red-400">›</span>
-              </div>
+              )}
             </div>
             <Link href="/dealers" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
           </div>
