@@ -86,7 +86,9 @@ export class AuthService {
     const verificationToken = `verify_${randomBytes(20).toString('hex')}`;
     const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await this.createChallenge(user.id, verificationToken, verificationExpiresAt);
-    await this.sendVerificationEmail(email, user.name || undefined, verificationToken);
+    void this.sendVerificationEmail(email, user.name || undefined, verificationToken).catch((error) => {
+      console.error('Failed to send verification email:', error);
+    });
 
     return {
       message: 'Account created successfully. Please verify your email before continuing.',
@@ -116,7 +118,9 @@ export class AuthService {
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.createChallenge(user.id, otpToken, otpExpiresAt);
-    await this.sendLoginOtp(email, user.name || undefined, otpCode);
+    void this.sendLoginOtp(email, user.name || undefined, otpCode).catch((error) => {
+      console.error('Failed to send login OTP email:', error);
+    });
 
     return {
       message: 'A verification code has been sent to your email.',
