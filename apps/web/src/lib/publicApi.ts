@@ -43,11 +43,11 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
   }
 }
 
-export async function publicApi<T = any>(endpoint: string, options: RequestInit = {}) {
+export async function publicApi<T = any>(endpoint: string, options: RequestInit = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
   const url = buildApiUrl(endpoint);
 
   try {
-    const response = await fetchWithTimeout(url, options);
+    const response = await fetchWithTimeout(url, options, timeoutMs);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));

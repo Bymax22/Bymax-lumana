@@ -32,11 +32,13 @@ export interface AuthVerifyLoginOtpData {
 }
 
 export async function authRegister(data: AuthRegisterData) {
-  return publicApi('/auth/register', { method: 'POST', body: JSON.stringify(data) });
+  // registration may trigger external email send; allow longer timeout
+  return publicApi('/auth/register', { method: 'POST', body: JSON.stringify(data) }, 15000);
 }
 
 export async function authLogin(data: AuthLoginData) {
-  return publicApi('/auth/login', { method: 'POST', body: JSON.stringify(data) });
+  // login triggers OTP email; allow longer timeout
+  return publicApi('/auth/login', { method: 'POST', body: JSON.stringify(data) }, 15000);
 }
 
 export async function authForgotPassword(data: AuthForgotPasswordData) {
