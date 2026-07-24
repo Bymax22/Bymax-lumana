@@ -21,6 +21,16 @@ export interface AuthResetPasswordData {
   password: string;
 }
 
+export interface AuthVerifyEmailData {
+  email: string;
+  token: string;
+}
+
+export interface AuthVerifyLoginOtpData {
+  email: string;
+  token: string;
+}
+
 export async function authRegister(data: AuthRegisterData) {
   return publicApi('/auth/register', { method: 'POST', body: JSON.stringify(data) });
 }
@@ -35,4 +45,12 @@ export async function authForgotPassword(data: AuthForgotPasswordData) {
 
 export async function authResetPassword(data: AuthResetPasswordData) {
   return publicApi('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function authVerifyEmail(data: AuthVerifyEmailData) {
+  return publicApi('/auth/verify-email', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export async function authVerifyLoginOtp(data: AuthVerifyLoginOtpData) {
+  return publicApi('/auth/verify-login-otp', { method: 'POST', body: JSON.stringify(data) });
 }

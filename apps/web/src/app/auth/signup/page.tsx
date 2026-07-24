@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authRegister } from '@/lib/authApi';
 
@@ -18,7 +17,6 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,9 +25,12 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await authRegister({ name, email, password, role });
-      setSuccess('Account created successfully. Redirecting to login...');
-      setTimeout(() => router.push('/auth/login'), 900);
+      const data = await authRegister({ name, email, password, role });
+      if (data?.requiresVerification) {
+        setSuccess('Account created. Please check your email and verify your account before continuing.');
+      } else {
+        setSuccess('Account created successfully. You can sign in now.');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed.';
       if (message.includes('timed out')) {

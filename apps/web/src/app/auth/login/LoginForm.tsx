@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { authLogin } from '@/lib/authApi';
+import { authLogin, authVerifyLoginOtp } from '@/lib/authApi';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpRequired, setOtpRequired] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,8 +23,28 @@ export function LoginForm() {
     setLoading(true);
 
     try {
+      if (otpRequired) {
+        const data = await authVerifyLoginOtp({ email, token: otpCode });
+        try {
+          if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
+          if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+        } catch (e) {
+          // ignore storage errors
+        }
+
+        setSuccess('Logged in successfully. Redirecting...');
+        const next = searchParams.get('next') || '/';
+        setTimeout(() => router.push(next), 400);
+        return;
+      }
+
       const data = await authLogin({ email, password });
-      // store user and tokens locally for client auth guard
+      if (data?.requiresOtp) {
+        setOtpRequired(true);
+        setSuccess('We sent a verification code to your email. Enter it below to finish signing in.');
+        return;
+      }
+
       try {
         if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
         if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
@@ -79,12 +101,26 @@ export function LoginForm() {
             <p>New here? <Link href="/auth/signup" className="text-yellow-400 hover:text-yellow-300">Create account</Link></p>
           </div>
 
+          {otpRequired ? (
+            <label className="block text-sm text-slate-300">
+              Verification Code
+              <input
+                type="text"
+                value={otpCode}
+                onChange={(event) => setOtpCode(event.target.value)}
+                required
+                placeholder="Enter the code from your email"
+                className="mt-2 w-full rounded-[16px] border border-[#272727] bg-[#101010] px-4 py-3 text-white outline-none transition focus:border-red-500"
+              />
+            </label>
+          ) : null}
+
           <button
             type="submit"
             disabled={loading}
             className="mt-4 w-full rounded-[18px] bg-red-600 px-5 py-4 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Signing in...' : otpRequired ? 'Verify code' : 'Sign in'}
           </button>
         </form>
 
