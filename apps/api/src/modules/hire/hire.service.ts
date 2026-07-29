@@ -116,6 +116,7 @@ export class HireService {
   // ==================== RENTAL BOOKING MANAGEMENT ====================
 
   async createRentalBooking(dto: CreateRentalBookingDto) {
+    const { paymentMethod, ...bookingPayload } = dto;
     const vehicle = await this.prisma.rentalVehicle.findUnique({
       where: { id: dto.rentalVehicleId },
     });
@@ -154,10 +155,11 @@ export class HireService {
     }
 
     const bookingRef = `RENT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const paymentStatus = ['BANK_TRANSFER', 'CASH'].includes(dto.paymentMethod || '') ? 'PENDING' : 'COMPLETED';
 
-    return this.prisma.rentalBooking.create({
+    const booking = await this.prisma.rentalBooking.create({
       data: {
-        ...dto,
+        ...bookingPayload,
         bookingRef,
         totalPrice,
         status: 'PENDING',
@@ -168,6 +170,26 @@ export class HireService {
         insurance: true,
       },
     });
+
+    if (dto.paymentMethod) {
+      await this.prisma.payment.create({
+        data: {
+          userId: dto.userId,
+          amount: totalPrice,
+          currency: 'USD',
+          provider: dto.paymentMethod,
+          providerRef: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          status: paymentStatus as $Enums.PaymentStatus,
+          rentalBookingId: booking.id,
+          metadata: {
+            paymentMethod: dto.paymentMethod,
+            rentalVehicleId: dto.rentalVehicleId,
+          },
+        },
+      });
+    }
+
+    return booking;
   }
 
   async getRentalBookings(userId?: string, skip = 0, take = 10) {

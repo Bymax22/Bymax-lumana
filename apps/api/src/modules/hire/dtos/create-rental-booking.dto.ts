@@ -6,6 +6,7 @@ export class CreateRentalBookingDto {
   pickupLocation!: string;
   returnLocation!: string;
   insurancePlanId?: string;
+  paymentMethod?: 'AIRTEL_MONEY' | 'MTN_MONEY' | 'MASTERCARD' | 'BANK_TRANSFER' | 'CASH';
   notes?: string;
   metadata?: Record<string, any>;
 }

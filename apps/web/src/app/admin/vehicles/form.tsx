@@ -76,8 +76,8 @@ export default function VehicleForm() {
         brandId: data.brandId || '',
         categoryId: data.categoryId || '',
       });
-      if (data.imageUrl) {
-        setPreview(data.imageUrl);
+      if (data.images?.[0]?.url || data.imageUrl) {
+        setPreview(data.images?.[0]?.url || data.imageUrl);
       }
     } catch (err) {
       setError('Failed to load vehicle');

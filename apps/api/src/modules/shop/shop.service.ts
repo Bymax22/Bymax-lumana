@@ -346,6 +346,7 @@ export class ShopService {
   // ==================== ORDERS ====================
 
   async createOrder(dto: CreateOrderDto) {
+    const { paymentMethod, ...orderPayload } = dto;
     const cart = await this.getOrCreateCart(dto.userId);
 
     if (cart.items.length === 0) {
@@ -376,16 +377,38 @@ export class ShopService {
       data: {
         orderRef,
         userId: dto.userId,
-        shippingAddress: dto.shippingAddress,
-        notes: dto.notes,
+        shippingAddress: orderPayload.shippingAddress,
+        notes: orderPayload.notes,
         subtotal,
         tax,
         shippingCost,
         totalAmount,
         status: 'PENDING',
-        paymentStatus: 'PENDING',
+        paymentStatus: ['BANK_TRANSFER', 'CASH'].includes(paymentMethod || '') ? 'PENDING' : 'COMPLETED',
       },
     });
+
+    if (dto.paymentMethod) {
+      await this.prisma.payment.create({
+        data: {
+          userId: dto.userId,
+          amount: totalAmount,
+          currency: 'USD',
+          provider: dto.paymentMethod,
+          providerRef: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          status: ['BANK_TRANSFER', 'CASH'].includes(dto.paymentMethod) ? 'PENDING' : 'COMPLETED',
+          orderId: order.id,
+          metadata: {
+            paymentMethod: dto.paymentMethod,
+            items: cart.items.map((item) => ({
+              productId: item.product.id,
+              quantity: item.quantity,
+              price: item.product.price,
+            })),
+          },
+        },
+      });
+    }
 
     // Create order items and update stock
     for (const cartItem of cart.items) {

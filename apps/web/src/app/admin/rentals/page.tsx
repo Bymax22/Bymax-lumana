@@ -38,6 +38,7 @@ export default function RentalsAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [form, setForm] = useState({
     make: '',
     model: '',
@@ -76,26 +77,25 @@ export default function RentalsAdminPage() {
     setMessage(null);
 
     try {
-      const payload = {
-        vin: `VIN-${Date.now()}`,
-        make: form.make,
-        model: form.model,
-        year: Number(form.year),
-        mileage: 0,
-        licensePlate: form.licensePlate,
-        basePrice: Number(form.basePrice),
-        insuranceIncluded: true,
-        images: ['https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80'],
-        description: form.description,
-        location: form.location,
-        fuelType: 'Petrol',
-        transmission: 'Automatic',
-        seatingCapacity: 5,
-      };
+      const formData = new FormData();
+      formData.append('vin', `VIN-${Date.now()}`);
+      formData.append('make', form.make);
+      formData.append('model', form.model);
+      formData.append('year', String(Number(form.year)));
+      formData.append('mileage', '0');
+      formData.append('licensePlate', form.licensePlate);
+      formData.append('basePrice', String(Number(form.basePrice)));
+      formData.append('insuranceIncluded', 'true');
+      formData.append('description', form.description);
+      formData.append('location', form.location);
+      formData.append('fuelType', 'Petrol');
+      formData.append('transmission', 'Automatic');
+      formData.append('seatingCapacity', '5');
+      images.forEach((image) => formData.append('images', image));
 
       const created = await publicApi('/hire/vehicles', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       setVehicles((current) => [created, ...current]);
@@ -108,6 +108,7 @@ export default function RentalsAdminPage() {
         licensePlate: '',
         description: '',
       });
+      setImages([]);
       setMessage('Rental vehicle created successfully.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to create rental vehicle.');
@@ -168,6 +169,7 @@ export default function RentalsAdminPage() {
                 <input value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Location" required />
               </div>
               <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="min-h-[100px] w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Description" />
+              <input type="file" multiple accept="image/*" onChange={(event) => setImages(Array.from(event.target.files || []))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" />
               <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
                 {saving ? 'Creating…' : 'Create vehicle'}
               </button>

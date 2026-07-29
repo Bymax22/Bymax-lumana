@@ -47,15 +47,34 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('ZMW');
 
   useEffect(() => {
-    const saved = localStorage.getItem('lumanaCurrency') as CurrencyCode | null;
+    if (typeof window === 'undefined') return;
+
+    const saved = window.localStorage.getItem('lumanaCurrency') as CurrencyCode | null;
     if (saved && currencyRates[saved]) {
       setCurrencyState(saved);
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'lumanaCurrency' && event.newValue && currencyRates[event.newValue as CurrencyCode]) {
+        setCurrencyState(event.newValue as CurrencyCode);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const setCurrency = (next: CurrencyCode) => {
     setCurrencyState(next);
-    localStorage.setItem('lumanaCurrency', next);
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('lumanaCurrency', next);
+      window.dispatchEvent(new Event('storage'));
+    }
   };
 
   const convertAmount = (amountUsd: number) => {

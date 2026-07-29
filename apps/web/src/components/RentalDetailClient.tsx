@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { publicApi } from '@/lib/publicApi';
 import ConvertedAmount from '@/components/ConvertedAmount';
+import { paymentMethods, paymentMethodLabels, type PaymentMethod } from '@/lib/paymentMethods';
 
 export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
   const [pickupDate, setPickupDate] = useState('');
@@ -14,6 +15,7 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
   const [driverPhone, setDriverPhone] = useState('');
   const [emergencyContact, setEmergencyContact] = useState('');
   const [specialRequirements, setSpecialRequirements] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MASTERCARD');
   const [message, setMessage] = useState('');
 
   async function book() {
@@ -42,6 +44,7 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
         returnDate: new Date(returnDate),
         pickupLocation,
         returnLocation,
+        paymentMethod,
         notes: `Driver: ${driverName}. License: ${driverLicense}. Phone: ${driverPhone}. Emergency Contact: ${emergencyContact || 'N/A'}. Requirements: ${specialRequirements || 'None'}`,
         metadata: {
           driverName,
@@ -52,9 +55,15 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
         },
       };
 
-      await publicApi('/hire/bookings', { method: 'POST', body: JSON.stringify(payload) });
-      setMessage('Booking created successfully');
-      setTimeout(() => setMessage(''), 2500);
+      const booking = await publicApi('/hire/bookings', { method: 'POST', body: JSON.stringify(payload) });
+      if (paymentMethod === 'BANK_TRANSFER') {
+        setMessage(`Booking created. Please complete bank transfer with reference ${booking.bookingRef}.`);
+      } else if (paymentMethod === 'CASH') {
+        setMessage('Booking created. Please pay cash when the car is delivered.');
+      } else {
+        setMessage('Booking created and payment completed successfully.');
+      }
+      setTimeout(() => setMessage(''), 4000);
     } catch (err) {
       setMessage('Unable to create booking');
     }
@@ -116,6 +125,15 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
                 <label className="text-sm text-slate-400">Special Requirements</label>
                 <textarea value={specialRequirements} onChange={(e) => setSpecialRequirements(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2" rows={3} />
               </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-slate-700 bg-[#121212] p-4">
+              <label className="text-sm text-slate-400">Payment Method</label>
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)} className="mt-2 w-full rounded bg-[#101010] px-3 py-2 text-white">
+                {paymentMethods.map((method) => (
+                  <option key={method.value} value={method.value}>{method.label}</option>
+                ))}
+              </select>
+              <div className="mt-2 text-sm text-slate-400">{paymentMethodLabels[paymentMethod]}</div>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={book} className="rounded bg-emerald-600 px-4 py-2 text-white">Book Now</button>

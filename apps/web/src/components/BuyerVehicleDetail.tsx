@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { publicApi } from '@/lib/publicApi';
+import ConvertedAmount from '@/components/ConvertedAmount';
 
 export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
   const router = useRouter();
@@ -123,7 +124,7 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
           <div className="mt-6 text-sm text-slate-300">
             <h4 className="font-semibold">Details</h4>
             <p>{vehicle.description || 'No description available'}</p>
-            <p className="mt-2">Price: {vehicle.price ? vehicle.price : '—'}</p>
+            <p className="mt-2">Price: {vehicle.price ? <ConvertedAmount amountUsd={Number(vehicle.price)} /> : '—'}</p>
             <p>Location: {vehicle.location || '—'}</p>
             <p>Seller: {vehicle.sellerName || '—'}</p>
             {vehicle.sellerPhone ? (

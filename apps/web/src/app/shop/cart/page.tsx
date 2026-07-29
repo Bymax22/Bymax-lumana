@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { publicApi } from '@/lib/publicApi';
 import ConvertedAmount from '@/components/ConvertedAmount';
-import { getCurrentUserId } from '@/lib/auth';
 
 export default function CartPage() {
   const [items, setItems] = useState<{ product: any; quantity: number }[]>([]);
@@ -46,26 +46,6 @@ export default function CartPage() {
     saveCartFromState(updated.map((i) => ({ productId: i.product.id, quantity: i.quantity })));
   }
 
-  async function checkout() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-      setMessage('Please sign in to continue');
-      return;
-    }
-    const shippingAddress = prompt('Enter shipping address');
-    if (!shippingAddress) return;
-
-    try {
-      const payload = { userId, shippingAddress };
-      await publicApi('/shop/orders', { method: 'POST', body: JSON.stringify(payload) });
-      setItems([]);
-      localStorage.removeItem('cart');
-      setMessage('Order placed successfully');
-    } catch (err) {
-      setMessage('Unable to place order');
-    }
-  }
-
   if (loading) {
     return <div className="rounded-[24px] bg-[#121212] p-6 text-slate-300">Loading cart...</div>;
   }
@@ -95,14 +75,28 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between">
-        <div className="text-sm text-slate-300">Subtotal</div>
-        <div className="text-xl font-semibold text-white">{subtotal ? <ConvertedAmount amountUsd={subtotal} /> : '$0.00'}</div>
+      <div className="mt-6 rounded-2xl border border-slate-700 bg-[#121212] p-4">
+        <div className="flex items-center justify-between text-sm text-slate-400">
+          <span>Subtotal</span>
+          <span><ConvertedAmount amountUsd={subtotal} /></span>
+        </div>
+        <div className="mt-2 flex items-center justify-between text-sm text-slate-400">
+          <span>Tax</span>
+          <span><ConvertedAmount amountUsd={subtotal * 0.1} /></span>
+        </div>
+        <div className="mt-2 flex items-center justify-between text-sm text-slate-400">
+          <span>Shipping</span>
+          <span><ConvertedAmount amountUsd={10} /></span>
+        </div>
+        <div className="mt-3 flex items-center justify-between border-t border-slate-700 pt-3 text-base font-semibold text-white">
+          <span>Total</span>
+          <span><ConvertedAmount amountUsd={subtotal + subtotal * 0.1 + 10} /></span>
+        </div>
       </div>
 
-      <div className="mt-6">
-        <button onClick={checkout} className="rounded bg-emerald-600 px-6 py-3 text-white">Checkout</button>
-        {message ? <div className="mt-3 text-emerald-300">{message}</div> : null}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <Link href="/shop/checkout" className="rounded bg-emerald-600 px-6 py-3 text-white">Proceed to Checkout</Link>
+        {message ? <div className="text-emerald-300">{message}</div> : null}
       </div>
     </div>
   );

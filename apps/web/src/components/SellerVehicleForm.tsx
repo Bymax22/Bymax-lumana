@@ -7,6 +7,7 @@ import { publicApi } from '@/lib/publicApi';
 export default function SellerVehicleForm({ initial = {}, onSaved }: { initial?: any; onSaved?: (v: any) => void }) {
   const router = useRouter();
   const [form, setForm] = useState<any>({ ...initial });
+  const [images, setImages] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -15,10 +16,19 @@ export default function SellerVehicleForm({ initial = {}, onSaved }: { initial?:
     setSaving(true);
     try {
       const payload = { ...form };
+      const formData = new FormData();
+
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+        formData.append(key, value instanceof Date ? value.toISOString() : String(value));
+      });
+
+      images.forEach((image) => formData.append('images', image));
+
       if (form.id) {
-        await publicApi(`/vehicles/${form.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+        await publicApi(`/vehicles/${form.id}`, { method: 'PATCH', body: formData });
       } else {
-        await publicApi('/vehicles', { method: 'POST', body: JSON.stringify(payload) });
+        await publicApi('/vehicles', { method: 'POST', body: formData });
       }
       setMsg('Saved');
       try { onSaved && onSaved(form); } catch (e) {}
@@ -66,6 +76,11 @@ export default function SellerVehicleForm({ initial = {}, onSaved }: { initial?:
       <label className="block text-sm text-slate-300">
         Description
         <textarea value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} className="mt-2 w-full rounded bg-[#0b0b0b] px-3 py-2" />
+      </label>
+
+      <label className="block text-sm text-slate-300">
+        Images
+        <input type="file" multiple accept="image/*" onChange={(e) => setImages(Array.from(e.target.files || []))} className="mt-2 w-full rounded bg-[#0b0b0b] px-3 py-2" />
       </label>
 
       <div className="flex items-center gap-3">

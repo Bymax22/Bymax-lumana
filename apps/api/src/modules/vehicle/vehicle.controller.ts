@@ -1,9 +1,14 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { VehicleService } from './vehicle.service';
+import { CloudinaryService } from '../admin/services/cloudinary.service';
 
 @Controller('vehicles')
 export class VehicleController {
-  constructor(private service: VehicleService) {}
+  constructor(
+    private service: VehicleService,
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get()
   getAll(
@@ -30,7 +35,30 @@ export class VehicleController {
   }
 
   @Post()
-  create(@Body() body: any) {
-    return this.service.create(body);
+  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
+  async create(@Body() body: any, @UploadedFiles() files?: Array<Express.Multer.File>) {
+    const uploadedUrls = files?.length
+      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+      : [];
+
+    return this.service.create({
+      ...body,
+      ...(uploadedUrls.length ? { images: uploadedUrls } : {}),
+      ...(body.imageUrl ? { imageUrl: body.imageUrl } : {}),
+    });
+  }
+
+  @Patch(':id')
+  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
+  async update(@Param('id') id: string, @Body() body: any, @UploadedFiles() files?: Array<Express.Multer.File>) {
+    const uploadedUrls = files?.length
+      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+      : [];
+
+    return this.service.update(id, {
+      ...body,
+      ...(uploadedUrls.length ? { images: uploadedUrls } : {}),
+      ...(body.imageUrl ? { imageUrl: body.imageUrl } : {}),
+    });
   }
 }

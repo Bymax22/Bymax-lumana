@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { CreatePaymentDto } from './dtos/create-payment.dto';
 
 @Controller('payments')
 export class PaymentController {
@@ -16,7 +17,7 @@ export class PaymentController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreatePaymentDto) {
     return this.service.create(body);
   }
 }

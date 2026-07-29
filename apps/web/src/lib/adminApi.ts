@@ -7,13 +7,18 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
+    const headers = new Headers(options.headers);
+
+    if (!(options.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    } else {
+      headers.delete('Content-Type');
+    }
+
     return await fetch(url, {
       cache: 'no-store',
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       signal: controller.signal,
     });
   } finally {
