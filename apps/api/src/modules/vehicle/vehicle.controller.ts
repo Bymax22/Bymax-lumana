@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { VehicleService } from './vehicle.service';
 import { CloudinaryService } from '../admin/services/cloudinary.service';
 
@@ -35,10 +35,14 @@ export class VehicleController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
-  async create(@Body() body: any, @UploadedFiles() files?: Array<Express.Multer.File>) {
-    const uploadedUrls = files?.length
-      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'images', maxCount: 10 },
+    { name: 'image', maxCount: 1 },
+  ]))
+  async create(@Body() body: any, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
+    const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
+    const uploadedUrls = uploadedFiles.length
+      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
       : [];
 
     return this.service.create({
@@ -49,10 +53,14 @@ export class VehicleController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
-  async update(@Param('id') id: string, @Body() body: any, @UploadedFiles() files?: Array<Express.Multer.File>) {
-    const uploadedUrls = files?.length
-      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'images', maxCount: 10 },
+    { name: 'image', maxCount: 1 },
+  ]))
+  async update(@Param('id') id: string, @Body() body: any, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
+    const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
+    const uploadedUrls = uploadedFiles.length
+      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
       : [];
 
     return this.service.update(id, {

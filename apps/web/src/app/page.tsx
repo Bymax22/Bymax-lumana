@@ -19,13 +19,40 @@ function normalizeArrayPayload(payload: unknown): any[] {
   return [];
 }
 
+function getItemImageUrl(item: any): string | null {
+  if (!item) {
+    return null;
+  }
+
+  const direct = item.imageUrl ?? item.thumbnail ?? item.coverImage;
+  if (typeof direct === 'string' && direct.trim()) {
+    return direct;
+  }
+
+  const gallery = item.images ?? item.imageUrls ?? [];
+  if (Array.isArray(gallery)) {
+    const first = gallery[0];
+    if (typeof first === 'string' && first.trim()) {
+      return first;
+    }
+    if (first && typeof first === 'object') {
+      const nestedUrl = first.url ?? first.secure_url ?? first.src;
+      if (typeof nestedUrl === 'string' && nestedUrl.trim()) {
+        return nestedUrl;
+      }
+    }
+  }
+
+  return null;
+}
+
 async function loadHomePageData() {
   const settled = await Promise.allSettled([
     publicApi('/vehicles'),
     publicApi('/auctions'),
     publicApi('/dealers'),
     publicApi('/brands?take=8'),
-    publicApi('/shop/products/featured'),
+    publicApi('/shop/products?take=6').catch(() => publicApi('/shop/products/featured')),
     publicApi('/hire/vehicles?take=6'),
   ]);
 
@@ -73,11 +100,11 @@ export default async function HomePage() {
           <div className="max-w-xl space-y-5">
             <div className="inline-flex items-center gap-2 rounded-[18px] bg-[#121212] px-3 py-2 text-[11px] uppercase text-red-400">Global Vehicle Marketplace</div>
             <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl">Your World. Your Drive.<br /><span className="text-red-500">Our Planet.</span></h1>
-            <p className="max-w-2xl text-slate-300">Buy, import and manage quality vehicles from Japan and around the world.</p>
+            <p className="max-w-2xl text-slate-300">Buy, import, hire vehicles, and shop premium auto parts from one trusted platform built for modern mobility.</p>
             <div className="flex flex-wrap gap-4">
               <Link href="/vehicles" className="rounded-[18px] bg-red-600 px-4 py-2 text-sm font-semibold uppercase text-white">Explore Vehicles</Link>
-              <Link href="/services" className="inline-flex items-center gap-2 rounded-[18px] bg-[#121212] px-3 py-1 text-sm font-semibold text-white/90">How It Works</Link>
-              <Link href="/auth/signup" className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">Sign Up</Link>
+              <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-sm font-semibold uppercase text-white">View Available Fleet</Link>
+              <Link href="/shop" className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">Shop Auto Parts</Link>
             </div>
           </div>
 
@@ -132,6 +159,38 @@ export default async function HomePage() {
           {(popularBrands || []).slice(0,5).map((b: any) => (
             <span key={b.id || b.name || b} className="rounded-[14px] bg-[#121212] px-3 py-2">{b.name || b}</span>
           ))}
+        </div>
+      </div>
+
+      <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm uppercase text-slate-400">Our Main Services</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Cars, Fleet Hire, and Auto Spares in one place</h2>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <Link href="/vehicles" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
+            <p className="text-sm uppercase text-red-400">Car Sales & Imports</p>
+            <h3 className="mt-3 text-xl font-semibold text-white">Find your next vehicle</h3>
+            <p className="mt-2 text-sm text-slate-400">Browse quality cars, imports, and auction-ready listings with simple buying support.</p>
+            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">Explore vehicles →</span>
+          </Link>
+
+          <Link href="/hire" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
+            <p className="text-sm uppercase text-red-400">Vehicle Hire</p>
+            <h3 className="mt-3 text-xl font-semibold text-white">View our available fleet</h3>
+            <p className="mt-2 text-sm text-slate-400">Book flexible rental vehicles for business travel, family use, or long stays.</p>
+            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">View fleet →</span>
+          </Link>
+
+          <Link href="/shop" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
+            <p className="text-sm uppercase text-red-400">Auto Spares</p>
+            <h3 className="mt-3 text-xl font-semibold text-white">Shop parts & accessories</h3>
+            <p className="mt-2 text-sm text-slate-400">Find batteries, body parts, accessories, and workshop essentials for your vehicle.</p>
+            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">Shop auto parts →</span>
+          </Link>
         </div>
       </div>
 
@@ -227,15 +286,58 @@ export default async function HomePage() {
               <Link href="/vehicles" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse All</Link>
             </div>
 
-            <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {vehicles.slice(0, 6).map((v: any) => (
-                <Link key={v.id} href={`/vehicles/${v.id}`} className="block rounded-[14px] bg-[#121212] p-4">
-                  <div className="h-40 w-full rounded-md bg-[#0d0d0d] bg-center bg-cover" style={{ backgroundImage: v.images?.[0]?.url ? `url(${v.images[0].url})` : undefined }} />
-                  <h3 className="mt-3 text-lg font-semibold text-white">{v.make} {v.model}</h3>
-                  <p className="text-sm text-slate-400">{v.year}</p>
-                  <div className="mt-2 text-red-400 font-semibold">{v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact'}</div>
-                </Link>
-              ))}
+            <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+              {vehicles.slice(0, 6).map((v: any) => {
+                const imageUrl = getItemImageUrl(v);
+                const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
+
+                return (
+                  <Link key={v.id} href={`/vehicles/${v.id}`} className="group block overflow-hidden rounded-[22px] border border-slate-800 bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.20)] transition hover:-translate-y-1 hover:border-red-500/50">
+                    <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                          No Image
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <div className="absolute left-4 top-4 rounded-full bg-red-600/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                        {v.condition || 'Featured'}
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                          <p className="text-sm text-slate-400">{v.year || '—'} • {v.mileage ? `${v.mileage.toLocaleString()} km` : 'Mileage available on request'}</p>
+                        </div>
+                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
+                      </div>
+
+                      <div className="mt-4 grid gap-2 rounded-[16px] border border-slate-800 bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Fuel</p>
+                          <p className="font-medium text-white">{v.fuelType || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Location</p>
+                          <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-slate-400">Starting from</p>
+                          <p className="text-lg font-semibold text-red-400">{price}</p>
+                        </div>
+                        <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">View details</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
@@ -277,20 +379,63 @@ export default async function HomePage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase text-slate-400">Vehicle Hire</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">Available for Rent</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Available Fleet</h2>
             </div>
-            <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Hire</Link>
+            <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">View All Fleet</Link>
           </div>
 
-          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {(featuredRentals as any).slice(0,6).map((v: any) => (
-              <Link key={v.id} href={`/hire/${v.id}`} className="block rounded-[14px] bg-[#121212] p-4">
-                <div className="h-40 w-full rounded-md bg-[#0d0d0d]" />
-                <h3 className="mt-3 text-lg font-semibold text-white">{v.make} {v.model}</h3>
-                <p className="text-sm text-slate-400">{v.year}</p>
-                <div className="mt-2 text-red-400 font-semibold">{v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact'}</div>
-              </Link>
-            ))}
+          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+            {(featuredRentals as any).slice(0,6).map((v: any) => {
+              const imageUrl = getItemImageUrl(v);
+              const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
+
+              return (
+                <Link key={v.id} href={`/hire/${v.id}`} className="group block overflow-hidden rounded-[22px] border border-slate-800 bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.20)] transition hover:-translate-y-1 hover:border-red-500/50">
+                  <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                        No Image
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute left-4 top-4 rounded-full bg-yellow-500/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#0b0b0b]">
+                      Available now
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                        <p className="text-sm text-slate-400">{v.year || '—'} • {v.seats ? `${v.seats} seats` : 'Flexible booking'}</p>
+                      </div>
+                      <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Hire</span>
+                    </div>
+
+                    <div className="mt-4 grid gap-2 rounded-[16px] border border-slate-800 bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
+                      <div>
+                        <p className="text-[11px] uppercase text-slate-500">Transmission</p>
+                        <p className="font-medium text-white">{v.transmission || 'Auto'}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] uppercase text-slate-500">Location</p>
+                        <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-slate-400">Daily rate</p>
+                        <p className="text-lg font-semibold text-red-400">{price}</p>
+                      </div>
+                      <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">Book now</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
@@ -300,21 +445,58 @@ export default async function HomePage() {
         <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm uppercase text-slate-400">Shop</p>
+              <p className="text-sm uppercase text-slate-400">Auto Spares</p>
               <h2 className="mt-2 text-2xl font-semibold text-white">Featured Parts & Accessories</h2>
             </div>
-            <Link href="/shop" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Shop</Link>
+            <Link href="/shop" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Parts</Link>
           </div>
 
-          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {(featuredProducts as any).slice(0,6).map((p: any) => (
-              <Link key={p.id} href={`/shop/${p.id}`} className="block rounded-[14px] bg-[#121212] p-4">
-                <div className="h-40 w-full rounded-md bg-[#0d0d0d]" />
-                <h3 className="mt-3 text-lg font-semibold text-white">{p.name}</h3>
-                <p className="text-sm text-slate-400">{p.category?.name}</p>
-                <div className="mt-2 text-red-400 font-semibold">{p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact'}</div>
-              </Link>
-            ))}
+          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+            {(featuredProducts as any).slice(0,6).map((p: any) => {
+              const imageUrl = getItemImageUrl(p);
+              const price = p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact';
+
+              return (
+                <Link key={p.id} href={`/shop/${p.id}`} className="group block overflow-hidden rounded-[22px] border border-slate-800 bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.20)] transition hover:-translate-y-1 hover:border-red-500/50">
+                  <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                        No Image
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute left-4 top-4 rounded-full bg-[#121212]/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-100">
+                      {p.category?.name || 'Parts'}
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{p.name}</h3>
+                        <p className="text-sm text-slate-400">{p.category?.name || 'Auto spare'}</p>
+                      </div>
+                      <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Shop</span>
+                    </div>
+
+                    <div className="mt-4 rounded-[16px] border border-slate-800 bg-[#111111] p-3 text-sm text-slate-300">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Price</p>
+                          <p className="mt-1 font-semibold text-red-400">{price}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[11px] uppercase text-slate-500">Availability</p>
+                          <p className="mt-1 font-medium text-white">{p.inStock === false ? 'Limited' : 'In stock'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}

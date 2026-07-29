@@ -11,7 +11,7 @@ import {
   UseInterceptors,
   UploadedFiles,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { HireService } from './hire.service';
 import { CreateRentalVehicleDto } from './dtos/create-rental-vehicle.dto';
 import { CreateRentalBookingDto } from './dtos/create-rental-booking.dto';
@@ -31,10 +31,14 @@ export class HireController {
 
   @Post('vehicles')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
-  async createVehicle(@Body() dto: CreateRentalVehicleDto, @UploadedFiles() files?: Array<Express.Multer.File>) {
-    const uploadedUrls = files?.length
-      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'images', maxCount: 10 },
+    { name: 'image', maxCount: 1 },
+  ]))
+  async createVehicle(@Body() dto: CreateRentalVehicleDto, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
+    const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
+    const uploadedUrls = uploadedFiles.length
+      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
       : [];
 
     return this.hireService.createRentalVehicle({
@@ -65,10 +69,14 @@ export class HireController {
   }
 
   @Put('vehicles/:id')
-  @UseInterceptors(FilesInterceptor(['images', 'image'], 10))
-  async updateVehicle(@Param('id') id: string, @Body() dto: Partial<CreateRentalVehicleDto>, @UploadedFiles() files?: Array<Express.Multer.File>) {
-    const uploadedUrls = files?.length
-      ? await Promise.all(files.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'images', maxCount: 10 },
+    { name: 'image', maxCount: 1 },
+  ]))
+  async updateVehicle(@Param('id') id: string, @Body() dto: Partial<CreateRentalVehicleDto>, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
+    const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
+    const uploadedUrls = uploadedFiles.length
+      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
       : [];
 
     return this.hireService.updateRentalVehicle(id, {
