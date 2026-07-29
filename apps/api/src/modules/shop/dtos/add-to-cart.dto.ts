@@ -1,4 +1,4 @@
 export class AddToCartDto {
-  productId: string;
-  quantity: number;
+  productId!: string;
+  quantity!: number;
 }

@@ -1,16 +1,16 @@
 export class CreateRentalVehicleDto {
-  vin: string;
-  make: string;
-  model: string;
-  year: number;
+  vin!: string;
+  make!: string;
+  model!: string;
+  year!: number;
   mileage?: number;
-  licensePlate: string;
+  licensePlate!: string;
   color?: string;
   transmission?: string;
   engine?: string;
   fuelType?: string;
   seatingCapacity?: number;
-  basePrice: number;
+  basePrice!: number;
   insuranceIncluded?: boolean;
   images?: string[];
   description?: string;

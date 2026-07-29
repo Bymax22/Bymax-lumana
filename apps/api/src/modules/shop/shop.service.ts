@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { CreateCategoryDto } from './dtos/create-category.dto';
@@ -474,7 +475,7 @@ export class ShopService {
 
     return this.prisma.order.update({
       where: { id },
-      data: { status },
+      data: { status: status as $Enums.OrderStatus },
     });
   }
 

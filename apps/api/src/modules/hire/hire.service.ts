@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateRentalVehicleDto } from './dtos/create-rental-vehicle.dto';
 import { CreateRentalBookingDto } from './dtos/create-rental-booking.dto';
@@ -230,7 +231,7 @@ export class HireService {
 
     return this.prisma.rentalBooking.update({
       where: { id },
-      data: { status },
+      data: { status: status as $Enums.BookingStatus },
       include: {
         vehicle: true,
         customer: true,

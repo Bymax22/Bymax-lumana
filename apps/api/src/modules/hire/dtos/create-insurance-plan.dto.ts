@@ -1,9 +1,9 @@
 export class CreateInsurancePlanDto {
-  name: string;
+  name!: string;
   description?: string;
-  coverage: string;
-  dailyPrice: number;
-  maxCoverage: number;
+  coverage!: string;
+  dailyPrice!: number;
+  maxCoverage!: number;
   deductible?: number;
   features?: string[];
 }

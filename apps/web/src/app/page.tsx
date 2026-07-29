@@ -40,7 +40,7 @@ async function loadHomePageData() {
 }
 
 export default async function HomePage() {
-  const { vehicles, auctions, dealers, brands } = await loadHomePageData();
+  const { vehicles, auctions, dealers, brands, featuredProducts, featuredRentals } = await loadHomePageData();
 
   // stats and computed lists
   const stats = {
