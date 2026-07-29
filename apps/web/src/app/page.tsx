@@ -25,6 +25,8 @@ async function loadHomePageData() {
     publicApi('/auctions'),
     publicApi('/dealers'),
     publicApi('/brands?take=8'),
+    publicApi('/shop/products/featured'),
+    publicApi('/hire/vehicles?take=6'),
   ]);
 
   return {
@@ -32,6 +34,8 @@ async function loadHomePageData() {
     auctions: normalizeArrayPayload(settled[1].status === 'fulfilled' ? settled[1].value : undefined),
     dealers: normalizeArrayPayload(settled[2].status === 'fulfilled' ? settled[2].value : undefined),
     brands: normalizeArrayPayload(settled[3].status === 'fulfilled' ? settled[3].value : undefined),
+    featuredProducts: normalizeArrayPayload(settled[4].status === 'fulfilled' ? settled[4].value : undefined),
+    featuredRentals: normalizeArrayPayload(settled[5].status === 'fulfilled' ? settled[5].value : undefined),
   };
 }
 
@@ -266,6 +270,54 @@ export default async function HomePage() {
           <Link href="/dealers" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
         </div>
       </div>
+
+      {/* Featured Rentals */}
+      {Array.isArray((featuredRentals as any) || []) && (featuredRentals as any).length > 0 && (
+        <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm uppercase text-slate-400">Vehicle Hire</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Available for Rent</h2>
+            </div>
+            <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Hire</Link>
+          </div>
+
+          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {(featuredRentals as any).slice(0,6).map((v: any) => (
+              <Link key={v.id} href={`/hire/${v.id}`} className="block rounded-[14px] bg-[#121212] p-4">
+                <div className="h-40 w-full rounded-md bg-[#0d0d0d]" />
+                <h3 className="mt-3 text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                <p className="text-sm text-slate-400">{v.year}</p>
+                <div className="mt-2 text-red-400 font-semibold">{v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact'}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Featured Products */}
+      {Array.isArray((featuredProducts as any) || []) && (featuredProducts as any).length > 0 && (
+        <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm uppercase text-slate-400">Shop</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Featured Parts & Accessories</h2>
+            </div>
+            <Link href="/shop" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Shop</Link>
+          </div>
+
+          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {(featuredProducts as any).slice(0,6).map((p: any) => (
+              <Link key={p.id} href={`/shop/${p.id}`} className="block rounded-[14px] bg-[#121212] p-4">
+                <div className="h-40 w-full rounded-md bg-[#0d0d0d]" />
+                <h3 className="mt-3 text-lg font-semibold text-white">{p.name}</h3>
+                <p className="text-sm text-slate-400">{p.category?.name}</p>
+                <div className="mt-2 text-red-400 font-semibold">{p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact'}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

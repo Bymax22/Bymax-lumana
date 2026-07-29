@@ -32,6 +32,7 @@ model User {
   assignedSupportTickets SupportTicket[]      @relation("assignedSupport")
   supportTickets         SupportTicket[]
   dealer                 Dealer?              @relation(fields: [dealerId], references: [id])
+  rentalBookings         RentalBooking[]
 }
 
 model Session {
@@ -157,8 +158,12 @@ model Payment {
   providerRef String?
   status      PaymentStatus @default(PENDING)
   metadata    Json?
+  rentalBookingId String?
+  orderId     String?
   createdAt   DateTime      @default(now())
   user        User          @relation(fields: [userId], references: [id])
+  rentalBooking RentalBooking? @relation(fields: [rentalBookingId], references: [id])
+  order       Order?        @relation(fields: [orderId], references: [id])
 }
 
 model Shipment {
@@ -346,6 +351,231 @@ model ImportQuote {
   user         User?             @relation(fields: [userId], references: [id])
 }
 
+// ==================== VEHICLE HIRE SYSTEM ====================
+model RentalVehicle {
+  id                  String                @id @default(cuid())
+  vin                 String                @unique
+  make                String
+  model               String
+  year                Int
+  mileage             Int?
+  licensePlate        String                @unique
+  color               String?
+  transmission        String?
+  engine              String?
+  fuelType            String?
+  seatingCapacity     Int?
+  status              RentalVehicleStatus   @default(AVAILABLE)
+  location            String?
+  gpsDeviceId         String?
+  description         String?
+  basePrice           Float                 // per day
+  insuranceIncluded   Boolean               @default(false)
+  images              String[]              @default([])
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  bookings            RentalBooking[]
+  gpsTracking         GPSTracking[]
+  damageReports       DamageReport[]
+  pricing             RentalPricing[]
+}
+
+model RentalBooking {
+  id                  String                @id @default(cuid())
+  rentalVehicleId     String
+  userId              String
+  bookingRef          String                @unique
+  pickupDate          DateTime
+  returnDate          DateTime
+  pickupLocation      String
+  returnLocation      String
+  status              BookingStatus         @default(PENDING)
+  totalPrice          Float
+  depositAmount       Float?
+  insurancePlanId     String?
+  notes               String?
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  vehicle             RentalVehicle         @relation(fields: [rentalVehicleId], references: [id])
+  customer            User                  @relation(fields: [userId], references: [id])
+  insurance           InsurancePlan?        @relation(fields: [insurancePlanId], references: [id])
+  damageReport        DamageReport?
+  payments            Payment[]
+}
+
+model InsurancePlan {
+  id                  String                @id @default(cuid())
+  name                String
+  description         String?
+  coverage            String                // e.g., "Full Coverage", "Basic", "Premium"
+  dailyPrice          Float
+  maxCoverage         Float
+  deductible          Float?
+  features            String[]              @default([])
+  active              Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  bookings            RentalBooking[]
+}
+
+model DamageReport {
+  id                  String                @id @default(cuid())
+  rentalVehicleId     String
+  bookingId           String?               @unique
+  damageLevel         DamageLevel           @default(MINOR)
+  description         String
+  location            String?
+  photos              String[]              @default([])
+  estimatedCost       Float?
+  reportedBy          String?               // User ID
+  status              String                @default("PENDING")
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  vehicle             RentalVehicle         @relation(fields: [rentalVehicleId], references: [id])
+  booking             RentalBooking?        @relation(fields: [bookingId], references: [id])
+}
+
+model GPSTracking {
+  id                  String                @id @default(cuid())
+  rentalVehicleId     String
+  latitude            Float
+  longitude           Float
+  speed               Float?
+  heading             Float?
+  accuracy            Float?
+  timestamp           DateTime
+  createdAt           DateTime              @default(now())
+  vehicle             RentalVehicle         @relation(fields: [rentalVehicleId], references: [id])
+
+  @@index([rentalVehicleId, timestamp])
+}
+
+model RentalPricing {
+  id                  String                @id @default(cuid())
+  rentalVehicleId     String
+  startDate           DateTime
+  endDate             DateTime?
+  dailyRate           Float
+  weeklyRate          Float?
+  monthlyRate         Float?
+  discountPercentage  Float?
+  reason              String?               // e.g., "Seasonal", "Promotion"
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  vehicle             RentalVehicle         @relation(fields: [rentalVehicleId], references: [id])
+}
+
+// ==================== AUTO SHOP / SPARE PARTS ====================
+model Product {
+  id                  String                @id @default(cuid())
+  name                String
+  sku                 String                @unique
+  description         String?
+  price               Float
+  originalPrice       Float?
+  stock               Int                   @default(0)
+  categoryId          String
+  brandId             String?
+  condition           ProductCondition      @default(NEW)
+  compatible          String[]              @default([])  // Vehicle makes/models
+  images              String[]              @default([])
+  specs               Json?
+  rating              Float?
+  reviews             Review[]
+  featured            Boolean               @default(false)
+  status              String                @default("ACTIVE")
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  category            ShopCategory          @relation(fields: [categoryId], references: [id])
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+}
+
+model ShopCategory {
+  id                  String                @id @default(cuid())
+  name                String                @unique
+  slug                String                @unique
+  description         String?
+  icon                String?
+  featured            Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  products            Product[]
+}
+
+model Review {
+  id                  String                @id @default(cuid())
+  productId           String
+  userId              String
+  rating              Int                   // 1-5
+  title               String?
+  comment             String?
+  photos              String[]              @default([])
+  helpful             Int                   @default(0)
+  verified            Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  product             Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ShoppingCart {
+  id                  String                @id @default(cuid())
+  userId              String
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  items               CartItem[]
+
+  @@unique([userId])
+}
+
+model CartItem {
+  id                  String                @id @default(cuid())
+  cartId              String
+  productId           String
+  quantity            Int
+  addedAt             DateTime              @default(now())
+  cart                ShoppingCart          @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product             Product               @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id                  String                @id @default(cuid())
+  orderRef            String                @unique
+  userId              String
+  subtotal            Float
+  tax                 Float
+  shippingCost        Float                 @default(0)
+  totalAmount         Float
+  status              OrderStatus           @default(PENDING)
+  paymentStatus       PaymentStatus         @default(PENDING)
+  shippingAddress     String
+  trackingNumber      String?
+  estimatedDelivery   DateTime?
+  notes               String?
+  metadata            Json?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  items               OrderItem[]
+  payments            Payment[]
+}
+
+model OrderItem {
+  id                  String                @id @default(cuid())
+  orderId             String
+  productId           String
+  quantity            Int
+  unitPrice           Float
+  totalPrice          Float
+  order               Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product             Product               @relation(fields: [productId], references: [id])
+}
+
 enum UserRole {
   CUSTOMER
   DEALER
@@ -402,4 +632,45 @@ enum ImportQuoteStatus {
   QUOTED
   BOOKED
   CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum RentalVehicleStatus {
+  AVAILABLE
+  BOOKED
+  IN_USE
+  MAINTENANCE
+  DAMAGED
+  RETIRED
+}
+
+enum DamageLevel {
+  MINOR
+  MODERATE
+  SEVERE
+  TOTAL_LOSS
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  USED
+  REFURBISHED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
 }

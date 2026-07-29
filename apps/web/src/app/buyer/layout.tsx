@@ -17,6 +17,7 @@ export default function BuyerLayout({ children }: { children: React.ReactNode })
                   <Link href="/buyer/vehicles" className="text-slate-300 hover:text-white">Marketplace</Link>
                   <Link href="/buyer/saved" className="text-slate-300 hover:text-white">Saved</Link>
                   <Link href="/buyer/orders" className="text-slate-300 hover:text-white">Orders</Link>
+                  <Link href="/buyer/bookings" className="text-slate-300 hover:text-white">Bookings</Link>
                   <Link href="/buyer/profile" className="text-slate-300 hover:text-white">Profile</Link>
                 </nav>
               </div>
