@@ -171,7 +171,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
           <div className="flex items-center gap-3 rounded-[22px] bg-[#101010] px-4 py-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-red-600 text-white">L</div>
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[18px] bg-[#111111]">
+              <img src="/lumana-logo.png" alt="Lumana logo" className="h-full w-full object-cover" />
+            </div>
             <div>
               <p className="text-xs uppercase text-slate-400">Lumana</p>
               <h1 className="text-lg font-bold text-white">AutoPlanet</h1>
@@ -293,7 +295,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <nav className={`fixed left-0 top-0 z-50 h-full w-[74vw] max-w-[240px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-red-600 text-sm font-bold text-white">L</div>
+                <div className="relative h-11 w-11 overflow-hidden rounded-[16px] bg-[#111111]">
+                  <img src="/lumana-logo.png" alt="Lumana logo" className="h-full w-full object-cover" />
+                </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Lumana</p>
                   <p className="text-sm font-semibold text-white">AutoPlanet</p>
