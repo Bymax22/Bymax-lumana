@@ -108,7 +108,7 @@ export default async function HomePage() {
               <Link href="/shop" className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">Shop Auto Parts</Link>
             </div>
             {Array.isArray(vehicles) && vehicles.length > 0 && (
-              <div className="mt-6">
+              <div className="mt-6 hidden sm:block">
                 <p className="mb-3 text-sm text-slate-400">Trending Now</p>
                 <div className="flex gap-4 overflow-x-auto pb-2">
                   {vehicles.slice(0,6).map((v: any) => {
@@ -139,7 +139,6 @@ export default async function HomePage() {
           </div>
 
           <div className="relative mx-auto mt-6 h-[420px] w-full max-w-[540px] overflow-hidden rounded-[28px] bg-[#111111] px-6 py-8">
-            <div className="absolute inset-0 rounded-[28px] border border-red-600/20" />
             <div className="relative flex h-full items-end justify-center">
               <div className="relative h-[330px] w-full rounded-[24px]">
                 <HeroCarousel items={vehicles.slice(0, 6)} />
@@ -318,14 +317,14 @@ export default async function HomePage() {
             <Link href="/vehicles" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse All</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4 pr-1">
-              {vehicles.slice(0, 6).map((v: any) => {
+          <div className="mt-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {vehicles.slice(0, 8).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block w-[85vw] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] xl:w-[22rem]">
+                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -340,32 +339,32 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                          <h3 className="text-base font-semibold text-white">{v.make} {v.model}</h3>
                           <p className="text-sm text-slate-400">{v.year || '—'} • {v.mileage ? `${v.mileage.toLocaleString()} km` : 'Mileage available on request'}</p>
                         </div>
-                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
+                        <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
                       </div>
 
-                      <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
-                        <div>
-                          <p className="text-[11px] uppercase text-slate-500">Fuel</p>
-                          <p className="font-medium text-white">{v.fuelType || 'N/A'}</p>
+                      <div className="mt-3 grid gap-2 rounded-[14px] bg-[#111111] p-2.5 text-sm text-slate-300">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase text-slate-500">Fuel</span>
+                          <span className="font-medium text-white">{v.fuelType || 'N/A'}</span>
                         </div>
-                        <div>
-                          <p className="text-[11px] uppercase text-slate-500">Location</p>
-                          <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase text-slate-500">Location</span>
+                          <span className="font-medium text-white">{v.location || v.city || 'Contact us'}</span>
                         </div>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between">
+                      <div className="mt-3 flex items-center justify-between">
                         <div>
                           <p className="text-sm text-slate-400">Starting from</p>
-                          <p className="text-lg font-semibold text-red-400">{price}</p>
+                          <p className="text-base font-semibold text-red-400">{price}</p>
                         </div>
-                        <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">View details</span>
+                        <span className="rounded-[12px] bg-yellow-500/10 px-2.5 py-1.5 text-[10px] font-semibold uppercase text-yellow-400">View</span>
                       </div>
                     </div>
                   </Link>
@@ -387,14 +386,14 @@ export default async function HomePage() {
             <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">View All Fleet</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4 pr-1">
-              {(featuredRentals as any).slice(0,6).map((v: any) => {
+          <div className="mt-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {(featuredRentals as any).slice(0, 8).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[85vw] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] xl:w-[22rem]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -409,32 +408,32 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                          <h3 className="text-base font-semibold text-white">{v.make} {v.model}</h3>
                           <p className="text-sm text-slate-400">{v.year || '—'} • {v.seats ? `${v.seats} seats` : 'Flexible booking'}</p>
                         </div>
-                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Hire</span>
+                        <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] uppercase text-slate-400">Hire</span>
                       </div>
 
-                      <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
-                        <div>
-                          <p className="text-[11px] uppercase text-slate-500">Transmission</p>
-                          <p className="font-medium text-white">{v.transmission || 'Auto'}</p>
+                      <div className="mt-3 grid gap-2 rounded-[14px] bg-[#111111] p-2.5 text-sm text-slate-300">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase text-slate-500">Transmission</span>
+                          <span className="font-medium text-white">{v.transmission || 'Auto'}</span>
                         </div>
-                        <div>
-                          <p className="text-[11px] uppercase text-slate-500">Location</p>
-                          <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase text-slate-500">Location</span>
+                          <span className="font-medium text-white">{v.location || v.city || 'Contact us'}</span>
                         </div>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between">
+                      <div className="mt-3 flex items-center justify-between">
                         <div>
                           <p className="text-sm text-slate-400">Daily rate</p>
-                          <p className="text-lg font-semibold text-red-400">{price}</p>
+                          <p className="text-base font-semibold text-red-400">{price}</p>
                         </div>
-                        <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">Book now</span>
+                        <span className="rounded-[12px] bg-yellow-500/10 px-2.5 py-1.5 text-[10px] font-semibold uppercase text-yellow-400">Book</span>
                       </div>
                     </div>
                   </Link>
@@ -456,14 +455,14 @@ export default async function HomePage() {
             <Link href="/shop" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Parts</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4 pr-1">
-              {(featuredProducts as any).slice(0,6).map((p: any) => {
+          <div className="mt-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {(featuredProducts as any).slice(0, 8).map((p: any) => {
                 const imageUrl = getItemImageUrl(p);
                 const price = p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact';
 
                 return (
-                  <Link key={p.id} href={`/shop/${p.id}`} className="group block w-[85vw] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] xl:w-[22rem]">
+                  <Link key={p.id} href={`/shop/${p.id}`} className="group block overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -478,23 +477,23 @@ export default async function HomePage() {
                       </div>
                     </div>
 
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-lg font-semibold text-white">{p.name}</h3>
+                          <h3 className="text-base font-semibold text-white">{p.name}</h3>
                           <p className="text-sm text-slate-400">{p.category?.name || 'Auto spare'}</p>
                         </div>
-                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Shop</span>
+                        <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] uppercase text-slate-400">Shop</span>
                       </div>
 
-                      <div className="mt-4 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300">
+                      <div className="mt-3 rounded-[14px] bg-[#111111] p-2.5 text-sm text-slate-300">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-[11px] uppercase text-slate-500">Price</p>
+                            <p className="text-[10px] uppercase text-slate-500">Price</p>
                             <p className="mt-1 font-semibold text-red-400">{price}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[11px] uppercase text-slate-500">Availability</p>
+                            <p className="text-[10px] uppercase text-slate-500">Availability</p>
                             <p className="mt-1 font-medium text-white">{p.inStock === false ? 'Limited' : 'In stock'}</p>
                           </div>
                         </div>
