@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import ConvertedAmount from '@/components/ConvertedAmount';
+import HeroCarousel from '@/components/HeroCarousel';
 import { publicApi } from '@/lib/publicApi';
 
 function normalizeArrayPayload(payload: unknown): any[] {
@@ -140,7 +141,9 @@ export default async function HomePage() {
           <div className="relative mx-auto mt-6 h-[420px] w-full max-w-[540px] overflow-hidden rounded-[28px] bg-[#111111] px-6 py-8">
             <div className="absolute inset-0 rounded-[28px] border border-red-600/20" />
             <div className="relative flex h-full items-end justify-center">
-              <div className="relative h-[330px] w-full rounded-[24px] bg-[#070707]" />
+              <div className="relative h-[330px] w-full rounded-[24px]">
+                <HeroCarousel items={vehicles.slice(0, 6)} />
+              </div>
             </div>
           </div>
         </div>
