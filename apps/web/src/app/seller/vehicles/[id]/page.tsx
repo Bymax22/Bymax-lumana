@@ -1,12 +1,13 @@
 import { publicApi } from '@/lib/publicApi';
 import SellerVehicleForm from '@/components/SellerVehicleForm';
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
 export default async function EditVehiclePage({ params }: Props) {
+  const { id } = await params;
   let vehicle = null;
   try {
-    vehicle = await publicApi(`/vehicles/${params.id}`);
+    vehicle = await publicApi(`/vehicles/${id}`);
   } catch (e) {
     vehicle = null;
   }

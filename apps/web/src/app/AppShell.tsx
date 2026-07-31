@@ -294,8 +294,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 h-full w-[88vw] max-w-[320px] transform overflow-hidden rounded-r-[24px] border-r border-white/10 bg-[linear-gradient(180deg,#0b0d12_0%,#12161e_100%)] shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="border-b border-white/10 bg-[#0f1218] p-4">
+          <nav className={`fixed left-0 top-0 z-50 flex h-full w-[80vw] max-w-[280px] flex-col transform overflow-hidden rounded-r-[24px] bg-[linear-gradient(180deg,#0b0d12_0%,#12161e_100%)] shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="bg-[#0f1218] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] bg-[#161b24] p-2">
@@ -321,8 +321,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-3">
-              <div className="rounded-[18px] border border-white/10 bg-[#11151c] p-2">
+            <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
+              <div className="rounded-[18px] bg-[#11151c] p-2">
                 <div className="space-y-1.5">
                   {navItems.map((item) => {
                     const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
@@ -351,7 +351,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              <div className="mt-3 rounded-[18px] border border-white/10 bg-[#11151c] p-4 text-sm text-slate-300">
+              <div className="mt-3 rounded-[18px] bg-[#11151c] p-4 text-sm text-slate-300">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Need Help?</p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">Speak to our team for vehicle sourcing, import support, and account help.</p>
                 <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-[14px] bg-yellow-500 px-3 py-2 text-sm font-semibold text-[#0b0b0b]">
