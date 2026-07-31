@@ -163,7 +163,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
                 <span className="text-sm sm:text-[15px]">Order any car from Lumana with just 30% down payment.</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">For more info click to chat with us on WhatsApp +260977635060.</span>
+                <span className="text-sm sm:text-[15px]">For more info click to chat with us on WhatsApp +260 977635060.</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
                 <span className="text-sm sm:text-[15px]">We are still setting up your premium experience.</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
@@ -279,7 +279,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p>Email</p>
               <p className="text-slate-300">info@lumanaautoplanet.com</p>
               <p>Phone</p>
-              <p className="text-slate-300">+260 123 456 789</p>
+              <p className="text-slate-300">+260 977635060</p>
             </div>
           </div>
         </aside>

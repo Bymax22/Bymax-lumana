@@ -100,7 +100,7 @@ export default async function HomePage() {
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div className="max-w-xl space-y-5">
             <div className="inline-flex items-center gap-2 rounded-[18px] bg-[#121212] px-3 py-2 text-[11px] uppercase text-red-400">Global Vehicle Marketplace</div>
-            <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl">Your World. Your Drive.<br /><span className="text-red-500">Our Planet.</span></h1>
+            <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl">Welcome to Lumana AutoPlanet</h1>
             <p className="max-w-2xl text-slate-300">Buy, import, hire vehicles, and shop premium auto parts from one trusted platform built for modern mobility.</p>
             <div className="flex flex-wrap gap-4">
               <Link href="/vehicles" className="rounded-[18px] bg-red-600 px-4 py-2 text-sm font-semibold uppercase text-white">Explore Vehicles</Link>
@@ -318,13 +318,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-2">
-            <div className="grid grid-flow-col auto-cols-[minmax(0,84vw)] gap-4 pr-1 sm:auto-cols-[minmax(0,18rem)] xl:auto-cols-[minmax(0,18rem)]">
+            <div className="flex gap-4 pr-1">
               {vehicles.slice(0, 8).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block min-w-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block w-[88vw] max-w-[320px] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -387,13 +387,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-2">
-            <div className="grid grid-flow-col auto-cols-[minmax(0,84vw)] gap-4 pr-1 sm:auto-cols-[minmax(0,18rem)] xl:auto-cols-[minmax(0,18rem)]">
+            <div className="flex gap-4 pr-1">
               {(featuredRentals as any).slice(0, 8).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="group block min-w-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[88vw] max-w-[320px] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -456,13 +456,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-2">
-            <div className="grid grid-flow-col auto-cols-[minmax(0,84vw)] gap-4 pr-1 sm:auto-cols-[minmax(0,18rem)] xl:auto-cols-[minmax(0,18rem)]">
+            <div className="flex gap-4 pr-1">
               {(featuredProducts as any).slice(0, 8).map((p: any) => {
                 const imageUrl = getItemImageUrl(p);
                 const price = p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact';
 
                 return (
-                  <Link key={p.id} href={`/shop/${p.id}`} className="group block min-w-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={p.id} href={`/shop/${p.id}`} className="group block w-[88vw] max-w-[320px] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />

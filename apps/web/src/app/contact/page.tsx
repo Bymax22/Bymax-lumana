@@ -20,7 +20,7 @@ export default function ContactPage() {
                 <Phone className="h-5 w-5 text-yellow-400" />
                 <div>
                   <h3 className="font-semibold text-white">Call Us</h3>
-                  <p className="text-sm">+260 123 456 789</p>
+                  <p className="text-sm">+260 977635060</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
