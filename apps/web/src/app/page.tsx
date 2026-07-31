@@ -294,51 +294,52 @@ export default async function HomePage() {
 
                 return (
                   <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
-                  <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
-                        No Image
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <div className="absolute left-4 top-4 rounded-full bg-red-600/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                      {v.condition || 'Featured'}
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
-                        <p className="text-sm text-slate-400">{v.year || '—'} • {v.mileage ? `${v.mileage.toLocaleString()} km` : 'Mileage available on request'}</p>
-                      </div>
-                      <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
-                    </div>
-
-                    <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
-                      <div>
-                        <p className="text-[11px] uppercase text-slate-500">Fuel</p>
-                        <p className="font-medium text-white">{v.fuelType || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] uppercase text-slate-500">Location</p>
-                        <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                    <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                          No Image
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <div className="absolute left-4 top-4 rounded-full bg-red-600/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                        {v.condition || 'Featured'}
                       </div>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-slate-400">Starting from</p>
-                        <p className="text-lg font-semibold text-red-400">{price}</p>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                          <p className="text-sm text-slate-400">{v.year || '—'} • {v.mileage ? `${v.mileage.toLocaleString()} km` : 'Mileage available on request'}</p>
+                        </div>
+                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
                       </div>
-                      <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">View details</span>
+
+                      <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Fuel</p>
+                          <p className="font-medium text-white">{v.fuelType || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Location</p>
+                          <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-slate-400">Starting from</p>
+                          <p className="text-lg font-semibold text-red-400">{price}</p>
+                        </div>
+                        <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">View details</span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -362,51 +363,52 @@ export default async function HomePage() {
 
                 return (
                   <Link key={v.id} href={`/hire/${v.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
-                  <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
-                        No Image
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <div className="absolute left-4 top-4 rounded-full bg-yellow-500/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#0b0b0b]">
-                      Available now
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
-                        <p className="text-sm text-slate-400">{v.year || '—'} • {v.seats ? `${v.seats} seats` : 'Flexible booking'}</p>
-                      </div>
-                      <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Hire</span>
-                    </div>
-
-                    <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
-                      <div>
-                        <p className="text-[11px] uppercase text-slate-500">Transmission</p>
-                        <p className="font-medium text-white">{v.transmission || 'Auto'}</p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] uppercase text-slate-500">Location</p>
-                        <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                    <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                          No Image
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <div className="absolute left-4 top-4 rounded-full bg-yellow-500/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#0b0b0b]">
+                        Available now
                       </div>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-slate-400">Daily rate</p>
-                        <p className="text-lg font-semibold text-red-400">{price}</p>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white">{v.make} {v.model}</h3>
+                          <p className="text-sm text-slate-400">{v.year || '—'} • {v.seats ? `${v.seats} seats` : 'Flexible booking'}</p>
+                        </div>
+                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Hire</span>
                       </div>
-                      <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">Book now</span>
+
+                      <div className="mt-4 grid gap-2 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Transmission</p>
+                          <p className="font-medium text-white">{v.transmission || 'Auto'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] uppercase text-slate-500">Location</p>
+                          <p className="font-medium text-white">{v.location || v.city || 'Contact us'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-slate-400">Daily rate</p>
+                          <p className="text-lg font-semibold text-red-400">{price}</p>
+                        </div>
+                        <span className="rounded-[14px] bg-yellow-500/10 px-3 py-2 text-xs font-semibold uppercase text-yellow-400">Book now</span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -430,45 +432,46 @@ export default async function HomePage() {
 
                 return (
                   <Link key={p.id} href={`/shop/${p.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
-                  <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
-                        No Image
+                    <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
+                          No Image
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <div className="absolute left-4 top-4 rounded-full bg-[#121212]/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-100">
+                        {p.category?.name || 'Parts'}
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <div className="absolute left-4 top-4 rounded-full bg-[#121212]/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-100">
-                      {p.category?.name || 'Parts'}
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{p.name}</h3>
-                        <p className="text-sm text-slate-400">{p.category?.name || 'Auto spare'}</p>
-                      </div>
-                      <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Shop</span>
                     </div>
 
-                    <div className="mt-4 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300">
-                      <div className="flex items-center justify-between">
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-[11px] uppercase text-slate-500">Price</p>
-                          <p className="mt-1 font-semibold text-red-400">{price}</p>
+                          <h3 className="text-lg font-semibold text-white">{p.name}</h3>
+                          <p className="text-sm text-slate-400">{p.category?.name || 'Auto spare'}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-[11px] uppercase text-slate-500">Availability</p>
-                          <p className="mt-1 font-medium text-white">{p.inStock === false ? 'Limited' : 'In stock'}</p>
+                        <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] uppercase text-slate-400">Shop</span>
+                      </div>
+
+                      <div className="mt-4 rounded-[16px] bg-[#111111] p-3 text-sm text-slate-300">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-[11px] uppercase text-slate-500">Price</p>
+                            <p className="mt-1 font-semibold text-red-400">{price}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[11px] uppercase text-slate-500">Availability</p>
+                            <p className="mt-1 font-medium text-white">{p.inStock === false ? 'Limited' : 'In stock'}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
