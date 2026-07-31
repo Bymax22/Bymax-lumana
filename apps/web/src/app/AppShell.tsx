@@ -151,7 +151,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <CurrencyProvider>
-      <main className="min-h-screen bg-[#050505] text-white">
+      <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
         <div className="overflow-hidden bg-yellow-400 px-3 py-2 text-sm text-[#0b0b0b] sm:px-4">
           <div className="mx-auto max-w-[1660px]">
             <div className="relative overflow-hidden">
@@ -168,7 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
+        <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
           <div className="flex items-center justify-center rounded-[22px] bg-[#101010] px-4 py-4">
             <div className="flex h-20 w-full max-w-[190px] items-center justify-center overflow-hidden rounded-[18px] bg-[#111111] p-3">
@@ -289,11 +289,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 h-full w-[74vw] max-w-[240px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <nav className={`fixed left-0 top-0 z-50 h-full w-[82vw] max-w-[280px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
               <div className="flex items-center gap-3">
-                <div className="relative h-11 w-11 overflow-hidden rounded-[16px] bg-[#111111]">
-                  <img src="/lumana-logo.png" alt="Lumana logo" className="h-full w-full object-cover" />
+                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[16px] bg-[#111111] p-2">
+                  <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Lumana</p>
@@ -338,29 +338,31 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
 
-          <section className="flex-1 space-y-6 pb-24 lg:pb-0">
-            <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  aria-label="Open navigation"
-                  onClick={() => setMobileNavOpen(true)}
-                  className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#121212] text-slate-100 lg:hidden"
-                >
-                  {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
-                <SearchBox />
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <CurrencySwitcher />
-                <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300">♡</button>
-                <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300"><Bell className="h-4 w-4" /></button>
-                <Link href="/auth/login" className="rounded-[18px] bg-[#141414] px-2 py-1 text-sm text-white">Login</Link>
-                <Link href="/auth/signup" className="rounded-[18px] bg-yellow-500 px-3 py-1 text-sm font-semibold text-[#0b0b0b]">Sign Up</Link>
+          <section className="flex-1 min-w-0 space-y-6 pb-24 lg:pb-0">
+            <div className="rounded-[24px] bg-[#0d0d0d] p-4 shadow-[0_30px_60px_rgba(0,0,0,0.35)] sm:p-6">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    aria-label="Open navigation"
+                    onClick={() => setMobileNavOpen(true)}
+                    className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#121212] text-slate-100 lg:hidden"
+                  >
+                    {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                  </button>
+                  <div className="w-full sm:flex-1">
+                    <SearchBox />
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <CurrencySwitcher />
+                  <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300">♡</button>
+                  <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300"><Bell className="h-4 w-4" /></button>
+                  <Link href="/auth/login" className="rounded-[18px] bg-[#141414] px-2 py-1 text-sm text-white">Login</Link>
+                  <Link href="/auth/signup" className="rounded-[18px] bg-yellow-500 px-3 py-1 text-sm font-semibold text-[#0b0b0b]">Sign Up</Link>
+                </div>
               </div>
             </div>
-          </div>
 
             {children}
           </section>
@@ -406,15 +408,15 @@ function SearchBox() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex items-center gap-3 rounded-[18px] bg-[#121212] px-3 py-2 text-sm text-slate-300">
+    <form onSubmit={onSubmit} className="flex w-full items-center gap-2 rounded-[18px] bg-[#121212] px-3 py-2 text-sm text-slate-300">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search vehicles, make, model, VIN..."
-        className="w-full bg-transparent outline-none text-slate-200"
+        className="min-w-0 flex-1 bg-transparent outline-none text-slate-200"
         aria-label="Search vehicles"
       />
-      <button type="submit" className="rounded-[12px] bg-red-600 px-3 py-1 text-sm text-white">Search</button>
+      <button type="submit" className="shrink-0 rounded-[12px] bg-red-600 px-3 py-1 text-sm text-white">Search</button>
     </form>
   );
 }
