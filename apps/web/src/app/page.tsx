@@ -227,11 +227,34 @@ export default async function HomePage() {
                       : typeof item?.dailyRate === 'number'
                         ? `$${item.dailyRate.toLocaleString()}/day`
                         : 'View details';
+                    const badge = section.href.startsWith('/vehicles')
+                      ? 'Featured'
+                      : section.href.startsWith('/hire')
+                        ? 'Available'
+                        : 'Popular';
+                    const metaItems: Array<{ label: string; value: string }> = [];
+
+                    if (section.href.startsWith('/vehicles')) {
+                      if (item?.year) metaItems.push({ label: 'Year', value: String(item.year) });
+                      if (item?.mileage != null) metaItems.push({ label: 'Mileage', value: `${String(item.mileage)} km` });
+                      if (item?.fuelType) metaItems.push({ label: 'Fuel', value: item.fuelType });
+                      if (item?.transmission) metaItems.push({ label: 'Transmission', value: item.transmission });
+                      if (item?.location) metaItems.push({ label: 'Location', value: item.location });
+                    } else if (section.href.startsWith('/hire')) {
+                      if (item?.seats) metaItems.push({ label: 'Seats', value: String(item.seats) });
+                      if (item?.transmission) metaItems.push({ label: 'Transmission', value: item.transmission });
+                      if (item?.location) metaItems.push({ label: 'Location', value: item.location });
+                      if (item?.availability) metaItems.push({ label: 'Status', value: item.availability });
+                    } else if (section.href.startsWith('/shop')) {
+                      if (item?.category?.name || item?.category) metaItems.push({ label: 'Category', value: item.category?.name || item.category });
+                      if (item?.brand?.name || item?.brand) metaItems.push({ label: 'Brand', value: item.brand?.name || item.brand });
+                      metaItems.push({ label: 'Stock', value: item?.inStock === false ? 'Limited' : 'In stock' });
+                    }
 
                     return (
                       <Link
                         key={item?.id ?? item?.slug ?? title ?? index}
-                        href={section.href}
+                        href={(() => { const id = item?.id ?? item?.slug; if (typeof section.href === 'string') { if (section.href.startsWith('/vehicles')) return id ? `/vehicles/${id}` : section.href; if (section.href.startsWith('/hire')) return id ? `/hire/${id}` : section.href; if (section.href.startsWith('/shop')) return id ? `/shop/${id}` : section.href; } return section.href; })()}
                         className="group rounded-[18px] border border-slate-800 bg-[#121212] p-3 transition hover:border-red-500/50"
                       >
                         <div className="aspect-[4/3] overflow-hidden rounded-[14px] bg-[#0d0d0d]">
@@ -243,10 +266,30 @@ export default async function HomePage() {
                             </div>
                           )}
                         </div>
-                        <div className="mt-3">
-                          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{detail}</p>
-                          <h4 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{title}</h4>
-                          <p className="mt-2 text-sm font-semibold text-yellow-400">{price}</p>
+                        <div className="mt-3 space-y-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{detail}</p>
+                            <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">{badge}</span>
+                          </div>
+                          <h4 className="line-clamp-2 text-sm font-semibold text-white">{title}</h4>
+                          {metaItems.length > 0 && (
+                            <div className="rounded-[12px] border border-slate-800 bg-[#0d0d0d] p-2.5">
+                              <div className="flex flex-wrap gap-2">
+                                {metaItems.slice(0, 3).map((meta) => (
+                                  <span key={`${meta.label}-${meta.value}`} className="rounded-full bg-[#171717] px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-slate-400">
+                                    {meta.label}: {meta.value}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Starting from</p>
+                              <p className="mt-1 text-sm font-semibold text-yellow-400">{price}</p>
+                            </div>
+                            <span className="rounded-[14px] bg-red-600/10 px-3 py-2 text-xs font-semibold uppercase text-red-400">View details</span>
+                          </div>
                         </div>
                       </Link>
                     );
