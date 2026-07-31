@@ -168,7 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="mx-auto flex min-h-screen max-w-[1660px] gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
+        <div className="mx-auto flex min-h-screen w-full max-w-[1660px] min-w-0 gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
           <div className="flex items-center justify-center rounded-[22px] bg-[#101010] px-4 py-4">
             <div className="flex h-20 w-full max-w-[190px] items-center justify-center overflow-hidden rounded-[18px] bg-[#111111] p-3">
@@ -279,7 +279,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex flex-1 gap-3">
+        <div className="flex min-w-0 flex-1 gap-3">
           {mobileNavOpen ? (
             <button
               type="button"
