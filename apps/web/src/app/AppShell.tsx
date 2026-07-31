@@ -152,17 +152,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <CurrencyProvider>
       <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
-        <div className="overflow-hidden bg-yellow-400 px-3 py-2 text-sm text-[#0b0b0b] sm:px-4">
+        <div className="overflow-hidden border-b border-black/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-3 py-2.5 text-sm text-[#0b0b0b] shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-4">
           <div className="mx-auto max-w-[1660px]">
-            <div className="relative overflow-hidden">
-              <div className="animate-[marquee_50s_linear_infinite] whitespace-nowrap font-medium">
-                <span className="mr-16">Lumana AutoPlanet by Lumana Investment Ltd is under development</span>
-                <span className="mr-16">We are still setting up your premium experience.</span>
-                <span className="mr-16">Order any car from Lumana with just 30% down payment.</span>
-                <span className="mr-16">For more info click to chat with us on WhatsApp +260977635060.</span>
-                <span className="mr-16">We are still setting up your premium experience.</span>
-                <span className="mr-16">Order any car from Lumana with just 30% down payment.</span>
-                <span className="mr-16">For more info click to chat with us on WhatsApp +260977635060.</span>
+            <div className="relative overflow-hidden rounded-full border border-black/10 bg-white/30 px-3 py-2 backdrop-blur-sm">
+              <div className="flex w-max animate-[marquee_22s_linear_infinite] items-center gap-10 whitespace-nowrap font-medium tracking-[0.02em]">
+                <span className="rounded-full bg-[#0b0b0b] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">New</span>
+                <span className="text-sm sm:text-[15px]">Lumana AutoPlanet by Lumana Investment Ltd is under development</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
+                <span className="text-sm sm:text-[15px]">We are still setting up your premium experience.</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
+                <span className="text-sm sm:text-[15px]">Order any car from Lumana with just 30% down payment.</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
+                <span className="text-sm sm:text-[15px]">For more info click to chat with us on WhatsApp +260977635060.</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
+                <span className="text-sm sm:text-[15px]">We are still setting up your premium experience.</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
+                <span className="text-sm sm:text-[15px]">Order any car from Lumana with just 30% down payment.</span>
               </div>
             </div>
           </div>

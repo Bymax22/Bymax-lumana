@@ -106,6 +106,35 @@ export default async function HomePage() {
               <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-sm font-semibold uppercase text-white">View Available Fleet</Link>
               <Link href="/shop" className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">Shop Auto Parts</Link>
             </div>
+            {Array.isArray(vehicles) && vehicles.length > 0 && (
+              <div className="mt-6">
+                <p className="mb-3 text-sm text-slate-400">Trending Now</p>
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {vehicles.slice(0,6).map((v: any) => {
+                    const img = getItemImageUrl(v);
+                    const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
+
+                    return (
+                      <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="min-w-[12rem] w-48 flex-shrink-0 rounded-lg bg-[#0b0b0b] p-3 shadow-[0_6px_18px_rgba(0,0,0,0.45)] transition-transform duration-200 hover:scale-105">
+                        <div className="h-24 w-full overflow-hidden rounded-md bg-[#0d0d0d]">
+                          {img ? (
+                            <img src={img} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-sm text-slate-500">No Image</div>
+                          )}
+                        </div>
+
+                        <div className="mt-2">
+                          <p className="text-sm font-semibold text-white">{v.make} {v.model}</p>
+                          <p className="text-xs text-slate-400">{v.year || '—'}</p>
+                          <p className="mt-1 text-sm text-red-400">{price}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="relative mx-auto mt-6 h-[420px] w-full max-w-[540px] overflow-hidden rounded-[28px] bg-[#111111] px-6 py-8">
