@@ -225,9 +225,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   const logoUrl = typeof brand?.logoUrl === 'string' ? brand.logoUrl.trim() : '';
                   const title = brand?.name || brand?.brand?.name || 'Brand';
                   const countText = brand?.vehicleCount ? `${brand.vehicleCount} Vehicles` : '';
+                  const brandHref = `/vehicles?make=${encodeURIComponent(String(title))}`;
 
                   return (
-                    <div key={brand?.id || title} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
+                    <Link key={brand?.id || title} href={brandHref} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3 transition hover:bg-[#171717]">
                       <div className="flex items-center gap-3">
                         <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-red-600 text-sm font-bold text-white">
                           {!logoUrl ? (
@@ -242,7 +243,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         </div>
                       </div>
                       <span className="text-xs text-red-400">›</span>
-                    </div>
+                    </Link>
                   );
                 })
               ) : (
@@ -251,7 +252,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
-            <Link href="/dealers" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
+            <Link href="/vehicles" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
           </div>
 
           <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">

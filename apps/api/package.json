@@ -8,7 +8,8 @@
     "prebuild": "prisma generate --schema=./prisma/schema.prisma",
     "build": "nest build",
     "postinstall": "prisma generate --schema=./prisma/schema.prisma",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

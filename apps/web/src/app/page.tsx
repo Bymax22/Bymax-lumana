@@ -91,6 +91,30 @@ export default async function HomePage() {
 
   const liveList = Array.isArray(auctions) ? auctions.filter((a: any) => a.status === 'LIVE').slice(0, 4) : [];
   const popularBrands = Array.isArray(brands) && brands.length ? brands : brandCounts;
+  const browseVehicleCards = Array.isArray(vehicles) ? vehicles.slice(0, 6) : [];
+  const rentalFleetCards = Array.isArray(featuredRentals) ? featuredRentals.slice(0, 6) : [];
+  const autoSpareCards = Array.isArray(featuredProducts) ? featuredProducts.slice(0, 6) : [];
+
+  const catalogSections = [
+    {
+      title: 'Browse Vehicles',
+      description: 'Shop curated vehicles and imports ready for viewing.',
+      href: '/vehicles',
+      cards: browseVehicleCards,
+    },
+    {
+      title: 'Rental Fleet',
+      description: 'Short-term and long-term rental options for every trip.',
+      href: '/hire',
+      cards: rentalFleetCards,
+    },
+    {
+      title: 'Auto Spares',
+      description: 'Find trusted parts, batteries, and accessories.',
+      href: '/shop',
+      cards: autoSpareCards,
+    },
+  ];
 
   return (
     <section className="space-y-6">
@@ -163,34 +187,78 @@ export default async function HomePage() {
       </div>
 
       <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm uppercase text-slate-400">Our Main Services</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">Cars, Fleet Hire, and Auto Spares in one place</h2>
+            <p className="text-sm uppercase text-slate-400">Explore Our Marketplace</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Browse vehicles, rental fleet, and auto spares in one place</h2>
           </div>
+          <Link href="/vehicles" className="text-sm font-semibold text-yellow-400">Browse all listings →</Link>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          <Link href="/vehicles" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
-            <p className="text-sm uppercase text-red-400">Car Sales & Imports</p>
-            <h3 className="mt-3 text-xl font-semibold text-white">Find your next vehicle</h3>
-            <p className="mt-2 text-sm text-slate-400">Browse quality cars, imports, and auction-ready listings with simple buying support.</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">Explore vehicles →</span>
-          </Link>
+        <div className="mt-6 space-y-6">
+          {catalogSections.map((section) => (
+            <div key={section.title}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{section.title}</h3>
+                  <p className="mt-1 text-sm text-slate-400">{section.description}</p>
+                </div>
+                <Link href={section.href} className="text-sm font-semibold text-red-400">View all</Link>
+              </div>
 
-          <Link href="/hire" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
-            <p className="text-sm uppercase text-red-400">Vehicle Hire</p>
-            <h3 className="mt-3 text-xl font-semibold text-white">View our available fleet</h3>
-            <p className="mt-2 text-sm text-slate-400">Book flexible rental vehicles for business travel, family use, or long stays.</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">View fleet →</span>
-          </Link>
+              {section.cards.length ? (
+                <div className="mt-4 grid grid-cols-3 gap-3 xl:grid-cols-6 xl:gap-4">
+                  {section.cards.map((item: any, index: number) => {
+                    const imageUrl = getItemImageUrl(item);
+                    const title = typeof item?.title === 'string' && item.title.trim()
+                      ? item.title
+                      : typeof item?.name === 'string' && item.name.trim()
+                        ? item.name
+                        : [item?.make, item?.model].filter(Boolean).join(' ') || 'Featured item';
+                    const detail = typeof item?.year === 'number'
+                      ? `${item.year}`
+                      : typeof item?.category === 'string' && item.category.trim()
+                        ? item.category
+                        : typeof item?.location === 'string' && item.location.trim()
+                          ? item.location
+                          : 'Popular choice';
+                    const price = typeof item?.price === 'number'
+                      ? `$${item.price.toLocaleString()}`
+                      : typeof item?.dailyRate === 'number'
+                        ? `$${item.dailyRate.toLocaleString()}/day`
+                        : 'View details';
 
-          <Link href="/shop" className="rounded-[20px] border border-slate-800 bg-[#121212] p-5 transition hover:border-red-500/50">
-            <p className="text-sm uppercase text-red-400">Auto Spares</p>
-            <h3 className="mt-3 text-xl font-semibold text-white">Shop parts & accessories</h3>
-            <p className="mt-2 text-sm text-slate-400">Find batteries, body parts, accessories, and workshop essentials for your vehicle.</p>
-            <span className="mt-4 inline-flex text-sm font-semibold text-yellow-400">Shop auto parts →</span>
-          </Link>
+                    return (
+                      <Link
+                        key={item?.id ?? item?.slug ?? title ?? index}
+                        href={section.href}
+                        className="group rounded-[18px] border border-slate-800 bg-[#121212] p-3 transition hover:border-red-500/50"
+                      >
+                        <div className="aspect-[4/3] overflow-hidden rounded-[14px] bg-[#0d0d0d]">
+                          {imageUrl ? (
+                            <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-slate-500">
+                              {section.title}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-3">
+                          <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{detail}</p>
+                          <h4 className="mt-1 line-clamp-2 text-sm font-semibold text-white">{title}</h4>
+                          <p className="mt-2 text-sm font-semibold text-yellow-400">{price}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-4 rounded-[16px] border border-dashed border-slate-800 bg-[#121212]/70 p-4 text-sm text-slate-400">
+                  No listings available right now. Please check back soon.
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -355,8 +423,10 @@ export default async function HomePage() {
             {(popularBrands || []).slice(0,6).map((b: any) => {
               const logoUrl = b.logoUrl?.trim();
               const title = b.name || b.name || b;
+              const brandHref = `/vehicles?make=${encodeURIComponent(String(title))}`;
+
               return (
-                <div key={b.id || title || b} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3">
+                <Link key={b.id || title || b} href={brandHref} className="flex items-center justify-between rounded-[18px] bg-[#121212] px-4 py-3 transition hover:bg-[#171717]">
                   <div className="flex items-center gap-3">
                     <BrandLogo title={String(title)} logoUrl={logoUrl} />
                     <div>
@@ -365,11 +435,11 @@ export default async function HomePage() {
                     </div>
                   </div>
                   <span className="text-xs text-red-400">›</span>
-                </div>
+                </Link>
               );
             })}
           </div>
-          <Link href="/dealers" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
+          <Link href="/vehicles" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
         </div>
       </div>
 
