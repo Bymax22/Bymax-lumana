@@ -20,7 +20,7 @@ import { ReportDamageDto } from './dtos/report-damage.dto';
 import { GPSLocationDto } from './dtos/gps-location.dto';
 import { CloudinaryService } from '../admin/services/cloudinary.service';
 
-@Controller('api/hire')
+@Controller(['hire', 'api/hire'])
 export class HireController {
   constructor(
     private hireService: HireService,

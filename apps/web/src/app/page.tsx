@@ -91,30 +91,6 @@ export default async function HomePage() {
 
   const liveList = Array.isArray(auctions) ? auctions.filter((a: any) => a.status === 'LIVE').slice(0, 4) : [];
   const popularBrands = Array.isArray(brands) && brands.length ? brands : brandCounts;
-  const browseVehicleCards = Array.isArray(vehicles) ? vehicles.slice(0, 6) : [];
-  const rentalFleetCards = Array.isArray(featuredRentals) ? featuredRentals.slice(0, 6) : [];
-  const autoSpareCards = Array.isArray(featuredProducts) ? featuredProducts.slice(0, 6) : [];
-
-  const catalogSections = [
-    {
-      title: 'Browse Vehicles',
-      description: 'Shop curated vehicles and imports ready for viewing.',
-      href: '/vehicles',
-      cards: browseVehicleCards,
-    },
-    {
-      title: 'Rental Fleet',
-      description: 'Short-term and long-term rental options for every trip.',
-      href: '/hire',
-      cards: rentalFleetCards,
-    },
-    {
-      title: 'Auto Spares',
-      description: 'Find trusted parts, batteries, and accessories.',
-      href: '/shop',
-      cards: autoSpareCards,
-    },
-  ];
 
   return (
     <section className="space-y-6">
@@ -186,126 +162,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm uppercase text-slate-400">Explore Our Marketplace</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">Browse vehicles, rental fleet, and auto spares in one place</h2>
-          </div>
-          <Link href="/vehicles" className="text-sm font-semibold text-yellow-400">Browse all listings →</Link>
-        </div>
-
-        <div className="mt-6 space-y-6">
-          {catalogSections.map((section) => (
-            <div key={section.title}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{section.title}</h3>
-                  <p className="mt-1 text-sm text-slate-400">{section.description}</p>
-                </div>
-                <Link href={section.href} className="text-sm font-semibold text-red-400">View all</Link>
-              </div>
-
-              {section.cards.length ? (
-                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
-                  {section.cards.map((item: any, index: number) => {
-                    const imageUrl = getItemImageUrl(item);
-                    const title = typeof item?.title === 'string' && item.title.trim()
-                      ? item.title
-                      : typeof item?.name === 'string' && item.name.trim()
-                        ? item.name
-                        : [item?.make, item?.model].filter(Boolean).join(' ') || 'Featured item';
-                    const detail = typeof item?.year === 'number'
-                      ? `${item.year}`
-                      : typeof item?.category === 'string' && item.category.trim()
-                        ? item.category
-                        : typeof item?.location === 'string' && item.location.trim()
-                          ? item.location
-                          : 'Popular choice';
-                    const price = typeof item?.price === 'number'
-                      ? `$${item.price.toLocaleString()}`
-                      : typeof item?.dailyRate === 'number'
-                        ? `$${item.dailyRate.toLocaleString()}/day`
-                        : 'View details';
-                    const badge = section.href.startsWith('/vehicles')
-                      ? 'Featured'
-                      : section.href.startsWith('/hire')
-                        ? 'Available'
-                        : 'Popular';
-                    const metaItems: Array<{ label: string; value: string }> = [];
-
-                    if (section.href.startsWith('/vehicles')) {
-                      if (item?.year) metaItems.push({ label: 'Year', value: String(item.year) });
-                      if (item?.mileage != null) metaItems.push({ label: 'Mileage', value: `${String(item.mileage)} km` });
-                      if (item?.fuelType) metaItems.push({ label: 'Fuel', value: item.fuelType });
-                      if (item?.transmission) metaItems.push({ label: 'Transmission', value: item.transmission });
-                      if (item?.location) metaItems.push({ label: 'Location', value: item.location });
-                    } else if (section.href.startsWith('/hire')) {
-                      if (item?.seats) metaItems.push({ label: 'Seats', value: String(item.seats) });
-                      if (item?.transmission) metaItems.push({ label: 'Transmission', value: item.transmission });
-                      if (item?.location) metaItems.push({ label: 'Location', value: item.location });
-                      if (item?.availability) metaItems.push({ label: 'Status', value: item.availability });
-                    } else if (section.href.startsWith('/shop')) {
-                      if (item?.category?.name || item?.category) metaItems.push({ label: 'Category', value: item.category?.name || item.category });
-                      if (item?.brand?.name || item?.brand) metaItems.push({ label: 'Brand', value: item.brand?.name || item.brand });
-                      metaItems.push({ label: 'Stock', value: item?.inStock === false ? 'Limited' : 'In stock' });
-                    }
-
-                    return (
-                      <Link
-                        key={item?.id ?? item?.slug ?? title ?? index}
-                        href={(() => { const id = item?.id ?? item?.slug; if (typeof section.href === 'string') { if (section.href.startsWith('/vehicles')) return id ? `/vehicles/${id}` : section.href; if (section.href.startsWith('/hire')) return id ? `/hire/${id}` : section.href; if (section.href.startsWith('/shop')) return id ? `/shop/${id}` : section.href; } return section.href; })()}
-                        className="group overflow-hidden rounded-[20px] bg-[#111111] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(0,0,0,0.24)]"
-                      >
-                        <div className="aspect-[4/3] overflow-hidden rounded-[14px] bg-[#0d0d0d]">
-                          {imageUrl ? (
-                            <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-slate-500">
-                              {section.title}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-3 space-y-3">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">{detail}</p>
-                            <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">{badge}</span>
-                          </div>
-                          <h4 className="line-clamp-2 text-sm font-semibold text-white">{title}</h4>
-                          {metaItems.length > 0 && (
-                            <div className="rounded-[12px] bg-[#0d0d0d] p-2.5">
-                              <div className="flex flex-wrap gap-2">
-                                {metaItems.slice(0, 3).map((meta) => (
-                                  <span key={`${meta.label}-${meta.value}`} className="rounded-full bg-[#171717] px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-slate-400">
-                                    {meta.label}: {meta.value}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Starting from</p>
-                              <p className="mt-1 text-sm font-semibold text-yellow-400">{price}</p>
-                            </div>
-                            <span className="rounded-[14px] bg-red-600/10 px-3 py-2 text-xs font-semibold uppercase text-red-400">View details</span>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="mt-4 rounded-[16px] border border-dashed border-slate-800 bg-[#121212]/70 p-4 text-sm text-slate-400">
-                  No listings available right now. Please check back soon.
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main grid */}
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr_1fr]">
         {/* Live auctions */}
         <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
@@ -403,7 +259,7 @@ export default async function HomePage() {
                 const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/vehicles/${v.id}`} className="group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />

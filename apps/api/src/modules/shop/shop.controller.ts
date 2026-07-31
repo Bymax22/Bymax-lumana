@@ -17,7 +17,7 @@ import { CreateReviewDto } from './dtos/create-review.dto';
 import { AddToCartDto } from './dtos/add-to-cart.dto';
 import { CreateOrderDto } from './dtos/create-order.dto';
 
-@Controller('api/shop')
+@Controller(['shop', 'api/shop'])
 export class ShopController {
   constructor(private shopService: ShopService) {}
 
