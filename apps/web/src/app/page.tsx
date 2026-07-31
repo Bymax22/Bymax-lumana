@@ -93,7 +93,7 @@ export default async function HomePage() {
   const popularBrands = Array.isArray(brands) && brands.length ? brands : brandCounts;
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 overflow-x-hidden">
       {/* Hero */}
       <div className="rounded-[24px] bg-[#0d0d0d] p-8 shadow-lg">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
@@ -286,14 +286,14 @@ export default async function HomePage() {
             <Link href="/vehicles" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse All</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4">
+          <div className="mt-6 overflow-x-auto pb-4 pr-2">
             <div className="flex snap-x snap-mandatory gap-4">
               {vehicles.slice(0, 6).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -355,14 +355,14 @@ export default async function HomePage() {
             <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">View All Fleet</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4">
+          <div className="mt-6 overflow-x-auto pb-4 pr-2">
             <div className="flex snap-x snap-mandatory gap-4">
               {(featuredRentals as any).slice(0,6).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -424,14 +424,14 @@ export default async function HomePage() {
             <Link href="/shop" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse Parts</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-4">
+          <div className="mt-6 overflow-x-auto pb-4 pr-2">
             <div className="flex snap-x snap-mandatory gap-4">
               {(featuredProducts as any).slice(0,6).map((p: any) => {
                 const imageUrl = getItemImageUrl(p);
                 const price = p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact';
 
                 return (
-                  <Link key={p.id} href={`/shop/${p.id}`} className="snap-start flex-shrink-0 min-w-[48%] sm:min-w-[48%] xl:min-w-[22rem] group block overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)]">
+                  <Link key={p.id} href={`/shop/${p.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
