@@ -294,48 +294,70 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 h-full w-[82vw] max-w-[280px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
-              <div className="flex items-center">
-                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[16px] bg-[#111111] p-2">
-                  <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
+          <nav className={`fixed left-0 top-0 z-50 h-full w-[88vw] max-w-[320px] transform overflow-hidden rounded-r-[24px] border-r border-white/10 bg-[linear-gradient(180deg,#0b0d12_0%,#12161e_100%)] shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="border-b border-white/10 bg-[#0f1218] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] bg-[#161b24] p-2">
+                    <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Lumana AutoPlanet</p>
+                    <p className="text-xs text-slate-400">Premium marketplace</p>
+                  </div>
+                </div>
+                <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Link href="/vehicles" onClick={() => setMobileNavOpen(false)} className="rounded-[14px] bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white">
+                  Browse Cars
+                </Link>
+                <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="rounded-[14px] bg-[#161b24] px-3 py-2 text-center text-sm font-semibold text-slate-200">
+                  Contact Us
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-3 py-3">
+              <div className="rounded-[18px] border border-white/10 bg-[#11151c] p-2">
+                <div className="space-y-1.5">
+                  {navItems.map((item) => {
+                    const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileNavOpen(false)}
+                        className={
+                          'flex items-center gap-2.5 rounded-[14px] px-2.5 py-2.5 text-sm transition ' +
+                          (active ? 'bg-red-600/90 text-white shadow-sm' : 'text-slate-300 hover:bg-white/5')
+                        }
+                      >
+                        <span className={'flex h-8 w-8 items-center justify-center rounded-[12px] ' + (active ? 'bg-white/15 text-white' : 'bg-[#191f2a] text-red-400')}>
+                          {item.icon}
+                        </span>
+                        <span className="flex-1 font-medium">{item.label}</span>
+                        {item.badge ? (
+                          <span className="rounded-[12px] bg-red-600 px-2 py-1 text-[10px] font-semibold uppercase text-white">
+                            {item.badge}
+                          </span>
+                        ) : null}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
-              <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-white/5 text-slate-200">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
-            <div className="mt-4 space-y-1.5">
-              {navItems.map((item) => {
-                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileNavOpen(false)}
-                    className={
-                      'flex items-center gap-2.5 rounded-[16px] px-2.5 py-2.5 text-sm transition ' +
-                      (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
-                    }
-                  >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-[12px] text-red-400">
-                      {item.icon}
-                    </span>
-                    <span className="flex-1 font-medium">{item.label}</span>
-                    {item.badge ? (
-                      <span className="rounded-[12px] bg-red-600 px-2 py-1 text-[10px] font-semibold uppercase text-white">
-                        {item.badge}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="mt-6 rounded-[20px] bg-[#101010] p-4 text-sm text-slate-300">
-              <p className="text-sm uppercase text-yellow-400">Need Help?</p>
-              <p className="mt-2">Our support team is ready to assist you 24/7.</p>
+              <div className="mt-3 rounded-[18px] border border-white/10 bg-[#11151c] p-4 text-sm text-slate-300">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Need Help?</p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">Speak to our team for vehicle sourcing, import support, and account help.</p>
+                <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-[14px] bg-yellow-500 px-3 py-2 text-sm font-semibold text-[#0b0b0b]">
+                  Contact Support
+                </Link>
+              </div>
             </div>
           </nav>
 
