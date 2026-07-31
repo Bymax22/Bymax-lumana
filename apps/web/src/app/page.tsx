@@ -277,7 +277,7 @@ export default async function HomePage() {
 
       {/* Browse Vehicles */}
       {Array.isArray(vehicles) && vehicles.length > 0 && (
-        <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+        <div className="mt-6 overflow-hidden rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase text-slate-400">Browse Vehicles</p>
@@ -287,13 +287,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4">
+            <div className="flex snap-x snap-mandatory gap-4 pr-1">
               {vehicles.slice(0, 6).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
+                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block min-w-[260px] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:min-w-[280px] xl:min-w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -346,7 +346,7 @@ export default async function HomePage() {
 
       {/* Featured Rentals */}
       {Array.isArray((featuredRentals as any) || []) && (featuredRentals as any).length > 0 && (
-        <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+        <div className="mt-6 overflow-hidden rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase text-slate-400">Vehicle Hire</p>
@@ -356,13 +356,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4">
+            <div className="flex snap-x snap-mandatory gap-4 pr-1">
               {(featuredRentals as any).slice(0,6).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block min-w-[260px] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:min-w-[280px] xl:min-w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
@@ -415,7 +415,7 @@ export default async function HomePage() {
 
       {/* Featured Products */}
       {Array.isArray((featuredProducts as any) || []) && (featuredProducts as any).length > 0 && (
-        <div className="mt-6 rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+        <div className="mt-6 overflow-hidden rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase text-slate-400">Auto Spares</p>
@@ -425,13 +425,13 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-4 pr-2">
-            <div className="flex snap-x snap-mandatory gap-4">
+            <div className="flex snap-x snap-mandatory gap-4 pr-1">
               {(featuredProducts as any).slice(0,6).map((p: any) => {
                 const imageUrl = getItemImageUrl(p);
                 const price = p.price ? <ConvertedAmount amountUsd={p.price} /> : 'Contact';
 
                 return (
-                  <Link key={p.id} href={`/shop/${p.id}`} className="group block w-[85%] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[48%] xl:w-[22rem]">
+                  <Link key={p.id} href={`/shop/${p.id}`} className="group block min-w-[260px] max-w-[22rem] flex-shrink-0 snap-start overflow-hidden rounded-[22px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:min-w-[280px] xl:min-w-[22rem]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={p.name || 'Auto spare'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />

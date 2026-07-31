@@ -291,13 +291,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           <nav className={`fixed left-0 top-0 z-50 h-full w-[82vw] max-w-[280px] transform overflow-y-auto rounded-r-[24px] border-r border-white/10 bg-[#0b0b0b] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex items-center justify-between rounded-[22px] bg-[#101010] px-4 py-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center">
                 <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[16px] bg-[#111111] p-2">
                   <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Lumana</p>
-                  <p className="text-sm font-semibold text-white">AutoPlanet</p>
                 </div>
               </div>
               <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-white/5 text-slate-200">
