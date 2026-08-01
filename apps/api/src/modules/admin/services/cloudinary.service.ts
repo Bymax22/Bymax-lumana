@@ -3,6 +3,12 @@ import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class CloudinaryService {
+  private readonly hasCloudinaryConfig = Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET,
+  );
+
   constructor() {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,7 +20,11 @@ export class CloudinaryService {
   async uploadImage(
     file: Express.Multer.File,
     folder: string = 'lumana',
-  ): Promise<{ url: string; publicId: string }> {
+  ): Promise<{ url: string; publicId: string } | null> {
+    if (!this.hasCloudinaryConfig) {
+      return null;
+    }
+
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
@@ -27,7 +37,7 @@ export class CloudinaryService {
             return;
           }
           if (!result || !result.secure_url || !result.public_id) {
-            reject(new Error('Cloudinary upload failed')); 
+            reject(new Error('Cloudinary upload failed'));
             return;
           }
           resolve({
@@ -56,6 +66,9 @@ export class CloudinaryService {
     files: Express.Multer.File[],
     folder: string = 'lumana',
   ): Promise<{ url: string; publicId: string }[]> {
-    return Promise.all(files.map((file) => this.uploadImage(file, folder)));
+    const results = await Promise.all(files.map((file) => this.uploadImage(file, folder)));
+    return results.filter(
+      (result): result is { url: string; publicId: string } => result !== null,
+    );
   }
 }

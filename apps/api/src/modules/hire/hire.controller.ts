@@ -38,7 +38,14 @@ export class HireController {
   async createVehicle(@Body() dto: CreateRentalVehicleDto, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
     const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
     const uploadedUrls = uploadedFiles.length
-      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
+      ? (
+          await Promise.all(
+            uploadedFiles.map(async (file) => {
+              const result = await this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles');
+              return result?.url ?? null;
+            }),
+          )
+        ).filter((url): url is string => Boolean(url))
       : [];
 
     return this.hireService.createRentalVehicle({
@@ -76,7 +83,14 @@ export class HireController {
   async updateVehicle(@Param('id') id: string, @Body() dto: Partial<CreateRentalVehicleDto>, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
     const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
     const uploadedUrls = uploadedFiles.length
-      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles').then((result) => result.url)))
+      ? (
+          await Promise.all(
+            uploadedFiles.map(async (file) => {
+              const result = await this.cloudinaryService.uploadImage(file, 'lumana/rental-vehicles');
+              return result?.url ?? null;
+            }),
+          )
+        ).filter((url): url is string => Boolean(url))
       : [];
 
     return this.hireService.updateRentalVehicle(id, {

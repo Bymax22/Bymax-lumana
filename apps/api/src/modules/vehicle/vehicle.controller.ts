@@ -42,7 +42,14 @@ export class VehicleController {
   async create(@Body() body: any, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
     const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
     const uploadedUrls = uploadedFiles.length
-      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+      ? (
+          await Promise.all(
+            uploadedFiles.map(async (file) => {
+              const result = await this.cloudinaryService.uploadImage(file, 'lumana/vehicles');
+              return result?.url ?? null;
+            }),
+          )
+        ).filter((url): url is string => Boolean(url))
       : [];
 
     return this.service.create({
@@ -60,7 +67,14 @@ export class VehicleController {
   async update(@Param('id') id: string, @Body() body: any, @UploadedFiles() files?: { images?: Express.Multer.File[]; image?: Express.Multer.File[] }) {
     const uploadedFiles = [...(files?.images || []), ...(files?.image || [])];
     const uploadedUrls = uploadedFiles.length
-      ? await Promise.all(uploadedFiles.map((file) => this.cloudinaryService.uploadImage(file, 'lumana/vehicles').then((result) => result.url)))
+      ? (
+          await Promise.all(
+            uploadedFiles.map(async (file) => {
+              const result = await this.cloudinaryService.uploadImage(file, 'lumana/vehicles');
+              return result?.url ?? null;
+            }),
+          )
+        ).filter((url): url is string => Boolean(url))
       : [];
 
     return this.service.update(id, {

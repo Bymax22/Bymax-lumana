@@ -28,10 +28,18 @@ export class AdminBrandController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     let logoUrl: string | undefined;
+
     if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/brands');
-      logoUrl = uploaded.url;
+      try {
+        const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/brands');
+        if (uploaded?.url) {
+          logoUrl = uploaded.url;
+        }
+      } catch (error) {
+        console.error('Brand logo upload failed, continuing without logo:', error);
+      }
     }
+
     return this.brandService.create({ ...createBrandDto, logoUrl });
   }
 
@@ -52,11 +60,19 @@ export class AdminBrandController {
     @Body() updateBrandDto: { name?: string; description?: string },
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    let data: any = { ...updateBrandDto };
+    const data: any = { ...updateBrandDto };
+
     if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/brands');
-      data.logoUrl = uploaded.url;
+      try {
+        const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/brands');
+        if (uploaded?.url) {
+          data.logoUrl = uploaded.url;
+        }
+      } catch (error) {
+        console.error('Brand logo update failed, keeping existing logo:', error);
+      }
     }
+
     return this.brandService.update(id, data);
   }
 

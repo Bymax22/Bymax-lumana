@@ -29,8 +29,14 @@ export class AdminBlogController {
   ) {
     let imageUrl: string | undefined;
     if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/blogs');
-      imageUrl = uploaded.url;
+      try {
+        const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/blogs');
+        if (uploaded?.url) {
+          imageUrl = uploaded.url;
+        }
+      } catch (error) {
+        console.error('Blog image upload failed, continuing without image:', error);
+      }
     }
     return this.blogService.create({ ...createBlogDto, imageUrl });
   }
@@ -52,10 +58,16 @@ export class AdminBlogController {
     @Body() updateBlogDto: any,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    let data = { ...updateBlogDto };
+    const data = { ...updateBlogDto };
     if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/blogs');
-      data.imageUrl = uploaded.url;
+      try {
+        const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/blogs');
+        if (uploaded?.url) {
+          data.imageUrl = uploaded.url;
+        }
+      } catch (error) {
+        console.error('Blog image update failed, keeping existing image:', error);
+      }
     }
     return this.blogService.update(id, data);
   }
