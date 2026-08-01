@@ -1,4 +1,4 @@
-import type { VehicleCondition } from '@prisma/client';
+import { VehicleCondition } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,
