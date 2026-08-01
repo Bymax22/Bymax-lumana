@@ -261,6 +261,28 @@ export class AuthService {
       data: { used: true }
     });
 
+  }
+
+  async resendVerification(email: string) {
+    const normalizedEmail = this.normalizeEmail(email);
+    if (!normalizedEmail) {
+      throw new BadRequestException('A valid email is required.');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (!user) {
+      throw new NotFoundException('No account found with that email.');
+    }
+
+    const verificationToken = `verify_${randomBytes(20).toString('hex')}`;
+    const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await this.createChallenge(user.id, verificationToken, verificationExpiresAt);
+
+    const sendResult = await this.sendVerificationEmail(normalizedEmail, user.name || undefined, verificationToken);
+
+    return { message: 'Verification email resent.', sendResult };
+  }
+
     return {
       message: 'Your password has been reset successfully. You can now login with the new password.'
     };

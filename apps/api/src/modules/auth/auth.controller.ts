@@ -4,6 +4,7 @@ import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { ResendVerificationDto } from './dtos/resend-verification.dto';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { VerifyLoginOtpDto } from './dtos/verify-login-otp.dto';
 
@@ -50,5 +51,11 @@ export class AuthController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   verifyLoginOtp(@Body() body: VerifyLoginOtpDto) {
     return this.authService.verifyLoginOtp(body.email, body.token);
+  }
+
+  @Post('resend-verification')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  resendVerification(@Body() body: ResendVerificationDto) {
+    return this.authService.resendVerification(body.email);
   }
 }
