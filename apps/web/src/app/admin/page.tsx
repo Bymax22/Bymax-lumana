@@ -58,29 +58,20 @@ export default function AdminDashboard() {
   const loadStats = async () => {
     setLoading(true);
     try {
-      const [usersRes, vehiclesRes, auctionsRes, brandsRes, categoriesRes, blogsRes, supportRes, pagesRes] = await Promise.allSettled([
-        adminApi('/admin/users?skip=0&take=100'),
-        adminApi('/admin/vehicles?skip=0&take=100'),
-        adminApi('/admin/auctions?skip=0&take=100'),
-        adminApi('/admin/brands'),
-        adminApi('/admin/categories'),
-        adminApi('/admin/blogs'),
-        adminApi('/admin/support/tickets'),
-        adminApi('/admin/pages'),
-      ]);
-
-      const nextStats: Record<string, number> = {};
-      nextStats.users = toCount(usersRes);
-      nextStats.vehicles = toCount(vehiclesRes);
-      nextStats.auctions = toCount(auctionsRes);
-      nextStats.brands = toCount(brandsRes);
-      nextStats.categories = toCount(categoriesRes);
-      nextStats.blogs = toCount(blogsRes);
-      nextStats.support = toCount(supportRes);
-      nextStats.pages = toCount(pagesRes);
-      setStats(nextStats);
+      const payload = await adminApi('/admin/dashboard/stats');
+      setStats({
+        users: Number(payload?.users ?? 0),
+        vehicles: Number(payload?.vehicles ?? 0),
+        auctions: Number(payload?.auctions ?? 0),
+        brands: Number(payload?.brands ?? 0),
+        categories: Number(payload?.categories ?? 0),
+        blogs: Number(payload?.blogs ?? 0),
+        support: Number(payload?.support ?? 0),
+        pages: Number(payload?.pages ?? 0),
+      });
       setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    } catch {
+    } catch (error) {
+      console.error('Failed to load admin stats', error);
       setStats((current) => current);
     } finally {
       setLoading(false);
@@ -98,7 +89,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 shadow-2xl shadow-black/30">
+      <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 shadow-2xl shadow-black/30">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-red-400">Control center</p>
@@ -123,7 +114,7 @@ export default function AdminDashboard() {
         {metricCards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg shadow-black/20">
+            <div key={card.label} className="rounded-3xl bg-slate-900/80 p-5 shadow-lg shadow-black/20">
               <div className={`inline-flex rounded-2xl bg-gradient-to-r ${card.accent} p-3 text-white`}>
                 <Icon className="h-5 w-5" />
               </div>
@@ -141,7 +132,7 @@ export default function AdminDashboard() {
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (
-            <Link key={action.href} href={action.href} className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 transition hover:border-red-500 hover:bg-slate-800">
+            <Link key={action.href} href={action.href} className="rounded-3xl bg-slate-900/80 p-5 transition hover:bg-slate-800">
               <div className="flex items-center gap-3">
                 <div className="rounded-2xl bg-red-500/10 p-2 text-red-400">
                   <Icon className="h-5 w-5" />
@@ -157,28 +148,28 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
+        <div className="rounded-3xl bg-slate-900/80 p-6">
           <div className="flex items-center gap-2 text-lg font-semibold text-white">
             <ShieldCheck className="h-5 w-5 text-red-400" />
             Commerce & operations
           </div>
           <div className="mt-6 space-y-3 text-sm text-slate-400">
-            <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-slate-950/70 px-4 py-3">
               <span>Rental bookings</span>
               <span className="font-semibold text-slate-100">Managed live</span>
             </div>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-slate-950/70 px-4 py-3">
               <span>Shop orders</span>
               <span className="font-semibold text-slate-100">Tracked in real time</span>
             </div>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-slate-950/70 px-4 py-3">
               <span>Content hub</span>
               <span className="font-semibold text-slate-100">Blogs & pages synced</span>
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
+        <div className="rounded-3xl bg-slate-900/80 p-6">
           <div className="flex items-center gap-2 text-lg font-semibold text-white">
             <FileText className="h-5 w-5 text-red-400" />
             Schema-backed modules
@@ -192,7 +183,7 @@ export default function AdminDashboard() {
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.label} className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                <div key={item.label} className="rounded-2xl bg-slate-950/70 p-4">
                   <div className="flex items-center gap-3 text-slate-100">
                     <Icon className="h-4 w-4 text-red-400" />
                     <span className="font-medium">{item.label}</span>
@@ -208,17 +199,3 @@ export default function AdminDashboard() {
   );
 }
 
-function toCount(result: PromiseSettledResult<unknown>): number {
-  if (result.status !== 'fulfilled') return 0;
-
-  const value = result.value as { data?: unknown[] } | unknown[] | null | undefined;
-  if (Array.isArray(value)) {
-    return value.length;
-  }
-
-  if (value && typeof value === 'object' && Array.isArray((value as { data?: unknown[] }).data)) {
-    return (value as { data: unknown[] }).data.length;
-  }
-
-  return 0;
-}
