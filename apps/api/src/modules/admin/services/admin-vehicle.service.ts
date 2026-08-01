@@ -49,6 +49,7 @@ export class AdminVehicleService {
         dealerId: resolvedDealerId,
         year: year !== undefined ? Number(year) : new Date().getFullYear(),
         mileage: mileage !== undefined ? Number(mileage) : undefined,
+        price: rest.price !== undefined ? Number(rest.price) : undefined,
         vin: rest.vin || `VIN-${Date.now()}`,
       },
     });
@@ -90,6 +91,9 @@ export class AdminVehicleService {
     }
     if (mileage !== undefined) {
       updateData.mileage = Number(mileage);
+    }
+    if ((rest as any).price !== undefined) {
+      updateData.price = Number((rest as any).price);
     }
 
     await this.prisma.vehicle.update({

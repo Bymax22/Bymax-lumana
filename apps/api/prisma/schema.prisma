@@ -74,6 +74,7 @@ model Vehicle {
   model               String
   trim                String?
   year                Int
+  price               Float?
   mileage             Int?
   condition           VehicleCondition     @default(USED)
   color               String?

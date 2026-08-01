@@ -76,11 +76,16 @@ export class VehicleService {
 
       where.AND = where.AND || [];
       where.AND.push({
-        auctions: {
-          some: {
-            currentPrice: priceFilter,
+        OR: [
+          { price: priceFilter },
+          {
+            auctions: {
+              some: {
+                currentPrice: priceFilter,
+              },
+            },
           },
-        },
+        ],
       });
     }
 
