@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { adminApi, adminApiFormData } from '@/lib/adminApi';
 
@@ -14,6 +14,11 @@ interface Category {
   name: string;
 }
 
+interface VehicleImage {
+  id: string;
+  url: string;
+}
+
 export default function VehicleForm() {
   const router = useRouter();
   const params = useParams();
@@ -23,8 +28,8 @@ export default function VehicleForm() {
   const [error, setError] = useState<string | null>(null);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     make: '',
@@ -36,16 +41,30 @@ export default function VehicleForm() {
     transmission: 'automatic',
     color: '',
     vin: '',
+    trim: '',
+    condition: 'USED',
+    engine: '',
+    description: '',
     brandId: '',
     categoryId: '',
   });
 
   useEffect(() => {
-    loadBrandsAndCategories();
+    void loadBrandsAndCategories();
     if (isEditing) {
-      loadVehicle();
+      void loadVehicle();
     }
   }, [isEditing, params.id]);
+
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((preview) => {
+        if (preview.startsWith('blob:')) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+    };
+  }, [previewUrls]);
 
   const loadBrandsAndCategories = async () => {
     try {
@@ -53,8 +72,8 @@ export default function VehicleForm() {
         adminApi('/admin/brands?skip=0&take=100'),
         adminApi('/admin/categories?skip=0&take=100'),
       ]);
-      setBrands(brandsData);
-      setCategories(categoriesData);
+      setBrands(Array.isArray(brandsData) ? brandsData : []);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (err) {
       console.error('Failed to load brands/categories', err);
     }
@@ -63,6 +82,9 @@ export default function VehicleForm() {
   const loadVehicle = async () => {
     try {
       const data = await adminApi(`/admin/vehicles/${params.id}`);
+      const images = Array.isArray(data.images) ? data.images.map((image: VehicleImage) => image.url) : [];
+      const nextPreviewUrls = images.length ? images : data.imageUrl ? [data.imageUrl] : [];
+
       setFormData({
         make: data.make || '',
         model: data.model || '',
@@ -73,27 +95,27 @@ export default function VehicleForm() {
         transmission: data.transmission || 'automatic',
         color: data.color || '',
         vin: data.vin || '',
+        trim: data.trim || '',
+        condition: data.condition || 'USED',
+        engine: data.engine || '',
+        description: data.description || '',
         brandId: data.brandId || '',
         categoryId: data.categoryId || '',
       });
-      if (data.images?.[0]?.url || data.imageUrl) {
-        setPreview(data.images?.[0]?.url || data.imageUrl);
-      }
+      setPreviewUrls(nextPreviewUrls);
     } catch (err) {
       setError('Failed to load vehicle');
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) {
+      return;
     }
+
+    setSelectedFiles(files);
+    setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,11 +132,13 @@ export default function VehicleForm() {
         method = 'PUT';
       }
 
-      if (image) {
+      if (selectedFiles.length) {
         const formDataObj = new FormData();
-        formDataObj.append('image', image);
+        selectedFiles.forEach((file) => formDataObj.append('images', file));
         Object.entries(formData).forEach(([key, value]) => {
-          formDataObj.append(key, String(value));
+          if (value !== null && value !== undefined && value !== '') {
+            formDataObj.append(key, String(value));
+          }
         });
         await adminApiFormData(endpoint, formDataObj, { method });
       } else {
@@ -133,131 +157,132 @@ export default function VehicleForm() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'mileage' || name === 'year' ? parseFloat(value) : value,
+      [name]: name === 'price' || name === 'mileage' || name === 'year' ? Number(value) : value,
     }));
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">
-        {isEditing ? 'Edit Vehicle' : 'Add Vehicle'}
-      </h1>
+    <div className="space-y-6">
+      <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-lg shadow-black/20">
+        <p className="text-sm uppercase tracking-[0.3em] text-red-400">Vehicle editor</p>
+        <h1 className="mt-2 text-3xl font-semibold text-white">
+          {isEditing ? 'Edit vehicle listing' : 'Add a new vehicle'}
+        </h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Capture the key details and upload several gallery images so the inventory looks complete.
+        </p>
+      </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-xl shadow-black/20">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Make
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Make</label>
             <input
               type="text"
               name="make"
               value={formData.make}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Model
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Model</label>
             <input
               type="text"
               name="model"
               value={formData.model}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Year
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Year</label>
             <input
               type="number"
               name="year"
               value={formData.year}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Price</label>
             <input
               type="number"
               name="price"
               value={formData.price}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mileage
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Mileage</label>
             <input
               type="number"
               name="mileage"
               value={formData.mileage}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Color
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Color</label>
             <input
               type="text"
               name="color"
               value={formData.color}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              VIN
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">VIN</label>
             <input
               type="text"
               name="vin"
               value={formData.vin}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fuel Type
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Trim</label>
+            <input
+              type="text"
+              name="trim"
+              value={formData.trim}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Fuel type</label>
             <select
               name="fuelType"
               value={formData.fuelType}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             >
               <option value="gasoline">Gasoline</option>
               <option value="diesel">Diesel</option>
@@ -267,14 +292,12 @@ export default function VehicleForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Transmission
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Transmission</label>
             <select
               name="transmission"
               value={formData.transmission}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             >
               <option value="automatic">Automatic</option>
               <option value="manual">Manual</option>
@@ -282,15 +305,39 @@ export default function VehicleForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Brand
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Condition</label>
+            <select
+              name="condition"
+              value={formData.condition}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
+            >
+              <option value="USED">Used</option>
+              <option value="NEW">New</option>
+              <option value="SALVAGE">Salvage</option>
+              <option value="REBUILT">Rebuilt</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Engine</label>
+            <input
+              type="text"
+              name="engine"
+              value={formData.engine}
+              onChange={handleChange}
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Brand</label>
             <select
               name="brandId"
               value={formData.brandId}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             >
               <option value="">Select a brand</option>
               {brands.map((brand) => (
@@ -302,15 +349,13 @@ export default function VehicleForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-300">Category</label>
             <select
               name="categoryId"
               value={formData.categoryId}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
             >
               <option value="">Select a category</option>
               {categories.map((category) => (
@@ -322,41 +367,50 @@ export default function VehicleForm() {
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Vehicle Image
-          </label>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full"
-            />
-            {preview && (
-              <div className="mt-4">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="max-w-xs rounded-lg"
-                />
-              </div>
-            )}
-          </div>
+        <div className="mt-6">
+          <label className="mb-2 block text-sm font-medium text-slate-300">Description</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows={4}
+            className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none transition focus:border-red-500"
+          />
         </div>
 
-        <div className="flex gap-4">
+        <div className="mt-6 rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-6">
+          <label className="mb-2 block text-sm font-medium text-slate-300">Vehicle gallery</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFilesChange}
+            className="w-full text-sm text-slate-400 file:mr-4 file:rounded-full file:border-0 file:bg-red-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+          />
+          <p className="mt-2 text-sm text-slate-500">You can select several images at once. New uploads replace the current preview set.</p>
+          {previewUrls.length > 0 && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {previewUrls.map((preview, index) => (
+                <div key={`${preview}-${index}`} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70">
+                  <img src={preview} alt={`Preview ${index + 1}`} className="h-32 w-full object-cover" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-3">
           <button
             type="submit"
             disabled={loading}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+            className="rounded-full bg-red-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? 'Saving...' : 'Save Vehicle'}
+            {loading ? 'Saving...' : 'Save vehicle'}
           </button>
           <button
             type="button"
             onClick={() => router.push('/admin/vehicles')}
-            className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+            className="rounded-full border border-slate-700 bg-slate-950/70 px-6 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-500"
           >
             Cancel
           </button>

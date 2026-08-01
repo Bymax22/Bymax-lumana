@@ -139,18 +139,33 @@ export class HireService {
       throw new BadRequestException('Vehicle is not available for the selected dates');
     }
 
-    // Calculate total price
-    const daysDiff = Math.ceil(
+    // Calculate total price using admin-selected rental duration options
+    const durationType = (dto.metadata?.durationType || 'DAILY').toUpperCase();
+    const requestedDays = Number(dto.metadata?.durationDays || 0);
+    const daysDiff = Math.max(1, Math.ceil(
       (dto.returnDate.getTime() - dto.pickupDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    let totalPrice = vehicle.basePrice * daysDiff;
+    ));
+
+    const durationMultipliers: Record<string, number> = {
+      DAILY: 1,
+      WEEKLY: 7,
+      MONTHLY: 30,
+      CUSTOM: 1,
+    };
+
+    const normalizedDays = requestedDays > 0 ? requestedDays : daysDiff;
+    const effectiveDays = durationType === 'CUSTOM'
+      ? normalizedDays
+      : normalizedDays * (durationMultipliers[durationType] || 1);
+
+    let totalPrice = vehicle.basePrice * effectiveDays;
 
     if (dto.insurancePlanId) {
       const insurance = await this.prisma.insurancePlan.findUnique({
         where: { id: dto.insurancePlanId },
       });
       if (insurance) {
-        totalPrice += insurance.dailyPrice * daysDiff;
+        totalPrice += insurance.dailyPrice * effectiveDays;
       }
     }
 
@@ -163,6 +178,13 @@ export class HireService {
         bookingRef,
         totalPrice,
         status: 'PENDING',
+        metadata: {
+          ...dto.metadata,
+          durationType,
+          requestedDays: normalizedDays,
+          effectiveDays,
+          pricingBasis: durationType === 'CUSTOM' ? 'CUSTOM_DAYS' : `${durationType.toLowerCase()}_rate`,
+        },
       },
       include: {
         vehicle: true,
@@ -250,6 +272,17 @@ export class HireService {
     if (!booking) {
       throw new NotFoundException('Rental booking not found');
     }
+
+    const rentalStatus = status === 'CONFIRMED' || status === 'IN_PROGRESS' || status === 'ACTIVE'
+      ? 'BOOKED'
+      : status === 'COMPLETED' || status === 'CANCELLED' || status === 'NO_SHOW'
+        ? 'AVAILABLE'
+        : 'AVAILABLE';
+
+    await this.prisma.rentalVehicle.update({
+      where: { id: booking.rentalVehicleId },
+      data: { status: rentalStatus as $Enums.RentalVehicleStatus },
+    });
 
     return this.prisma.rentalBooking.update({
       where: { id },

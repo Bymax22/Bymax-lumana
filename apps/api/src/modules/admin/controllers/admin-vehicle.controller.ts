@@ -8,9 +8,9 @@ import {
   Param,
   Query,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { AdminVehicleService } from '../services/admin-vehicle.service';
 import { CloudinaryService } from '../services/cloudinary.service';
 import { CreateVehicleDto, UpdateVehicleDto } from '../dtos/vehicle.dto';
@@ -23,17 +23,20 @@ export class AdminVehicleController {
   ) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('images', 10))
   async create(
     @Body() createVehicleDto: CreateVehicleDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles() files?: Array<Express.Multer.File>,
   ) {
-    let imageUrl = createVehicleDto.imageUrl;
-    if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/vehicles');
-      imageUrl = uploaded.url;
-    }
-    return this.vehicleService.create({ ...createVehicleDto, imageUrl });
+    const uploadedFiles = files ?? [];
+    const uploadedImages = uploadedFiles.length
+      ? await this.cloudinaryService.uploadMultiple(uploadedFiles, 'lumana/vehicles')
+      : [];
+
+    return this.vehicleService.create({
+      ...createVehicleDto,
+      ...(uploadedImages.length ? { images: uploadedImages.map(({ url }) => url) } : {}),
+    });
   }
 
   @Get()
@@ -47,17 +50,22 @@ export class AdminVehicleController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('images', 10))
   async update(
     @Param('id') id: string,
     @Body() updateVehicleDto: UpdateVehicleDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles() files?: Array<Express.Multer.File>,
   ) {
-    let data = { ...updateVehicleDto };
-    if (file) {
-      const uploaded = await this.cloudinaryService.uploadImage(file, 'lumana/vehicles');
-      data.imageUrl = uploaded.url;
+    const uploadedFiles = files ?? [];
+    const uploadedImages = uploadedFiles.length
+      ? await this.cloudinaryService.uploadMultiple(uploadedFiles, 'lumana/vehicles')
+      : [];
+
+    const data: UpdateVehicleDto & { images?: string[] } = { ...updateVehicleDto };
+    if (uploadedImages.length) {
+      data.images = uploadedImages.map(({ url }) => url);
     }
+
     return this.vehicleService.update(id, data);
   }
 

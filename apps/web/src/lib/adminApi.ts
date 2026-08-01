@@ -1,6 +1,6 @@
 import { buildApiUrl } from './publicApi';
 
-const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 60000);
 
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
   const controller = new AbortController();
@@ -61,7 +61,7 @@ export async function adminApiFormData(
     const response = await fetchWithTimeout(url, {
       ...options,
       body: formData,
-    });
+    }, 60000);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));

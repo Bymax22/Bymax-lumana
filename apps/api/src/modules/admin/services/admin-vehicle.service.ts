@@ -29,6 +29,16 @@ export class AdminVehicleService {
     return createdDealer.id;
   }
 
+  private async syncImages(vehicleId: string, urls: string[]) {
+    await this.prisma.vehicleImage.deleteMany({ where: { vehicleId } });
+
+    if (urls.length) {
+      await this.prisma.vehicleImage.createMany({
+        data: urls.map((url: string) => ({ vehicleId, url })),
+      });
+    }
+  }
+
   async create(data: CreateVehicleDto & { imageUrl?: string; images?: string[] }) {
     const { imageUrl, images, dealerId, year, mileage, ...rest } = data;
     const resolvedDealerId = await this.resolveDealerId(dealerId);
@@ -46,9 +56,7 @@ export class AdminVehicleService {
     const urls = [...(Array.isArray(images) ? images : []), ...(imageUrl ? [imageUrl] : [])].filter(Boolean);
 
     if (urls.length) {
-      await this.prisma.vehicleImage.createMany({
-        data: urls.map((url: string) => ({ vehicleId: vehicle.id, url })),
-      });
+      await this.syncImages(vehicle.id, urls);
     }
 
     return this.prisma.vehicle.findUnique({
@@ -73,14 +81,37 @@ export class AdminVehicleService {
     });
   }
 
-  async update(id: string, data: UpdateVehicleDto) {
-    return this.prisma.vehicle.update({
+  async update(id: string, data: UpdateVehicleDto & { imageUrl?: string; images?: string[] }) {
+    const { imageUrl, images, year, mileage, ...rest } = data;
+
+    const updateData: Record<string, unknown> = { ...rest };
+    if (year !== undefined) {
+      updateData.year = Number(year);
+    }
+    if (mileage !== undefined) {
+      updateData.mileage = Number(mileage);
+    }
+
+    await this.prisma.vehicle.update({
       where: { id },
-      data,
+      data: updateData,
+    });
+
+    const urls = [...(Array.isArray(images) ? images : []), ...(imageUrl ? [imageUrl] : [])].filter(Boolean);
+
+    if (images !== undefined || imageUrl !== undefined) {
+      await this.syncImages(id, urls);
+    }
+
+    return this.prisma.vehicle.findUnique({
+      where: { id },
+      include: { brand: true, category: true, images: true },
     });
   }
 
   async delete(id: string) {
+    await this.prisma.vehicleImage.deleteMany({ where: { vehicleId: id } });
+
     return this.prisma.vehicle.delete({
       where: { id },
     });

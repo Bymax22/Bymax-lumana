@@ -1,21 +1,32 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { RefreshCcw, Trash2, UserCog } from 'lucide-react';
+import { Edit3, RefreshCcw, Trash2 } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 
 interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   role: string;
   createdAt: string;
+}
+
+interface EditUserForm {
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
 }
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState<EditUserForm>({ name: '', email: '', phone: '', role: 'CUSTOMER' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     void fetchUsers();
@@ -60,6 +71,45 @@ export default function AdminUsers() {
     }
   };
 
+  const openEditUser = (user: User) => {
+    setEditingUser(user);
+    setEditForm({
+      name: user.name ?? '',
+      email: user.email ?? '',
+      phone: user.phone ?? '',
+      role: user.role ?? 'CUSTOMER',
+    });
+  };
+
+  const handleSaveUser = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingUser) return;
+
+    setSaving(true);
+    try {
+      const updated = await adminApi(`/admin/users/${editingUser.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: editForm.name.trim() || null,
+          email: editForm.email.trim(),
+          phone: editForm.phone.trim() || null,
+          role: editForm.role,
+        }),
+      });
+
+      setUsers((current) =>
+        current.map((user) =>
+          user.id === editingUser.id ? { ...user, ...updated, role: updated.role || editForm.role } : user,
+        ),
+      );
+      setEditingUser(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update user');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-lg shadow-black/20">
@@ -67,7 +117,7 @@ export default function AdminUsers() {
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-red-400">User management</p>
             <h1 className="mt-2 text-3xl font-semibold text-white">People and access control</h1>
-            <p className="mt-2 text-sm text-slate-400">Review accounts, adjust roles, and remove users safely from the control center.</p>
+            <p className="mt-2 text-sm text-slate-400">Review accounts, adjust roles, edit details, and remove users safely from the control center.</p>
           </div>
           <button onClick={() => void fetchUsers()} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
             <RefreshCcw className="h-4 w-4" />
@@ -118,10 +168,19 @@ export default function AdminUsers() {
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-400">{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">
-                    <button onClick={() => void handleDelete(user.id)} className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300 transition hover:bg-red-500/20">
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => openEditUser(user)}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 transition hover:border-red-500 hover:text-white"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        Edit
+                      </button>
+                      <button onClick={() => void handleDelete(user.id)} className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300 transition hover:bg-red-500/20">
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -129,6 +188,76 @@ export default function AdminUsers() {
           </table>
         </div>
       )}
+
+      {editingUser ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4">
+          <div className="w-full max-w-xl rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-black/40">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-red-400">Edit account</p>
+                <h2 className="mt-1 text-2xl font-semibold text-white">Update user details</h2>
+              </div>
+              <button onClick={() => setEditingUser(null)} className="rounded-full border border-slate-700 px-3 py-2 text-sm text-slate-300">Close</button>
+            </div>
+
+            <form onSubmit={handleSaveUser} className="mt-6 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-sm text-slate-300">
+                  <span className="mb-2 block">Name</span>
+                  <input
+                    value={editForm.name}
+                    onChange={(event) => setEditForm((current) => ({ ...current, name: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+                  />
+                </label>
+                <label className="text-sm text-slate-300">
+                  <span className="mb-2 block">Email</span>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(event) => setEditForm((current) => ({ ...current, email: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-sm text-slate-300">
+                  <span className="mb-2 block">Phone</span>
+                  <input
+                    value={editForm.phone}
+                    onChange={(event) => setEditForm((current) => ({ ...current, phone: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+                  />
+                </label>
+                <label className="text-sm text-slate-300">
+                  <span className="mb-2 block">Role</span>
+                  <select
+                    value={editForm.role}
+                    onChange={(event) => setEditForm((current) => ({ ...current, role: event.target.value }))}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-slate-100"
+                  >
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="DEALER">Dealer</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="INSPECTOR">Inspector</option>
+                    <option value="DRIVER">Driver</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setEditingUser(null)} className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300">
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving} className="rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60">
+                  {saving ? 'Saving…' : 'Save changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

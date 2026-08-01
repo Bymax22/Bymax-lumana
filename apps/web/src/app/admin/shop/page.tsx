@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Package, Tags, ShoppingCart } from 'lucide-react';
 import { publicApi } from '@/lib/publicApi';
@@ -9,14 +9,20 @@ type Category = {
   id: string;
   name: string;
   description?: string;
+  icon?: string;
+  featured?: boolean;
 };
 
 type Product = {
   id: string;
   name: string;
+  sku?: string;
   price: number;
   stock: number;
-  category?: { name?: string };
+  category?: { name?: string; id?: string };
+  status?: string;
+  featured?: boolean;
+  description?: string;
 };
 
 type Order = {
@@ -33,7 +39,8 @@ export default function ShopAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon: '📦' });
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon: '📦', featured: false });
+  const [categoryEditingId, setCategoryEditingId] = useState<string | null>(null);
   const [productForm, setProductForm] = useState({
     name: '',
     sku: '',
@@ -42,7 +49,12 @@ export default function ShopAdminPage() {
     stock: '20',
     categoryId: '',
     brandId: '',
+    featured: false,
+    status: 'ACTIVE',
   });
+  const [productEditingId, setProductEditingId] = useState<string | null>(null);
+
+  const categoryOptions = useMemo(() => categories.map((category) => ({ value: category.id, label: category.name })), [categories]);
 
   async function loadData() {
     try {
@@ -66,27 +78,53 @@ export default function ShopAdminPage() {
     void loadData();
   }, []);
 
-  async function handleCreateCategory(event: React.FormEvent<HTMLFormElement>) {
+  function resetCategoryForm() {
+    setCategoryForm({ name: '', description: '', icon: '📦', featured: false });
+    setCategoryEditingId(null);
+  }
+
+  function resetProductForm() {
+    setProductForm({ name: '', sku: '', description: '', price: '120', stock: '20', categoryId: '', brandId: '', featured: false, status: 'ACTIVE' });
+    setProductEditingId(null);
+  }
+
+  async function handleCreateOrUpdateCategory(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     setMessage(null);
 
     try {
-      const created = await publicApi('/shop/categories', {
-        method: 'POST',
-        body: JSON.stringify(categoryForm),
-      });
-      setCategories((current) => [created, ...current]);
-      setCategoryForm({ name: '', description: '', icon: '📦' });
-      setMessage('Category created successfully.');
+      const payload = {
+        name: categoryForm.name,
+        description: categoryForm.description,
+        icon: categoryForm.icon,
+        featured: categoryForm.featured,
+      };
+
+      if (categoryEditingId) {
+        const updated = await publicApi(`/shop/categories/${categoryEditingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        setCategories((current) => current.map((category) => (category.id === categoryEditingId ? { ...category, ...updated } : category)));
+      } else {
+        const created = await publicApi('/shop/categories', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        setCategories((current) => [created, ...current]);
+      }
+
+      resetCategoryForm();
+      setMessage(categoryEditingId ? 'Category updated successfully.' : 'Category created successfully.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to create category.');
+      setMessage(error instanceof Error ? error.message : 'Unable to save category.');
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleCreateProduct(event: React.FormEvent<HTMLFormElement>) {
+  async function handleCreateOrUpdateProduct(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     setMessage(null);
@@ -103,17 +141,48 @@ export default function ShopAdminPage() {
         specs: { color: 'Black' },
       };
 
-      const created = await publicApi('/shop/products', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      setProducts((current) => [created, ...current]);
-      setProductForm({ name: '', sku: '', description: '', price: '120', stock: '20', categoryId: '', brandId: '' });
-      setMessage('Product created successfully.');
+      if (productEditingId) {
+        const updated = await publicApi(`/shop/products/${productEditingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        setProducts((current) => current.map((product) => (product.id === productEditingId ? { ...product, ...updated } : product)));
+      } else {
+        const created = await publicApi('/shop/products', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        setProducts((current) => [created, ...current]);
+      }
+
+      resetProductForm();
+      setMessage(productEditingId ? 'Product updated successfully.' : 'Product created successfully.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to create product.');
+      setMessage(error instanceof Error ? error.message : 'Unable to save product.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm('Delete this category?')) return;
+    try {
+      await publicApi(`/shop/categories/${id}`, { method: 'DELETE' });
+      setCategories((current) => current.filter((category) => category.id !== id));
+      setMessage('Category deleted.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to delete category.');
+    }
+  }
+
+  async function handleDeleteProduct(id: string) {
+    if (!confirm('Delete this product?')) return;
+    try {
+      await publicApi(`/shop/products/${id}`, { method: 'DELETE' });
+      setProducts((current) => current.filter((product) => product.id !== id));
+      setMessage('Product deleted.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to delete product.');
     }
   }
 
@@ -130,9 +199,29 @@ export default function ShopAdminPage() {
     }
   }
 
+  function startEditCategory(category: Category) {
+    setCategoryEditingId(category.id);
+    setCategoryForm({ name: category.name, description: category.description || '', icon: category.icon || '📦', featured: category.featured || false });
+  }
+
+  function startEditProduct(product: Product) {
+    setProductEditingId(product.id);
+    setProductForm({
+      name: product.name,
+      sku: product.sku || '',
+      description: product.description || '',
+      price: String(product.price),
+      stock: String(product.stock),
+      categoryId: product.category?.id || '',
+      brandId: '',
+      featured: product.featured || false,
+      status: product.status || 'ACTIVE',
+    });
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex items-center gap-3">
           <Link href="/admin" className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-2 text-sm text-slate-300 hover:bg-slate-900">
             <ArrowLeft className="h-4 w-4" />
@@ -153,33 +242,42 @@ export default function ShopAdminPage() {
             <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
               <div className="flex items-center gap-2 text-lg font-semibold">
                 <Tags className="h-5 w-5 text-red-400" />
-                Create category
+                {categoryEditingId ? 'Edit category' : 'Create category'}
               </div>
-              <form onSubmit={handleCreateCategory} className="mt-6 space-y-4">
+              <form onSubmit={handleCreateOrUpdateCategory} className="mt-6 space-y-4">
                 <input value={categoryForm.name} onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Category name" required />
                 <textarea value={categoryForm.description} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} className="min-h-[100px] w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Description" />
                 <input value={categoryForm.icon} onChange={(event) => setCategoryForm({ ...categoryForm, icon: event.target.value })} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Icon" />
-                <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
-                  {saving ? 'Creating…' : 'Create category'}
-                </button>
+                <label className="flex items-center gap-2 text-sm text-slate-300">
+                  <input type="checkbox" checked={categoryForm.featured} onChange={(event) => setCategoryForm({ ...categoryForm, featured: event.target.checked })} />
+                  Featured category
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
+                    {saving ? 'Saving…' : categoryEditingId ? 'Save category' : 'Create category'}
+                  </button>
+                  {categoryEditingId ? <button type="button" onClick={resetCategoryForm} className="rounded-2xl border border-slate-700 px-5 py-3 text-sm text-slate-300">Cancel</button> : null}
+                </div>
               </form>
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
               <div className="flex items-center gap-2 text-lg font-semibold">
-                <Package className="h-5 w-5 text-red-400" />
-                Product catalog
+                <Tags className="h-5 w-5 text-red-400" />
+                Categories
               </div>
-              {loading ? <p className="mt-6 text-sm text-slate-400">Loading products…</p> : null}
               <div className="mt-6 space-y-3">
-                {products.map((product) => (
-                  <div key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-                    <div className="flex items-center justify-between gap-4">
+                {categories.map((category) => (
+                  <div key={category.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+                    <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-semibold text-slate-100">{product.name}</p>
-                        <p className="text-sm text-slate-400">{product.category?.name || 'Uncategorized'} • {product.stock} in stock</p>
+                        <p className="font-semibold text-slate-100">{category.name}</p>
+                        <p className="text-sm text-slate-400">{category.description || 'No description'}</p>
                       </div>
-                      <span className="rounded-full bg-red-500/10 px-3 py-1 text-sm text-red-300">${product.price}</span>
+                      <div className="flex flex-wrap gap-2">
+                        <button onClick={() => startEditCategory(category)} className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300">Edit</button>
+                        <button onClick={() => void handleDeleteCategory(category.id)} className="rounded-full border border-red-700/50 px-3 py-1 text-sm text-red-300">Delete</button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -191,22 +289,65 @@ export default function ShopAdminPage() {
             <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
               <div className="flex items-center gap-2 text-lg font-semibold">
                 <Package className="h-5 w-5 text-red-400" />
-                Create product
+                {productEditingId ? 'Edit product' : 'Create product'}
               </div>
-              <form onSubmit={handleCreateProduct} className="mt-6 space-y-4">
+              <form onSubmit={handleCreateOrUpdateProduct} className="mt-6 space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <input value={productForm.name} onChange={(event) => setProductForm({ ...productForm, name: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Product name" required />
                   <input value={productForm.sku} onChange={(event) => setProductForm({ ...productForm, sku: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="SKU" required />
                   <input value={productForm.price} type="number" onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Price" required />
                   <input value={productForm.stock} type="number" onChange={(event) => setProductForm({ ...productForm, stock: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Stock" required />
-                  <input value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Category ID" />
+                  <select value={productForm.categoryId} onChange={(event) => setProductForm({ ...productForm, categoryId: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3">
+                    <option value="">Select category</option>
+                    {categoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                   <input value={productForm.brandId} onChange={(event) => setProductForm({ ...productForm, brandId: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Brand ID (optional)" />
                 </div>
                 <textarea value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} className="min-h-[100px] w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Description" />
-                <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
-                  {saving ? 'Creating…' : 'Create product'}
-                </button>
+                <div className="flex flex-wrap gap-4">
+                  <label className="flex items-center gap-2 text-sm text-slate-300">
+                    <input type="checkbox" checked={productForm.featured} onChange={(event) => setProductForm({ ...productForm, featured: event.target.checked })} />
+                    Featured product
+                  </label>
+                  <select value={productForm.status} onChange={(event) => setProductForm({ ...productForm, status: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="DRAFT">DRAFT</option>
+                    <option value="OUT_OF_STOCK">OUT_OF_STOCK</option>
+                  </select>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
+                    {saving ? 'Saving…' : productEditingId ? 'Save product' : 'Create product'}
+                  </button>
+                  {productEditingId ? <button type="button" onClick={resetProductForm} className="rounded-2xl border border-slate-700 px-5 py-3 text-sm text-slate-300">Cancel</button> : null}
+                </div>
               </form>
+            </div>
+
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <Package className="h-5 w-5 text-red-400" />
+                Product catalog
+              </div>
+              <div className="mt-6 space-y-3">
+                {products.map((product) => (
+                  <div key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-slate-100">{product.name}</p>
+                        <p className="text-sm text-slate-400">{product.category?.name || 'Uncategorized'} • {product.stock} in stock</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-red-500/10 px-3 py-1 text-sm text-red-300">${product.price}</span>
+                        <button onClick={() => startEditProduct(product)} className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300">Edit</button>
+                        <button onClick={() => void handleDeleteProduct(product.id)} className="rounded-full border border-red-700/50 px-3 py-1 text-sm text-red-300">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6">

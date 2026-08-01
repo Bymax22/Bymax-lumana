@@ -8,5 +8,8 @@ export class CreateRentalBookingDto {
   insurancePlanId?: string;
   paymentMethod?: 'AIRTEL_MONEY' | 'MTN_MONEY' | 'MASTERCARD' | 'BANK_TRANSFER' | 'CASH';
   notes?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, any> & {
+    durationType?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
+    durationDays?: number;
+  };
 }

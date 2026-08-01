@@ -58,17 +58,42 @@ export default function AdminDashboard() {
   const loadStats = async () => {
     setLoading(true);
     try {
-      const payload = await adminApi('/admin/dashboard/stats');
-      setStats({
-        users: Number(payload?.users ?? 0),
-        vehicles: Number(payload?.vehicles ?? 0),
-        auctions: Number(payload?.auctions ?? 0),
-        brands: Number(payload?.brands ?? 0),
-        categories: Number(payload?.categories ?? 0),
-        blogs: Number(payload?.blogs ?? 0),
-        support: Number(payload?.support ?? 0),
-        pages: Number(payload?.pages ?? 0),
-      });
+      const [statsResponse, usersResponse, vehiclesResponse, auctionsResponse, brandsResponse, categoriesResponse, blogsResponse, supportResponse, pagesResponse] = await Promise.allSettled([
+        adminApi('/admin/dashboard/stats').catch(() => null),
+        adminApi('/admin/users?skip=0&take=1000'),
+        adminApi('/admin/vehicles?skip=0&take=1000'),
+        adminApi('/admin/auctions?skip=0&take=1000'),
+        adminApi('/admin/brands?skip=0&take=1000'),
+        adminApi('/admin/categories?skip=0&take=1000'),
+        adminApi('/admin/blogs?skip=0&take=1000'),
+        adminApi('/admin/support/tickets?skip=0&take=1000'),
+        adminApi('/admin/pages?skip=0&take=1000'),
+      ]);
+
+      const nextStats: Record<string, number> = {};
+      const statsPayload = statsResponse.status === 'fulfilled' && statsResponse.value ? statsResponse.value : null;
+
+      if (statsPayload && typeof statsPayload === 'object') {
+        nextStats.users = Number((statsPayload as Record<string, unknown>).users ?? 0);
+        nextStats.vehicles = Number((statsPayload as Record<string, unknown>).vehicles ?? 0);
+        nextStats.auctions = Number((statsPayload as Record<string, unknown>).auctions ?? 0);
+        nextStats.brands = Number((statsPayload as Record<string, unknown>).brands ?? 0);
+        nextStats.categories = Number((statsPayload as Record<string, unknown>).categories ?? 0);
+        nextStats.blogs = Number((statsPayload as Record<string, unknown>).blogs ?? 0);
+        nextStats.support = Number((statsPayload as Record<string, unknown>).support ?? 0);
+        nextStats.pages = Number((statsPayload as Record<string, unknown>).pages ?? 0);
+      }
+
+      nextStats.users = nextStats.users ?? toCount(usersResponse);
+      nextStats.vehicles = nextStats.vehicles ?? toCount(vehiclesResponse);
+      nextStats.auctions = nextStats.auctions ?? toCount(auctionsResponse);
+      nextStats.brands = nextStats.brands ?? toCount(brandsResponse);
+      nextStats.categories = nextStats.categories ?? toCount(categoriesResponse);
+      nextStats.blogs = nextStats.blogs ?? toCount(blogsResponse);
+      nextStats.support = nextStats.support ?? toCount(supportResponse);
+      nextStats.pages = nextStats.pages ?? toCount(pagesResponse);
+
+      setStats(nextStats);
       setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     } catch (error) {
       console.error('Failed to load admin stats', error);
@@ -197,5 +222,26 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+function toCount(result: PromiseSettledResult<unknown>): number {
+  if (result.status !== 'fulfilled') return 0;
+
+  const value = result.value as { data?: unknown[]; items?: unknown[] } | unknown[] | null | undefined;
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+
+  if (value && typeof value === 'object') {
+    if (Array.isArray((value as { data?: unknown[] }).data)) {
+      return (value as { data: unknown[] }).data.length;
+    }
+
+    if (Array.isArray((value as { items?: unknown[] }).items)) {
+      return (value as { items: unknown[] }).items.length;
+    }
+  }
+
+  return 0;
 }
 

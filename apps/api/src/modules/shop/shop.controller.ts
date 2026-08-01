@@ -39,6 +39,19 @@ export class ShopController {
     return this.shopService.getCategoryById(id);
   }
 
+  @Put('categories/:id')
+  updateCategory(
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateCategoryDto> & { featured?: boolean },
+  ) {
+    return this.shopService.updateCategory(id, dto);
+  }
+
+  @Delete('categories/:id')
+  deleteCategory(@Param('id') id: string) {
+    return this.shopService.deleteCategory(id);
+  }
+
   // ==================== PRODUCTS ====================
 
   @Post('products')
@@ -73,8 +86,13 @@ export class ShopController {
   }
 
   @Put('products/:id')
-  updateProduct(@Param('id') id: string, @Body() dto: Partial<CreateProductDto>) {
+  updateProduct(@Param('id') id: string, @Body() dto: Partial<CreateProductDto> & { featured?: boolean; status?: string }) {
     return this.shopService.updateProduct(id, dto);
+  }
+
+  @Delete('products/:id')
+  deleteProduct(@Param('id') id: string) {
+    return this.shopService.deleteProduct(id);
   }
 
   @Put('products/:id/stock')

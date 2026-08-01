@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/adminApi';
 
 interface Category {
@@ -15,17 +15,18 @@ export default function AdminCategories() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: '', description: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    fetchCategories();
+    void fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const data = await adminApi('/admin/categories?skip=0&take=50');
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch categories');
     } finally {
@@ -33,82 +34,110 @@ export default function AdminCategories() {
     }
   };
 
-  const handleAdd = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const resetForm = () => {
+    setForm({ name: '', description: '' });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     try {
-      const data = await adminApi('/admin/categories', {
-        method: 'POST',
-        body: JSON.stringify(newCategory),
-      });
-      setCategories([data, ...categories]);
-      setNewCategory({ name: '', description: '' });
-      setShowForm(false);
+      if (editingId) {
+        const updated = await adminApi(`/admin/categories/${editingId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ name: form.name, description: form.description }),
+        });
+
+        setCategories((current) => current.map((category) => (category.id === editingId ? { ...category, ...updated } : category)));
+      } else {
+        const created = await adminApi('/admin/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name: form.name, description: form.description }),
+        });
+        setCategories((current) => [created, ...current]);
+      }
+
+      resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create category');
+      setError(err instanceof Error ? err.message : 'Failed to save category');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this category?')) return;
+
     try {
       await adminApi(`/admin/categories/${id}`, { method: 'DELETE' });
-      setCategories(categories.filter((c) => c.id !== id));
+      setCategories((current) => current.filter((category) => category.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete category');
     }
   };
 
+  const startEdit = (category: Category) => {
+    setEditingId(category.id);
+    setForm({ name: category.name, description: category.description || '' });
+    setShowForm(true);
+  };
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Categories Management</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-red-500">Categories</p>
+          <h1 className="mt-2 text-3xl font-semibold text-slate-900">Manage vehicle categories</h1>
+          <p className="mt-2 text-sm text-slate-600">Create, update, and remove categories directly from the admin dashboard.</p>
+        </div>
         <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+          onClick={() => {
+            setShowForm((current) => !current);
+            if (showForm) resetForm();
+          }}
+          className="rounded-2xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-700"
         >
-          + Add Category
+          {showForm ? 'Close form' : '+ Add category'}
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Category Name"
-              value={newCategory.name}
-              onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-              required
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-            />
-            <input
-              type="text"
-              placeholder="Description"
-              value={newCategory.description}
-              onChange={(e) =>
-                setNewCategory({ ...newCategory, description: e.target.value })
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-            />
+        <form onSubmit={handleSubmit} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Category name</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                required
+                className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none ring-0 focus:border-red-500"
+                placeholder="e.g. SUVs"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Description</label>
+              <input
+                type="text"
+                value={form.description}
+                onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none ring-0 focus:border-red-500"
+                placeholder="Optional summary"
+              />
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Create
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button type="submit" className="rounded-2xl bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700">
+              {editingId ? 'Save changes' : 'Create category'}
             </button>
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="bg-gray-300 px-4 py-2 rounded"
-            >
+            <button type="button" onClick={resetForm} className="rounded-2xl border border-slate-300 px-5 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
               Cancel
             </button>
           </div>
@@ -116,33 +145,33 @@ export default function AdminCategories() {
       )}
 
       {loading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600">Loading categories…</div>
       ) : categories.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">No categories found</p>
-        </div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600">No categories found.</div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Description</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700">Description</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-700">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium">{cat.name}</td>
-                  <td className="px-6 py-4 text-gray-600">{cat.description || '-'}</td>
+            <tbody className="divide-y divide-slate-200">
+              {categories.map((category) => (
+                <tr key={category.id} className="hover:bg-slate-50">
+                  <td className="px-6 py-4 font-medium text-slate-900">{category.name}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600">{category.description || '—'}</td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleDelete(cat.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                      <button onClick={() => startEdit(category)} className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                        Edit
+                      </button>
+                      <button onClick={() => void handleDelete(category.id)} className="text-sm font-medium text-red-600 hover:text-red-700">
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

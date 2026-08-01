@@ -52,6 +52,51 @@ export class ShopService {
     return category;
   }
 
+  async updateCategory(id: string, data: Partial<CreateCategoryDto> & { featured?: boolean }) {
+    const category = await this.prisma.shopCategory.findUnique({ where: { id } });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    const payload: Record<string, any> = { ...data };
+
+    if (data.name) {
+      const slug = data.name.toLowerCase().replace(/\s+/g, '-');
+      const existing = await this.prisma.shopCategory.findFirst({
+        where: { slug, NOT: { id } },
+      });
+
+      if (existing) {
+        throw new BadRequestException('Category already exists');
+      }
+
+      payload.slug = slug;
+    }
+
+    return this.prisma.shopCategory.update({
+      where: { id },
+      data: payload,
+    });
+  }
+
+  async deleteCategory(id: string) {
+    const category = await this.prisma.shopCategory.findUnique({
+      where: { id },
+      include: { products: true },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    if (category.products.length > 0) {
+      throw new BadRequestException('Remove products before deleting this category');
+    }
+
+    return this.prisma.shopCategory.delete({ where: { id } });
+  }
+
   // ==================== PRODUCTS ====================
 
   async createProduct(dto: CreateProductDto) {
@@ -132,7 +177,10 @@ export class ShopService {
     return product;
   }
 
-  async updateProduct(id: string, data: Partial<CreateProductDto>) {
+  async updateProduct(
+    id: string,
+    data: Partial<CreateProductDto> & { featured?: boolean; status?: string },
+  ) {
     const product = await this.prisma.product.findUnique({
       where: { id },
     });
@@ -141,10 +189,40 @@ export class ShopService {
       throw new NotFoundException('Product not found');
     }
 
+    if (data.categoryId) {
+      const category = await this.prisma.shopCategory.findUnique({
+        where: { id: data.categoryId },
+      });
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+    }
+
+    if (data.sku) {
+      const existing = await this.prisma.product.findFirst({
+        where: { sku: data.sku, NOT: { id } },
+      });
+
+      if (existing) {
+        throw new BadRequestException('Product with this SKU already exists');
+      }
+    }
+
     return this.prisma.product.update({
       where: { id },
       data,
     });
+  }
+
+  async deleteProduct(id: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return this.prisma.product.delete({ where: { id } });
   }
 
   async updateStock(id: string, quantity: number) {
