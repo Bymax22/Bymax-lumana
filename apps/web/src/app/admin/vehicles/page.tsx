@@ -12,6 +12,15 @@ interface Vehicle {
   year: number;
   price: number;
   mileage: number;
+  vin?: string;
+  trim?: string;
+  fuelType?: string;
+  transmission?: string;
+  color?: string;
+  condition?: string;
+  engine?: string;
+  description?: string;
+  status?: string;
   createdAt: string;
   brand?: { name: string } | null;
   category?: { name: string } | null;
@@ -129,23 +138,44 @@ export default function AdminVehicles() {
               {vehicles.map((vehicle) => (
                 <tr key={vehicle.id} className="hover:bg-slate-800/60">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/70 text-xs text-slate-400">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl border border-slate-700 bg-slate-950/70 text-xs text-slate-400">
                         {vehicle.images?.[0]?.url ? (
                           <img src={vehicle.images[0].url} alt={`${vehicle.make} ${vehicle.model}`} className="h-full w-full object-cover" />
                         ) : (
                           'IMG'
                         )}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-sm font-semibold text-slate-100">{vehicle.make} {vehicle.model}</p>
-                        <p className="text-sm text-slate-400">{vehicle.year}</p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          {vehicle.year} • {vehicle.trim || 'Standard'} • {vehicle.condition || 'Unknown'}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-300">
+                          {vehicle.fuelType && <span className="rounded-full border border-slate-700 bg-slate-950/80 px-2 py-1">{vehicle.fuelType}</span>}
+                          {vehicle.transmission && <span className="rounded-full border border-slate-700 bg-slate-950/80 px-2 py-1">{vehicle.transmission}</span>}
+                          {vehicle.color && <span className="rounded-full border border-slate-700 bg-slate-950/80 px-2 py-1">{vehicle.color}</span>}
+                          {vehicle.engine && <span className="rounded-full border border-slate-700 bg-slate-950/80 px-2 py-1">{vehicle.engine}</span>}
+                        </div>
+                        {vehicle.description ? (
+                          <p className="mt-2 max-w-xl text-xs leading-5 text-slate-500 line-clamp-2">{vehicle.description}</p>
+                        ) : null}
+                        {vehicle.images && vehicle.images.length > 1 ? (
+                          <div className="mt-3 flex gap-2 overflow-x-auto">
+                            {vehicle.images.slice(1, 5).map((image, index) => (
+                              <div key={`${vehicle.id}-thumb-${index}`} className="h-12 w-12 flex-none overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80">
+                                <img src={image.url} alt={`${vehicle.make} ${vehicle.model} gallery ${index + 2}`} className="h-full w-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-400">
                     <div>{vehicle.brand?.name || 'Unassigned'}</div>
                     <div>{vehicle.category?.name || 'Unassigned'}</div>
+                    {vehicle.vin ? <div className="mt-2 text-xs text-slate-500">VIN: {vehicle.vin}</div> : null}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-400">${Number(vehicle.price || 0).toLocaleString()}</td>
                   <td className="px-6 py-4 text-sm text-slate-400">{Number(vehicle.mileage || 0).toLocaleString()} mi</td>

@@ -7,6 +7,8 @@ interface Category {
   id: string;
   name: string;
   description?: string;
+  icon?: string;
+  _count?: { products: number };
   createdAt: string;
 }
 
@@ -161,7 +163,19 @@ export default function AdminCategories() {
             <tbody className="divide-y divide-slate-200">
               {categories.map((category) => (
                 <tr key={category.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4 font-medium text-slate-900">{category.name}</td>
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    <div className="flex items-center gap-3">
+                      {category.icon ? (
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg">{category.icon}</span>
+                      ) : (
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-sm text-slate-500">CAT</span>
+                      )}
+                      <div>
+                        <div>{category.name}</div>
+                        <div className="text-xs text-slate-500">{category._count?.products ?? 0} products</div>
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{category.description || '—'}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-3">

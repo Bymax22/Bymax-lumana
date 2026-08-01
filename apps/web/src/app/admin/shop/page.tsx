@@ -23,6 +23,7 @@ type Product = {
   status?: string;
   featured?: boolean;
   description?: string;
+  images?: string[];
 };
 
 type Order = {
@@ -49,6 +50,7 @@ export default function ShopAdminPage() {
     stock: '20',
     categoryId: '',
     brandId: '',
+    imageUrls: '',
     featured: false,
     status: 'ACTIVE',
   });
@@ -84,7 +86,7 @@ export default function ShopAdminPage() {
   }
 
   function resetProductForm() {
-    setProductForm({ name: '', sku: '', description: '', price: '120', stock: '20', categoryId: '', brandId: '', featured: false, status: 'ACTIVE' });
+    setProductForm({ name: '', sku: '', description: '', price: '120', stock: '20', categoryId: '', brandId: '', imageUrls: '', featured: false, status: 'ACTIVE' });
     setProductEditingId(null);
   }
 
@@ -130,16 +132,28 @@ export default function ShopAdminPage() {
     setMessage(null);
 
     try {
-      const payload = {
-        ...productForm,
+      const imageUrls = productForm.imageUrls
+        .split(/\s*[\n,]+\s*/)
+        .map((url) => url.trim())
+        .filter(Boolean);
+
+      const payload: any = {
+        name: productForm.name,
+        sku: productForm.sku,
+        description: productForm.description,
         price: Number(productForm.price),
         stock: Number(productForm.stock),
         categoryId: productForm.categoryId || categories[0]?.id,
         brandId: productForm.brandId || undefined,
+        featured: productForm.featured,
+        status: productForm.status,
         condition: 'NEW',
-        images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80'],
         specs: { color: 'Black' },
       };
+
+      if (imageUrls.length > 0) {
+        payload.images = imageUrls;
+      }
 
       if (productEditingId) {
         const updated = await publicApi(`/shop/products/${productEditingId}`, {
@@ -214,6 +228,7 @@ export default function ShopAdminPage() {
       stock: String(product.stock),
       categoryId: product.category?.id || '',
       brandId: '',
+      imageUrls: (product.images || []).join('\n'),
       featured: product.featured || false,
       status: product.status || 'ACTIVE',
     });
@@ -317,6 +332,12 @@ export default function ShopAdminPage() {
                     <option value="OUT_OF_STOCK">OUT_OF_STOCK</option>
                   </select>
                 </div>
+                <textarea
+                  value={productForm.imageUrls}
+                  onChange={(event) => setProductForm({ ...productForm, imageUrls: event.target.value })}
+                  className="min-h-[110px] w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3"
+                  placeholder="Image URLs (one per line or comma-separated)"
+                />
                 <div className="flex flex-wrap gap-3">
                   <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
                     {saving ? 'Saving…' : productEditingId ? 'Save product' : 'Create product'}
@@ -334,12 +355,30 @@ export default function ShopAdminPage() {
               <div className="mt-6 space-y-3">
                 {products.map((product) => (
                   <div key={product.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-slate-100">{product.name}</p>
-                        <p className="text-sm text-slate-400">{product.category?.name || 'Uncategorized'} • {product.stock} in stock</p>
+                    <div className="grid gap-4 md:grid-cols-[0.95fr_0.45fr] md:items-center">
+                      <div className="flex gap-4">
+                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl border border-slate-700 bg-slate-900/70">
+                          {product.images?.[0] ? (
+                            <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-sm text-slate-500">No image</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-100">{product.name}</p>
+                          <p className="text-sm text-slate-400">{product.category?.name || 'Uncategorized'} • {product.stock} in stock</p>
+                          {product.images && product.images.length > 1 ? (
+                            <div className="mt-3 flex gap-2 overflow-x-auto">
+                              {product.images.slice(1, 4).map((image, index) => (
+                                <div key={`${product.id}-thumb-${index}`} className="h-12 w-12 flex-none overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/70">
+                                  <img src={image} alt={`${product.name} preview ${index + 2}`} className="h-full w-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         <span className="rounded-full bg-red-500/10 px-3 py-1 text-sm text-red-300">${product.price}</span>
                         <button onClick={() => startEditProduct(product)} className="rounded-full border border-slate-700 px-3 py-1 text-sm text-slate-300">Edit</button>
                         <button onClick={() => void handleDeleteProduct(product.id)} className="rounded-full border border-red-700/50 px-3 py-1 text-sm text-red-300">Delete</button>

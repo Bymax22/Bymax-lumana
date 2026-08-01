@@ -104,11 +104,11 @@ export default function AdminBrands() {
   };
 
   const logoPreview = useMemo(() => {
-    if (editingBrand?.logoUrl) {
-      return editingBrand.logoUrl;
+    if (formState.logoFile) {
+      return URL.createObjectURL(formState.logoFile);
     }
-    return '';
-  }, [editingBrand]);
+    return editingBrand?.logoUrl ?? '';
+  }, [editingBrand, formState.logoFile]);
 
   return (
     <div className="space-y-6">
@@ -172,7 +172,10 @@ export default function AdminBrands() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(event) => setFormState((current) => ({ ...current, logoFile: event.target.files?.[0] ?? null }))}
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setFormState((current) => ({ ...current, logoFile: file }));
+                }}
                 className="w-full max-w-xs text-sm text-slate-400 file:mr-4 file:rounded-full file:border-0 file:bg-red-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
               />
             </div>

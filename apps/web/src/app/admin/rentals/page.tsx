@@ -17,6 +17,7 @@ type RentalVehicle = {
   licensePlate?: string;
   vin?: string;
   isAvailable?: boolean;
+  images?: string[];
 };
 
 type RentalBooking = {
@@ -52,6 +53,7 @@ export default function RentalsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [trackingVehicleId, setTrackingVehicleId] = useState<string>('');
   const [trackingLocation, setTrackingLocation] = useState<any>(null);
   const [vehicleEditingId, setVehicleEditingId] = useState<string | null>(null);
@@ -92,7 +94,7 @@ export default function RentalsAdminPage() {
         publicApi('/hire/vehicles?take=20'),
         publicApi('/hire/bookings/admin?take=20'),
         publicApi('/hire/insurance-plans'),
-        publicApi('/admin/users?take=20').catch(() => ({ data: [] })),
+        adminApi('/admin/users?take=20').catch(() => ({ data: [] })),
       ]);
 
       const normalizedVehicles = normalizeList(vehiclesRes);
@@ -231,6 +233,7 @@ export default function RentalsAdminPage() {
     setVehicleForm({ make: '', model: '', year: '2025', basePrice: '120', location: 'Lagos', licensePlate: '', description: '', status: 'AVAILABLE' });
     setVehicleEditingId(null);
     setImages([]);
+    setImagePreviews([]);
   }
 
   function startEditVehicle(vehicle: RentalVehicle) {
@@ -307,8 +310,27 @@ export default function RentalsAdminPage() {
                     <option value="DAMAGED">DAMAGED</option>
                     <option value="RETIRED">RETIRED</option>
                   </select>
-                  <input type="file" multiple accept="image/*" onChange={(event) => setImages(Array.from(event.target.files || []))} className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" />
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files || []);
+                      setImages(files);
+                      setImagePreviews(files.map((file) => URL.createObjectURL(file)));
+                    }}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3"
+                  />
                 </div>
+                {imagePreviews.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={preview} className="h-24 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
+                        <img src={preview} alt={`Selected vehicle image ${index + 1}`} className="h-full w-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap gap-3">
                   <button type="submit" disabled={saving} className="rounded-2xl bg-red-500 px-5 py-3 font-medium text-white disabled:opacity-60">
                     {saving ? 'Saving…' : vehicleEditingId ? 'Save vehicle' : 'Create vehicle'}
@@ -423,12 +445,31 @@ export default function RentalsAdminPage() {
           <div className="mt-6 space-y-3">
             {vehicles.map((vehicle) => (
               <div key={vehicle.id} className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-semibold text-slate-100">{vehicle.make} {vehicle.model}</p>
-                    <p className="text-sm text-slate-400">{vehicle.location || 'Location not set'} • {vehicle.licensePlate || 'No plate'} • ${vehicle.basePrice}/day</p>
+                <div className="grid gap-4 md:grid-cols-[0.95fr_0.45fr] md:items-center">
+                  <div className="flex gap-4">
+                    <div className="flex h-24 w-36 items-center justify-center overflow-hidden rounded-3xl border border-slate-700 bg-slate-900/70">
+                      {vehicle.images?.[0] ? (
+                        <img src={vehicle.images[0]} alt={`${vehicle.make} ${vehicle.model}`} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-sm text-slate-500">No image</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-100">{vehicle.make} {vehicle.model}</p>
+                      <p className="text-sm text-slate-400">{vehicle.location || 'Location not set'} • {vehicle.licensePlate || 'No plate'} • ${vehicle.basePrice}/day</p>
+                      {vehicle.description ? <p className="mt-2 text-sm leading-6 text-slate-500 line-clamp-2">{vehicle.description}</p> : null}
+                      {vehicle.images && vehicle.images.length > 1 ? (
+                        <div className="mt-3 flex gap-2 overflow-x-auto">
+                          {vehicle.images.slice(1, 4).map((image, index) => (
+                            <div key={`${vehicle.id}-thumb-${index}`} className="h-14 w-14 flex-none overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/70">
+                              <img src={image} alt={`${vehicle.make} ${vehicle.model} preview ${index + 2}`} className="h-full w-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     <span className={`rounded-full px-3 py-1 text-sm ${vehicle.status === 'AVAILABLE' ? 'bg-emerald-500/10 text-emerald-300' : vehicle.status === 'BOOKED' ? 'bg-amber-500/10 text-amber-300' : 'bg-slate-700/70 text-slate-200'}`}>
                       {vehicle.status || 'AVAILABLE'}
                     </span>
