@@ -12,5 +12,7 @@ test('buildUserDeletionCleanupPlan includes the main user-owned tables', () => {
   assert.ok(models.includes('supportMessage'));
   assert.ok(models.includes('review'));
   assert.ok(models.includes('user'));
-  assert.equal(plan.find((step) => step.model === 'user')?.where.id, 'user_123');
+  const userStep = plan.find((step) => step.model === 'user');
+  assert.ok(userStep);
+  assert.equal(userStep?.where?.id, 'user_123');
 });

@@ -261,6 +261,9 @@ export class AuthService {
       data: { used: true }
     });
 
+    return {
+      message: 'Your password has been reset successfully. You can now login with the new password.'
+    };
   }
 
   async resendVerification(email: string) {
@@ -281,10 +284,5 @@ export class AuthService {
     const sendResult = await this.sendVerificationEmail(normalizedEmail, user.name || undefined, verificationToken);
 
     return { message: 'Verification email resent.', sendResult };
-  }
-
-    return {
-      message: 'Your password has been reset successfully. You can now login with the new password.'
-    };
   }
 }
