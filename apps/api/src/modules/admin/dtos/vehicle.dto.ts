@@ -1,3 +1,5 @@
+import type { VehicleCondition } from '@prisma/client';
+
 export class CreateVehicleDto {
   make!: string;
   model!: string;
@@ -9,7 +11,7 @@ export class CreateVehicleDto {
   color?: string;
   vin!: string;
   trim?: string;
-  condition?: string;
+  condition?: VehicleCondition;
   engine?: string;
   description?: string;
   imageUrl?: string;
@@ -30,7 +32,7 @@ export class UpdateVehicleDto {
   color?: string;
   vin?: string;
   trim?: string;
-  condition?: string;
+  condition?: VehicleCondition;
   engine?: string;
   description?: string;
   imageUrl?: string;
