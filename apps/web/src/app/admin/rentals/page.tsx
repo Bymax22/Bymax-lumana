@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Car, ClipboardList, MapPinned, ShieldCheck } from 'lucide-react';
 import { publicApi } from '@/lib/publicApi';
+import { adminApi } from '@/lib/adminApi';
 
 type RentalVehicle = {
   id: string;
