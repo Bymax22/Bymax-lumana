@@ -89,8 +89,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </span>
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="text-sm font-medium text-slate-100">Live sync</p>
-          <p className="text-sm text-slate-400">Dashboard metrics refresh automatically every 15 seconds.</p>
+          <p className="text-sm font-medium text-slate-100">Refresh on demand</p>
+          <p className="text-sm text-slate-400">Dashboard metrics refresh when you choose to refresh.</p>
         </div>
       </aside>
 
