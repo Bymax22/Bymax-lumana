@@ -3,6 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import serverless = require('serverless-http');
 import { AppModule } from '../src/app.module';
 
+const globalForServer = globalThis as typeof globalThis & {
+  __lumanaServer?: any;
+};
+
 let server: any;
 
 function normalizeApiPrefix(req: any, _res: any, next: any) {
@@ -26,7 +30,7 @@ async function bootstrap() {
 
 export default async function handler(req: any, res: any) {
   if (!server) {
-    server = await bootstrap();
+    server = globalForServer.__lumanaServer ?? (globalForServer.__lumanaServer = await bootstrap());
   }
 
   return server(req, res);
