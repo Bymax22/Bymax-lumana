@@ -18,6 +18,7 @@ export default function AdminCategories() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
 
   useEffect(() => {
@@ -42,21 +43,39 @@ export default function AdminCategories() {
     setShowForm(false);
   };
 
+  const startNewCategory = () => {
+    setError(null);
+    setEditingId(null);
+    setForm({ name: '', description: '' });
+    setShowForm(true);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const name = form.name.trim();
+    const description = form.description.trim();
+
+    if (!name) {
+      setError('Category name is required.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
 
     try {
       if (editingId) {
         const updated = await adminApi(`/admin/categories/${editingId}`, {
           method: 'PUT',
-          body: JSON.stringify({ name: form.name, description: form.description }),
+          body: JSON.stringify({ name, description }),
         });
 
         setCategories((current) => current.map((category) => (category.id === editingId ? { ...category, ...updated } : category)));
       } else {
         const created = await adminApi('/admin/categories', {
           method: 'POST',
-          body: JSON.stringify({ name: form.name, description: form.description }),
+          body: JSON.stringify({ name, description }),
         });
         setCategories((current) => [created, ...current]);
       }
@@ -64,6 +83,8 @@ export default function AdminCategories() {
       resetForm();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save category');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,8 +115,11 @@ export default function AdminCategories() {
         </div>
         <button
           onClick={() => {
-            setShowForm((current) => !current);
-            if (showForm) resetForm();
+            if (showForm) {
+              resetForm();
+            } else {
+              startNewCategory();
+            }
           }}
           className="rounded-2xl bg-red-600 px-5 py-3 font-medium text-white transition hover:bg-red-700"
         >
@@ -136,8 +160,8 @@ export default function AdminCategories() {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="submit" className="rounded-2xl bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700">
-              {editingId ? 'Save changes' : 'Create category'}
+            <button type="submit" disabled={submitting} className="rounded-2xl bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70">
+              {submitting ? (editingId ? 'Saving…' : 'Creating…') : editingId ? 'Save changes' : 'Create category'}
             </button>
             <button type="button" onClick={resetForm} className="rounded-2xl border border-slate-300 px-5 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
               Cancel
