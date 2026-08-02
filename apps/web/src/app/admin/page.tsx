@@ -55,8 +55,11 @@ export default function AdminDashboard() {
     { label: 'Support', value: String(stats.support ?? 0), description: 'Open tickets', icon: MessageCircle, accent: 'from-rose-500 to-red-600' },
   ], [stats]);
 
-  const loadStats = async () => {
-    setLoading(true);
+  const loadStats = async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+    }
+
     try {
       const [statsResponse, usersResponse, vehiclesResponse, auctionsResponse, brandsResponse, categoriesResponse, blogsResponse, supportResponse, pagesResponse] = await Promise.allSettled([
         adminApi('/admin/dashboard/stats').catch(() => null),
@@ -99,17 +102,14 @@ export default function AdminDashboard() {
       console.error('Failed to load admin stats', error);
       setStats((current) => current);
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    void loadStats();
-    const timer = window.setInterval(() => {
-      void loadStats();
-    }, 15000);
-
-    return () => window.clearInterval(timer);
+    void loadStats(true);
   }, []);
 
   return (
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
             <h1 className="mt-2 text-3xl font-semibold text-white">Admin dashboard</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-400">Monitor customers, vehicles, auctions, rentals, shop activity, and content from one live control panel.</p>
           </div>
-          <button onClick={() => void loadStats()} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
+          <button onClick={() => void loadStats(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
             <RefreshCcw className="h-4 w-4" />
             Refresh now
           </button>
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-400">
           <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-300">
             <Activity className="h-4 w-4" />
-            Live sync active
+            Manual refresh only
           </span>
           <span>Last refreshed: {lastUpdated}</span>
         </div>

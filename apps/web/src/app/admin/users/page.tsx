@@ -29,23 +29,23 @@ export default function AdminUsers() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    void fetchUsers();
-    const timer = window.setInterval(() => {
-      void fetchUsers();
-    }, 15000);
-
-    return () => window.clearInterval(timer);
+    void fetchUsers(true);
   }, []);
 
-  const fetchUsers = async () => {
-    try {
+  const fetchUsers = async (showLoading = true) => {
+    if (showLoading) {
       setLoading(true);
+    }
+
+    try {
       const data = await adminApi('/admin/users?skip=0&take=20');
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch users');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -119,7 +119,7 @@ export default function AdminUsers() {
             <h1 className="mt-2 text-3xl font-semibold text-white">People and access control</h1>
             <p className="mt-2 text-sm text-slate-400">Review accounts, adjust roles, edit details, and remove users safely from the control center.</p>
           </div>
-          <button onClick={() => void fetchUsers()} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
+          <button onClick={() => void fetchUsers(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
             <RefreshCcw className="h-4 w-4" />
             Refresh
           </button>

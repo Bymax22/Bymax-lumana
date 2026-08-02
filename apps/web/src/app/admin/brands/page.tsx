@@ -30,23 +30,23 @@ export default function AdminBrands() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    void fetchBrands();
-    const timer = window.setInterval(() => {
-      void fetchBrands();
-    }, 20000);
-
-    return () => window.clearInterval(timer);
+    void fetchBrands(true);
   }, []);
 
-  const fetchBrands = async () => {
-    try {
+  const fetchBrands = async (showLoading = true) => {
+    if (showLoading) {
       setLoading(true);
+    }
+
+    try {
       const data = await adminApi('/admin/brands?skip=0&take=100');
       setBrands(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch brands');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -120,7 +120,7 @@ export default function AdminBrands() {
             <p className="mt-2 text-sm text-slate-400">Create brands, update their logos, and remove them instantly from the admin panel.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => void fetchBrands()} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
+            <button onClick={() => void fetchBrands(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
               <RefreshCcw className="h-4 w-4" />
               Refresh
             </button>

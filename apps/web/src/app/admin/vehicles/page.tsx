@@ -33,12 +33,7 @@ export default function AdminVehicles() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetchVehicles();
-    const timer = window.setInterval(() => {
-      void fetchVehicles();
-    }, 15000);
-
-    return () => window.clearInterval(timer);
+    void fetchVehicles(true);
   }, []);
 
   const stats = useMemo(() => {
@@ -54,15 +49,20 @@ export default function AdminVehicles() {
     };
   }, [vehicles]);
 
-  const fetchVehicles = async () => {
-    try {
+  const fetchVehicles = async (showLoading = true) => {
+    if (showLoading) {
       setLoading(true);
+    }
+
+    try {
       const data = await adminApi('/admin/vehicles?skip=0&take=50');
       setVehicles(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch vehicles');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -86,7 +86,7 @@ export default function AdminVehicles() {
             <p className="mt-2 text-sm text-slate-400">Review listings, inspect the latest stock, and keep the catalog looking polished.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => void fetchVehicles()} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
+            <button onClick={() => void fetchVehicles(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
               <RefreshCcw className="h-4 w-4" />
               Refresh
             </button>
