@@ -32,7 +32,20 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
-    await this.$connect();
+    const timeoutMs = Number(process.env.PRISMA_CONNECT_TIMEOUT_MS ?? 5000);
+    try {
+      await Promise.race([
+        this.$connect(),
+        new Promise((_res, rej) => setTimeout(() => rej(new Error(`Prisma connect timeout after ${timeoutMs}ms`)), timeoutMs)),
+      ]);
+    } catch (err) {
+      // Log and rethrow so the platform (Vercel) receives a clear startup error quickly
+      // This prevents serverless functions from hanging until the platform-level timeout.
+      // The error will be visible in logs.
+      // eslint-disable-next-line no-console
+      console.error('Prisma connection failed or timed out:', err);
+      throw err;
+    }
   }
 
   async onModuleDestroy() {
