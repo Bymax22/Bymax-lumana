@@ -15,6 +15,11 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
       headers.delete('Content-Type');
     }
 
+    if (typeof window !== 'undefined') {
+      const token = window.localStorage.getItem('refreshToken');
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+    }
+
     return await fetch(url, {
       cache: 'no-store',
       ...options,

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./modules/auth/auth.module";
 import { UserModule } from "./modules/user/user.module";
@@ -17,6 +18,7 @@ import { HealthModule } from "./modules/health/health.module";
 import { HireModule } from "./modules/hire/hire.module";
 import { ShopModule } from "./modules/shop/shop.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { AdminAuthGuard } from './modules/auth/session.guard';
 
 @Module({
   imports: [
@@ -38,7 +40,8 @@ import { PrismaModule } from "./prisma/prisma.module";
     HealthModule,
     HireModule,
     ShopModule,
-  ]
+  ],
+  providers: [{ provide: APP_GUARD, useClass: AdminAuthGuard }]
 })
 export class AppModule {}
 

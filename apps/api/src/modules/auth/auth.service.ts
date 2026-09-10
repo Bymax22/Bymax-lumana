@@ -26,6 +26,20 @@ export class AuthService {
     return email.trim().toLowerCase();
   }
 
+  async findUserBySession(refreshToken?: string) {
+    if (!refreshToken) return null;
+
+    const session = await this.prisma.session.findFirst({
+      where: {
+        refreshToken,
+        expiresAt: { gt: new Date() },
+      },
+      include: { user: true },
+    });
+
+    return session ? this.safeUser(session.user) : null;
+  }
+
   private async createChallenge(userId: string, token: string, expiresAt: Date) {
     return this.prisma.passwordReset.create({
       data: {

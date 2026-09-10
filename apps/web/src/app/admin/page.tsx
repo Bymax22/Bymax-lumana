@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('—');
+  const [error, setError] = useState('');
 
   const quickActions: QuickAction[] = [
     { href: '/admin/rentals', label: 'Rental operations', description: 'Fleet and booking queue', icon: CarFront },
@@ -75,6 +76,8 @@ export default function AdminDashboard() {
 
       const nextStats: Record<string, number> = {};
       const statsPayload = statsResponse.status === 'fulfilled' && statsResponse.value ? statsResponse.value : null;
+      const hasFailures = [statsResponse, usersResponse, vehiclesResponse, auctionsResponse, brandsResponse, categoriesResponse, blogsResponse, supportResponse, pagesResponse]
+        .some((result) => result.status === 'rejected');
 
       if (statsPayload && typeof statsPayload === 'object') {
         nextStats.users = Number((statsPayload as Record<string, unknown>).users ?? 0);
@@ -98,9 +101,10 @@ export default function AdminDashboard() {
 
       setStats(nextStats);
       setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setError(hasFailures ? 'Some dashboard data could not be refreshed.' : '');
     } catch (error) {
       console.error('Failed to load admin stats', error);
-      setStats((current) => current);
+      setError('Dashboard data could not be refreshed.');
     } finally {
       if (showLoading) {
         setLoading(false);
@@ -110,6 +114,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     void loadStats(true);
+    const intervalId = window.setInterval(() => void loadStats(false), 30000);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   return (
@@ -120,6 +126,7 @@ export default function AdminDashboard() {
             <p className="text-sm uppercase tracking-[0.35em] text-red-400">Control center</p>
             <h1 className="mt-2 text-3xl font-semibold text-white">Admin dashboard</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-400">Monitor customers, vehicles, auctions, rentals, shop activity, and content from one live control panel.</p>
+                      {error ? <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">{error}</p> : null}
           </div>
           <button onClick={() => void loadStats(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
             <RefreshCcw className="h-4 w-4" />

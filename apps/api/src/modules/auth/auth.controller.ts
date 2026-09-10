@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -7,6 +7,7 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { ResendVerificationDto } from './dtos/resend-verification.dto';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { VerifyLoginOtpDto } from './dtos/verify-login-otp.dto';
+import { SessionAuthGuard } from './session.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +16,12 @@ export class AuthController {
   @Get('status')
   status() {
     return { status: 'ok', service: 'Lumana Auth' };
+  }
+
+  @Get('session')
+  @UseGuards(SessionAuthGuard)
+  session(@Req() request: any) {
+    return { user: request.user };
   }
 
   @Post('register')

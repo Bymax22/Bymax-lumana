@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import AdminGuard from '@/components/AdminGuard';
 import {
   BarChart3,
   Car,
@@ -47,7 +48,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100">
+    <AdminGuard>
+      <div className="flex min-h-screen bg-slate-950 text-slate-100">
       <aside className="hidden w-72 flex-shrink-0 border-r border-slate-800 bg-slate-950/95 px-4 py-6 lg:flex lg:flex-col">
         <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-black/20">
           <p className="text-xs uppercase tracking-[0.35em] text-red-400">Lumana</p>
@@ -89,8 +91,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </span>
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="text-sm font-medium text-slate-100">Refresh on demand</p>
-          <p className="text-sm text-slate-400">Dashboard metrics refresh when you choose to refresh.</p>
+          <p className="text-sm font-medium text-slate-100">Live dashboard</p>
+          <p className="text-sm text-slate-400">Dashboard metrics refresh automatically every 30 seconds.</p>
         </div>
       </aside>
 
@@ -139,7 +141,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
-    </div>
+      </div>
+    </AdminGuard>
   );
 };
 

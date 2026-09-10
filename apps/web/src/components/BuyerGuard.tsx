@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { publicApi } from '@/lib/publicApi';
 
 export default function BuyerGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -8,13 +9,12 @@ export default function BuyerGuard({ children }: { children: React.ReactNode }) 
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-    if (!user) {
+    publicApi<{ user: { role?: string } }>('/auth/session')
+      .then(() => setChecked(true))
+      .catch(() => {
       const next = encodeURIComponent(path || '/buyer');
       router.replace(`/auth/login?next=${next}`);
-    } else {
-      setChecked(true);
-    }
+      });
   }, [path, router]);
 
   if (!checked) return null;

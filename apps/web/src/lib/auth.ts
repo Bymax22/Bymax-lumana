@@ -20,3 +20,8 @@ export function getCurrentUserId(): string | null {
   const user = getStoredUser();
   return user?.id || null;
 }
+
+export function getStoredSessionToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem('refreshToken');
+}

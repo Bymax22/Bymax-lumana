@@ -12,6 +12,7 @@ export default function BuyerDashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const currentUser = getStoredUser();
@@ -32,15 +33,18 @@ export default function BuyerDashboard() {
         setAuctions(Array.isArray(auctionRes) ? auctionRes : []);
         setOrders(Array.isArray(orderRes?.data) ? orderRes.data : []);
         setBookings(Array.isArray(bookingRes?.data) ? bookingRes.data : []);
-      } catch {
-        setVehicles([]);
-        setAuctions([]);
+        setError('');
+      } catch (loadError) {
+        console.error('Failed to load buyer dashboard', loadError);
+        setError('Dashboard data could not be refreshed.');
       } finally {
         setLoading(false);
       }
     }
 
     load();
+    const intervalId = window.setInterval(load, 30000);
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const vehicleCount = vehicles.length;
@@ -93,6 +97,7 @@ export default function BuyerDashboard() {
         </div>
 
         {loading ? <div className="mt-6 text-sm text-slate-400">Loading your dashboard…</div> : null}
+        {error ? <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">{error}</div> : null}
       </div>
     </section>
   );

@@ -1,5 +1,12 @@
 const DEFAULT_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 20000);
 
+function getSessionHeaders(headers: Headers) {
+  if (typeof window === 'undefined') return;
+
+  const token = window.localStorage.getItem('refreshToken');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+}
+
 export function resolveApiBase() {
   const configuredBase = [process.env.NEXT_PUBLIC_API_BASE_URL, process.env.NEXT_PUBLIC_API_URL]
     .map((value) => value?.trim())
@@ -41,6 +48,7 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
     } else {
       headers.delete('Content-Type');
     }
+    getSessionHeaders(headers);
 
     return await fetch(url, {
       ...options,
