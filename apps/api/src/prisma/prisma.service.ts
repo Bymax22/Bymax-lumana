@@ -8,7 +8,7 @@ const globalForPrisma = globalThis as typeof globalThis & {
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    const databaseUrl = process.env.DATABASE_URL;
+    const databaseUrl = process.env.PRISMA_DATABASE_URL || process.env.DATABASE_URL;
     const connectionUrl = databaseUrl
       ? `${databaseUrl}${databaseUrl.includes("?") ? "&" : "?"}connection_limit=1`
       : databaseUrl;

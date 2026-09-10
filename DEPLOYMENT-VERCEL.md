@@ -14,7 +14,8 @@ Recommended approach (two Vercel projects)
    - Install command: leave default (Vercel will run `npm install` in `apps/api`)
    - Output: no static output; we serve requests using `api/index.ts` serverless function
    - Environment variables (set in Vercel > Settings > Environment Variables):
-     - `DATABASE_URL` (required)
+    - `PRISMA_DATABASE_URL` (required at runtime; use the Supabase transaction pooler URL on port `6543` with `pgbouncer=true&sslmode=require`)
+    - `DATABASE_URL` (set to the same pooled URL for Prisma generation/migrations unless a separate migration URL is intentionally used)
      - `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY` (if used)
      - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (if used)
      - `PORT` (optional; not required for serverless)
@@ -66,7 +67,7 @@ Troubleshooting
   - The `health` endpoint returns 200
   - `NEXT_PUBLIC_API_BASE_URL` in `lumana-web` is set to the correct domain
 
-- If `health` fails with a DB error, check `DATABASE_URL` and database provider status.
+- If `health` fails with a DB error, check the Vercel production environment variables and Supabase status. Vercel serverless functions must use the Supabase pooler URL, for example `aws-0-<region>.pooler.supabase.com:6543`; the direct `db.<project-ref>.supabase.co:5432` URL can fail from Vercel with Prisma error `P1001`.
 
 Notes
 
@@ -92,6 +93,7 @@ After installing the Vercel CLI and logging in, you can add environment variable
 
 ```bash
 # for the API project
+npx vercel env add PRISMA_DATABASE_URL production --token $VERCEL_TOKEN --confirm --scope=<org-alias-or-id> --project=<project-id-api>
 npx vercel env add DATABASE_URL production --token $VERCEL_TOKEN --confirm --scope=<org-alias-or-id> --project=<project-id-api>
 
 # for the web project (public var)
