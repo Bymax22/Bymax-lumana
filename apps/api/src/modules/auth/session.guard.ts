@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
-function getBearerToken(request: any) {
+function getBearerToken(request: any): string | undefined {
   const header = request.headers?.authorization;
   return typeof header === 'string' && header.startsWith('Bearer ')
     ? header.slice('Bearer '.length).trim()
-    : null;
+    : undefined;
 }
 
 @Injectable()
