@@ -6,7 +6,7 @@ import { CreateRentalBookingDto } from './dtos/create-rental-booking.dto';
 import { CreateInsurancePlanDto } from './dtos/create-insurance-plan.dto';
 import { ReportDamageDto } from './dtos/report-damage.dto';
 import { GPSLocationDto } from './dtos/gps-location.dto';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, GatewayTimeoutException, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class HireService {
@@ -32,24 +32,45 @@ export class HireService {
   }
 
   async getAllRentalVehicles(skip = 0, take = 10) {
-    const [vehicles, total] = await Promise.all([
+    const safeSkip = Math.max(0, Math.floor(skip));
+    const safeTake = Math.min(50, Math.max(1, Math.floor(take)));
+    const operation = Promise.all([
       this.prisma.rentalVehicle.findMany({
-        skip,
-        take,
-        include: {
-          bookings: true,
-          pricing: true,
+        skip: safeSkip,
+        take: safeTake,
+        select: {
+          id: true,
+          vin: true,
+          make: true,
+          model: true,
+          year: true,
+          mileage: true,
+          color: true,
+          transmission: true,
+          fuelType: true,
+          seatingCapacity: true,
+          status: true,
+          location: true,
+          description: true,
+          basePrice: true,
+          insuranceIncluded: true,
+          images: true,
+          createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.rentalVehicle.count(),
     ]);
+    const timeout = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new GatewayTimeoutException('Rental vehicle data is temporarily unavailable.')), 10000);
+    });
+    const [vehicles, total] = await Promise.race([operation, timeout]);
 
     return {
       data: vehicles,
       total,
-      skip,
-      take,
+      skip: safeSkip,
+      take: safeTake,
     };
   }
 

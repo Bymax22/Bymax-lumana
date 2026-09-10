@@ -5,13 +5,16 @@ const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaService;
 };
 
+function withRuntimeTimeouts(databaseUrl: string) {
+  const separator = databaseUrl.includes('?') ? '&' : '?';
+  return `${databaseUrl}${separator}connection_limit=1&connect_timeout=10&pool_timeout=10&socket_timeout=15&statement_timeout=15000`;
+}
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
     const databaseUrl = process.env.PRISMA_DATABASE_URL || process.env.DATABASE_URL;
-    const connectionUrl = databaseUrl
-      ? `${databaseUrl}${databaseUrl.includes("?") ? "&" : "?"}connection_limit=1`
-      : databaseUrl;
+    const connectionUrl = databaseUrl ? withRuntimeTimeouts(databaseUrl) : databaseUrl;
 
     super({
       datasources: connectionUrl ? { db: { url: connectionUrl } } : undefined,

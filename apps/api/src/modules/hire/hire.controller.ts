@@ -56,7 +56,7 @@ export class HireController {
 
   @Get('vehicles')
   getAllVehicles(@Query('skip') skip: string, @Query('take') take: string) {
-    return this.hireService.getAllRentalVehicles(+skip || 0, +take || 10);
+    return this.hireService.getAllRentalVehicles(Number(skip) || 0, Number(take) || 10);
   }
 
   @Get('vehicles/available')

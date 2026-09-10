@@ -14,7 +14,7 @@ Recommended approach (two Vercel projects)
    - Install command: leave default (Vercel will run `npm install` in `apps/api`)
    - Output: no static output; we serve requests using `api/index.ts` serverless function
    - Environment variables (set in Vercel > Settings > Environment Variables):
-    - `PRISMA_DATABASE_URL` (required at runtime; use the Supabase transaction pooler URL on port `6543` with `pgbouncer=true&sslmode=require`)
+    - `PRISMA_DATABASE_URL` (required at runtime; use the Supabase transaction pooler URL on port `6543` with `pgbouncer=true&sslmode=require`; the API adds bounded connection/query timeouts)
     - `DATABASE_URL` (set to the same pooled URL for Prisma generation/migrations unless a separate migration URL is intentionally used)
      - `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY` (if used)
      - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (if used)
