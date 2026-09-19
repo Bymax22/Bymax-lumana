@@ -27,7 +27,11 @@ export default function SignupPage() {
     try {
       const data = await authRegister({ name, email, password, role });
       if (data?.requiresVerification) {
-        setSuccess('Account created. Please check your email and verify your account before continuing.');
+        setSuccess(
+          data.emailSent
+            ? 'Account created. Please check your email and verify your account before continuing.'
+            : 'Account created, but the verification email could not be sent. Please contact support or try again later.',
+        );
       } else {
         setSuccess('Account created successfully. You can sign in now.');
       }
