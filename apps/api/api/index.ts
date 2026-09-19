@@ -10,21 +10,24 @@ const globalForServer = globalThis as typeof globalThis & {
 
 let server: any;
 
-async function connectWithTimeout(prisma: PrismaService, timeoutMs = 15_000) {
+function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string) {
   let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    await Promise.race([
-      prisma.$connect(),
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(
-          () => reject(new Error(`Database connection timed out after ${timeoutMs}ms`)),
-          timeoutMs,
-        );
-      }),
-    ]);
-  } finally {
+
+  return Promise.race([
+    operation,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`${label} timed out after ${timeoutMs}ms`)),
+        timeoutMs,
+      );
+    }),
+  ]).finally(() => {
     if (timer) clearTimeout(timer);
-  }
+  });
+}
+
+async function connectWithTimeout(prisma: PrismaService, timeoutMs = 15_000) {
+  await withTimeout(prisma.$connect(), timeoutMs, 'Database connection');
 }
 
 function normalizeApiPrefix(req: any, _res: any, next: any) {
@@ -50,7 +53,11 @@ async function bootstrap() {
 export default async function handler(req: any, res: any) {
   if (!server) {
     try {
-      server = globalForServer.__lumanaServer ?? (globalForServer.__lumanaServer = await bootstrap());
+      server = globalForServer.__lumanaServer ?? (globalForServer.__lumanaServer = await withTimeout(
+        bootstrap(),
+        20_000,
+        'API bootstrap',
+      ));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Database unavailable';
       res.statusCode = 503;
