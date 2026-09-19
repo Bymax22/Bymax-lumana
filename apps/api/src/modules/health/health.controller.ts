@@ -8,8 +8,12 @@ export class HealthController {
   @Get()
   async check() {
     try {
-      await this.prisma.$connect();
-      const brandCount = await this.prisma.brand.count();
+      const brandCount = await Promise.race([
+        this.prisma.brand.count(),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Health query timed out after 15 seconds')), 15_000);
+        }),
+      ]);
 
       return {
         status: 'ok',

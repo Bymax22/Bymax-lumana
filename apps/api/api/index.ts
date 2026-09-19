@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import serverless = require('serverless-http');
 import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
 
 const globalForServer = globalThis as typeof globalThis & {
   __lumanaServer?: any;
@@ -26,10 +25,6 @@ function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string)
   });
 }
 
-async function connectWithTimeout(prisma: PrismaService, timeoutMs = 15_000) {
-  await withTimeout(prisma.$connect(), timeoutMs, 'Database connection');
-}
-
 function normalizeApiPrefix(req: any, _res: any, next: any) {
   if (req?.url?.startsWith('/api')) {
     req.url = req.url.replace(/^\/api(?=\/|$|\?)/, '') || '/';
@@ -42,7 +37,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: false, cors: true });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   await app.init();
-  await connectWithTimeout(app.get(PrismaService));
 
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.use(normalizeApiPrefix);
