@@ -1,6 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import serverless = require('serverless-http');
 import { AppModule } from '../src/app.module';
 
 const globalForServer = globalThis as typeof globalThis & {
@@ -41,7 +40,7 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.use(normalizeApiPrefix);
 
-  return serverless(expressApp);
+  return expressApp;
 }
 
 export default async function handler(req: any, res: any) {
