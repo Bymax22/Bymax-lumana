@@ -135,13 +135,12 @@ export class AuthService {
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.createChallenge(user.id, otpToken, otpExpiresAt);
-    void this.sendLoginOtp(email, user.name || undefined, otpCode).catch((error) => {
-      console.error('Failed to send login OTP email:', error);
-    });
+    const sendResult = await this.sendLoginOtp(email, user.name || undefined, otpCode);
 
     return {
       message: 'A verification code has been sent to your email.',
       requiresOtp: true,
+      emailSent: sendResult.ok,
       user: this.safeUser(user),
     };
   }

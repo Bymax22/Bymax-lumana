@@ -41,7 +41,11 @@ export function LoginForm() {
       const data = await authLogin({ email, password });
       if (data?.requiresOtp) {
         setOtpRequired(true);
-        setSuccess('We sent a verification code to your email. Enter it below to finish signing in.');
+        setSuccess(
+          data.emailSent
+            ? 'We sent a verification code to your email. Enter it below to finish signing in.'
+            : 'Your password is correct, but the verification code could not be sent. Please contact support or try again later.',
+        );
         return;
       }
 
