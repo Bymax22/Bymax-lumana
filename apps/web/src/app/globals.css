@@ -27,6 +27,26 @@ select {
   box-shadow: 0 0 0 4px rgba(255, 34, 34, 0.08), 0 18px 50px rgba(255, 34, 34, 0.15);
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes sessionOfferFade {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
 /* Admin surfaces use a red workspace, white panels, and quiet form controls. */
 .admin-theme {
   --admin-red: #b91c1c;

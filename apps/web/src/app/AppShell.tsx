@@ -129,6 +129,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [popularBrands, setPopularBrands] = useState<any[]>([]);
   const [user, setUser] = useState<AppUser | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [showSessionOffer, setShowSessionOffer] = useState(false);
+
+  useEffect(() => {
+    const offerKey = 'lumana-session-offer-seen';
+    if (window.sessionStorage.getItem(offerKey)) return;
+
+    window.sessionStorage.setItem(offerKey, 'true');
+    setShowSessionOffer(true);
+    const timeoutId = window.setTimeout(() => setShowSessionOffer(false), 6200);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   useEffect(() => {
     const syncUser = () => setUser(getStoredUser());
@@ -178,11 +189,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <CurrencyProvider>
       <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
-        <div className="overflow-hidden border-b border-black/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-3 py-2.5 text-sm text-[#0b0b0b] shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-4">
+        {showSessionOffer ? (
+          <div className="pointer-events-none fixed inset-0 z-[60] flex items-center justify-center px-6 text-center animate-[sessionOfferFade_6.2s_ease-out_forwards]" aria-live="polite">
+            <div className="drop-shadow-[0_8px_24px_rgba(0,0,0,0.85)]">
+              <p className="text-[clamp(5rem,24vw,13rem)] font-black leading-none tracking-tight text-yellow-400">30%</p>
+              <p className="mt-3 max-w-xl text-base font-semibold leading-6 text-white sm:text-xl">Downpayment gets you any car you want with Lumana.</p>
+            </div>
+          </div>
+        ) : null}
+        <div className="px-3 py-2.5 sm:px-4">
           <div className="mx-auto max-w-[1660px]">
-            <div className="relative overflow-hidden rounded-full border border-black/10 bg-white/30 px-3 py-2 backdrop-blur-sm">
-              <div className="flex w-max animate-[marquee_22s_linear_infinite] items-center whitespace-nowrap font-medium tracking-[0.02em]">
-                <span className="px-3 text-sm sm:text-[15px]">Did you know that you can buy any vehicle of your choice from Lumana with just 30% downpayment and the balance only paid when your vehicle reaches the PORT?</span>
+            <div className="relative overflow-hidden rounded-full bg-[#0d0d0d] px-3 py-2 text-sm text-white">
+              <div className="flex w-max animate-[marquee_24s_linear_infinite] items-center whitespace-nowrap font-bold tracking-[0.02em]">
+                <span className="px-3 sm:text-[15px]">Did you know that you can buy any vehicle of your choice from Lumana with just 30% downpayment and the balance only paid when your vehicle reaches the PORT?</span>
+                <span className="px-12 sm:text-[15px]" aria-hidden="true">Did you know that you can buy any vehicle of your choice from Lumana with just 30% downpayment and the balance only paid when your vehicle reaches the PORT?</span>
               </div>
             </div>
           </div>
@@ -190,12 +210,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="mx-auto flex min-h-screen w-full max-w-[1660px] min-w-0 gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
-          <div className="flex items-center justify-center rounded-[22px] bg-[#101010] px-4 py-4">
-            <div className="flex h-20 w-full max-w-[190px] items-center justify-center overflow-hidden rounded-[18px] bg-[#111111] p-3">
-              <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
-            </div>
-          </div>
-
           <nav className="space-y-0.5">
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
@@ -313,9 +327,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="bg-black p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] bg-[#161b24] p-2">
-                    <img src="/lumana-logo.png" alt="Lumana logo" className="max-h-full max-w-full object-contain" />
-                  </div>
                   <div>
                     <p className="text-sm font-semibold text-white">Lumana AutoPlanet</p>
                     <p className="text-xs text-slate-400">Premium marketplace</p>
@@ -381,8 +392,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex w-full flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 lg:hidden">
-                    <Link href="/" aria-label="Lumana AutoPlanet home" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[18px] bg-[#121212] p-2">
-                      <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="max-h-full max-w-full object-contain" />
+                    <Link href="/" aria-label="Lumana AutoPlanet home" className="flex items-center">
+                      <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="h-14 w-auto max-w-[180px] object-contain" />
                     </Link>
                     <button
                       type="button"

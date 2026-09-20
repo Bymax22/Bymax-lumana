@@ -301,11 +301,11 @@ export default async function HomePage() {
             <Link href="/vehicles" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">Browse All</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-2">
+          <div className="mt-6 snap-x snap-mandatory overflow-x-auto pb-2">
             <div className="flex min-w-max gap-4 pr-1">
               {vehicles.slice(0, 8).map((v: any) => {
                 return (
-                  <div key={v.id} className="w-[calc(50vw-2.5rem)] min-w-[calc(50vw-2.5rem)] sm:w-[280px] sm:min-w-[280px]">
+                  <div key={v.id} className="w-[calc(100vw-3rem)] min-w-[calc(100vw-3rem)] snap-start sm:w-[280px] sm:min-w-[280px]">
                     <VehicleCard vehicle={v} />
                   </div>
                 );
@@ -326,14 +326,14 @@ export default async function HomePage() {
             <Link href="/hire" className="rounded-[18px] bg-[#121212] px-4 py-2 text-xs text-slate-300">View All Fleet</Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto pb-2">
+          <div className="mt-6 snap-x snap-mandatory overflow-x-auto pb-2">
             <div className="flex gap-4 pr-1">
               {(featuredRentals as any).slice(0, 8).map((v: any) => {
                 const imageUrl = getItemImageUrl(v);
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[calc(50vw-2.5rem)] min-w-[calc(50vw-2.5rem)] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] sm:min-w-[280px] xl:w-[calc(25%-0.75rem)]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[calc(100vw-3rem)] min-w-[calc(100vw-3rem)] flex-shrink-0 snap-start overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] sm:min-w-[280px] xl:w-[calc(25%-0.75rem)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
