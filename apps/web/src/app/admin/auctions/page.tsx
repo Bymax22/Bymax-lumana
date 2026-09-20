@@ -102,7 +102,7 @@ export default function AdminAuctions() {
                     {auction.vehicle?.make} {auction.vehicle?.model}
                   </td>
                   <td className="px-6 py-4">{auction.seller?.name || 'N/A'}</td>
-                  <td className="px-6 py-4">${auction.startPrice.toLocaleString()}</td>
+                  <td className="px-6 py-4">${auction.startingPrice.toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded text-sm ${

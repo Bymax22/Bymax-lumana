@@ -23,12 +23,16 @@ type RentalVehicle = {
 
 type RentalBooking = {
   id: string;
+  bookingRef?: string;
   status: string;
   totalPrice?: number;
   vehicle?: { make: string; model: string; id?: string };
-  customer?: { name?: string; email?: string };
+  customer?: { name?: string; email?: string; phone?: string | null };
   pickupDate?: string;
   returnDate?: string;
+  pickupLocation?: string;
+  returnLocation?: string;
+  notes?: string;
   metadata?: Record<string, any>;
 };
 
@@ -44,6 +48,8 @@ type UserOption = {
   name?: string;
   email?: string;
 };
+
+const ZAMBIAN_PROVINCES = ['Central', 'Copperbelt', 'Eastern', 'Luapula', 'Lusaka', 'Muchinga', 'Northern', 'North-Western', 'Southern', 'Western'];
 
 export default function RentalsAdminPage() {
   const [vehicles, setVehicles] = useState<RentalVehicle[]>([]);
@@ -65,7 +71,7 @@ export default function RentalsAdminPage() {
     model: '',
     year: '2025',
     basePrice: '120',
-    location: 'Lagos',
+    location: 'Lusaka',
     licensePlate: '',
     description: '',
     status: 'AVAILABLE',
@@ -75,8 +81,12 @@ export default function RentalsAdminPage() {
     userId: '',
     pickupDate: '',
     returnDate: '',
-    pickupLocation: 'Lagos HQ',
-    returnLocation: 'Lagos HQ',
+    pickupLocation: 'Lusaka',
+    pickupProvince: 'Lusaka',
+    pickupDistrict: 'Lusaka',
+    returnLocation: 'Lusaka',
+    returnProvince: 'Lusaka',
+    returnDistrict: 'Lusaka',
     insurancePlanId: '',
     paymentMethod: 'BANK_TRANSFER',
     notes: '',
@@ -202,6 +212,10 @@ export default function RentalsAdminPage() {
         metadata: {
           durationType: bookingForm.durationType,
           durationDays: Number(bookingForm.durationDays || 1),
+          pickupProvince: bookingForm.pickupProvince,
+          pickupDistrict: bookingForm.pickupDistrict,
+          returnProvince: bookingForm.returnProvince,
+          returnDistrict: bookingForm.returnDistrict,
         },
       };
 
@@ -234,7 +248,7 @@ export default function RentalsAdminPage() {
   }
 
   function resetVehicleForm() {
-    setVehicleForm({ vin: '', make: '', model: '', year: '2025', basePrice: '120', location: 'Lagos', licensePlate: '', description: '', status: 'AVAILABLE' });
+    setVehicleForm({ vin: '', make: '', model: '', year: '2025', basePrice: '120', location: 'Lusaka', licensePlate: '', description: '', status: 'AVAILABLE' });
     setVehicleEditingId(null);
     setImages([]);
     setExistingImageUrls([]);
@@ -249,7 +263,7 @@ export default function RentalsAdminPage() {
       model: vehicle.model,
       year: String(vehicle.year || 2025),
       basePrice: String(vehicle.basePrice || 0),
-      location: vehicle.location || 'Lagos',
+      location: vehicle.location || 'Lusaka',
       licensePlate: vehicle.licensePlate || '',
       description: vehicle.description || '',
       status: vehicle.status || 'AVAILABLE',
@@ -419,7 +433,15 @@ export default function RentalsAdminPage() {
                   <input value={bookingForm.pickupDate} type="datetime-local" onChange={(event) => setBookingForm({ ...bookingForm, pickupDate: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" required />
                   <input value={bookingForm.returnDate} type="datetime-local" onChange={(event) => setBookingForm({ ...bookingForm, returnDate: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" required />
                   <input value={bookingForm.pickupLocation} onChange={(event) => setBookingForm({ ...bookingForm, pickupLocation: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Pickup location" />
+                  <select value={bookingForm.pickupProvince} onChange={(event) => setBookingForm({ ...bookingForm, pickupProvince: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3">
+                    {ZAMBIAN_PROVINCES.map((province) => <option key={`pickup-${province}`} value={province}>{province} Province</option>)}
+                  </select>
+                  <input value={bookingForm.pickupDistrict} onChange={(event) => setBookingForm({ ...bookingForm, pickupDistrict: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Pickup district" />
                   <input value={bookingForm.returnLocation} onChange={(event) => setBookingForm({ ...bookingForm, returnLocation: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Return location" />
+                  <select value={bookingForm.returnProvince} onChange={(event) => setBookingForm({ ...bookingForm, returnProvince: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3">
+                    {ZAMBIAN_PROVINCES.map((province) => <option key={`return-${province}`} value={province}>{province} Province</option>)}
+                  </select>
+                  <input value={bookingForm.returnDistrict} onChange={(event) => setBookingForm({ ...bookingForm, returnDistrict: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Return district" />
                   <select value={bookingForm.durationType} onChange={(event) => setBookingForm({ ...bookingForm, durationType: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3">
                     <option value="DAILY">Daily</option>
                     <option value="WEEKLY">Weekly</option>
@@ -529,8 +551,8 @@ export default function RentalsAdminPage() {
                       <p><span className="text-slate-200">License:</span> {booking.metadata?.driverLicense || 'Not supplied'}</p>
                       <p><span className="text-slate-200">Driver phone:</span> {booking.metadata?.driverPhone || 'Not supplied'}</p>
                       <p><span className="text-slate-200">Emergency:</span> {booking.metadata?.emergencyContact || 'Not supplied'}</p>
-                      <p><span className="text-slate-200">Pickup:</span> {booking.pickupDate ? new Date(booking.pickupDate).toLocaleString() : 'Not supplied'} at {booking.pickupLocation || 'Not supplied'}</p>
-                      <p><span className="text-slate-200">Return:</span> {booking.returnDate ? new Date(booking.returnDate).toLocaleString() : 'Not supplied'} at {booking.returnLocation || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Pickup:</span> {booking.pickupDate ? new Date(booking.pickupDate).toLocaleString() : 'Not supplied'} at {booking.pickupLocation || 'Not supplied'}, {booking.metadata?.pickupDistrict || 'District not supplied'}, {booking.metadata?.pickupProvince || 'Province not supplied'}</p>
+                      <p><span className="text-slate-200">Return:</span> {booking.returnDate ? new Date(booking.returnDate).toLocaleString() : 'Not supplied'} at {booking.returnLocation || 'Not supplied'}, {booking.metadata?.returnDistrict || 'District not supplied'}, {booking.metadata?.returnProvince || 'Province not supplied'}</p>
                       <p><span className="text-slate-200">Requirements:</span> {booking.metadata?.specialRequirements || 'None'}</p>
                       <p><span className="text-slate-200">Notes:</span> {booking.notes || 'None'}</p>
                     </div>

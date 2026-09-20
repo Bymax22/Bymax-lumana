@@ -5,11 +5,17 @@ import { publicApi } from '@/lib/publicApi';
 import ConvertedAmount from '@/components/ConvertedAmount';
 import { type PaymentMethod } from '@/lib/paymentMethods';
 
+const ZAMBIAN_PROVINCES = ['Central', 'Copperbelt', 'Eastern', 'Luapula', 'Lusaka', 'Muchinga', 'Northern', 'North-Western', 'Southern', 'Western'];
+
 export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
   const [pickupDate, setPickupDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
+  const [pickupProvince, setPickupProvince] = useState('Lusaka');
+  const [pickupDistrict, setPickupDistrict] = useState('Lusaka');
   const [returnLocation, setReturnLocation] = useState('');
+  const [returnProvince, setReturnProvince] = useState('Lusaka');
+  const [returnDistrict, setReturnDistrict] = useState('Lusaka');
   const [durationType, setDurationType] = useState<'daily' | 'custom' | 'weekly' | 'monthly'>('daily');
   const [customDays, setCustomDays] = useState(3);
   const [driverName, setDriverName] = useState('');
@@ -72,6 +78,10 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
           specialRequirements,
           durationType: durationType.toUpperCase(),
           durationDays,
+          pickupProvince,
+          pickupDistrict,
+          returnProvince,
+          returnDistrict,
         },
       };
 
@@ -105,8 +115,28 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
                 <input value={pickupLocation} onChange={(e) => setPickupLocation(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2" placeholder="Lusaka or outside" />
               </div>
               <div>
+                <label className="text-sm text-slate-400">Pickup Province</label>
+                <select value={pickupProvince} onChange={(e) => setPickupProvince(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2 text-white">
+                  {ZAMBIAN_PROVINCES.map((province) => <option key={`pickup-${province}`} value={province}>{province}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Pickup District</label>
+                <input value={pickupDistrict} onChange={(e) => setPickupDistrict(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2" placeholder="e.g. Lusaka District" />
+              </div>
+              <div>
                 <label className="text-sm text-slate-400">Return Location</label>
                 <input value={returnLocation} onChange={(e) => setReturnLocation(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2" placeholder="Lusaka or outside" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Return Province</label>
+                <select value={returnProvince} onChange={(e) => setReturnProvince(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2 text-white">
+                  {ZAMBIAN_PROVINCES.map((province) => <option key={`return-${province}`} value={province}>{province}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-slate-400">Return District</label>
+                <input value={returnDistrict} onChange={(e) => setReturnDistrict(e.target.value)} className="mt-1 w-full rounded bg-[#101010] px-3 py-2" placeholder="e.g. Lusaka District" />
               </div>
               <div>
                 <label className="text-sm text-slate-400">Rate Type</label>
