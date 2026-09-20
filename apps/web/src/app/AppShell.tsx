@@ -411,9 +411,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="flex w-full flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 lg:hidden">
                     <div className="flex min-w-0 items-center gap-2">
-                      <button type="button" onClick={handleMobileBack} aria-label="Go back" title="Go back" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[#121212] text-slate-100 transition hover:bg-red-600">
-                        <ArrowLeft className="h-5 w-5" />
-                      </button>
                       <Link href="/" aria-label="Lumana AutoPlanet home" className="flex min-w-0 items-center">
                         <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="h-14 w-auto max-w-[180px] object-contain" />
                       </Link>
@@ -477,6 +474,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
+            {pathname !== '/' ? (
+              <div className="mb-4 lg:hidden">
+                <button type="button" onClick={handleMobileBack} aria-label="Go back" title="Go back" className="inline-flex items-center gap-2 rounded-[14px] bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-500">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </button>
+              </div>
+            ) : null}
             {children}
           </section>
         </div>

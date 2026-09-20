@@ -53,9 +53,9 @@ select {
   flex-shrink: 0;
 }
 
-.sidebar-mobile nav svg {
-  width: 1.9rem;
-  height: 1.9rem;
+.sidebar-mobile svg {
+  width: 2rem !important;
+  height: 2rem !important;
   flex-shrink: 0;
 }
 
