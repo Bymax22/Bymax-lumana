@@ -27,14 +27,18 @@ select {
   box-shadow: 0 0 0 4px rgba(255, 34, 34, 0.08), 0 18px 50px rgba(255, 34, 34, 0.15);
 }
 
-/* The admin workspace uses color and spacing for hierarchy instead of outlines. */
+/* Admin surfaces use a red workspace, white panels, and quiet form controls. */
 .admin-theme {
-  --admin-red: #facc15;
-  --admin-yellow: #facc15;
-  --admin-ink: #f8fafc;
-  --admin-muted: #a1a1aa;
-  background: #050505;
-  color: #f8fafc;
+  --admin-red: #b91c1c;
+  --admin-yellow: #b91c1c;
+  --admin-ink: #171717;
+  --admin-muted: #525252;
+  background: #b91c1c;
+  color: var(--admin-ink);
+}
+
+.admin-theme > main {
+  background-color: #b91c1c !important;
 }
 
 .admin-theme [class*="bg-slate-950"],
@@ -49,12 +53,25 @@ select {
 .admin-theme [class*="bg-[#111111]"],
 .admin-theme [class*="bg-gray-50"],
 .admin-theme [class*="bg-gray-100"] {
-  background-color: #111111 !important;
+  background-color: #ffffff !important;
 }
 
 .admin-theme [class*="bg-slate-700"],
 .admin-theme [class*="bg-slate-600"] {
-  background-color: #1c1c1c !important;
+  background-color: #f3f4f6 !important;
+}
+
+.admin-theme input,
+.admin-theme select,
+.admin-theme textarea {
+  background-color: #f3f4f6 !important;
+  color: #171717 !important;
+  border-color: transparent !important;
+}
+
+.admin-theme input::placeholder,
+.admin-theme textarea::placeholder {
+  color: #737373 !important;
 }
 
 .admin-theme [class*="text-slate-100"],
@@ -70,21 +87,21 @@ select {
 }
 
 .admin-theme [class*="text-white"] {
-  color: #ffffff !important;
+  color: var(--admin-ink) !important;
 }
 
 .admin-theme [class*="text-cyan"],
 .admin-theme [class*="text-emerald"],
 .admin-theme [class*="text-violet"],
 .admin-theme [class*="text-sky"] {
-  color: var(--admin-yellow) !important;
+  color: var(--admin-red) !important;
 }
 
 .admin-theme [class*="bg-cyan"],
 .admin-theme [class*="bg-emerald"],
 .admin-theme [class*="bg-violet"],
 .admin-theme [class*="bg-sky"] {
-  background-color: rgb(250 204 21 / 0.12) !important;
+  background-color: rgb(185 28 28 / 0.1) !important;
 }
 
 .admin-theme [class*="bg-red-600"],
@@ -92,29 +109,30 @@ select {
 .admin-theme [class*="bg-red-400"],
 .admin-theme [class*="bg-red-100"],
 .admin-theme [class*="bg-red-50"] {
-  background-color: var(--admin-yellow) !important;
-  color: #050505 !important;
+  background-color: var(--admin-red) !important;
+  color: #ffffff !important;
 }
 
 .admin-theme [class*="text-red"] {
-  color: var(--admin-yellow) !important;
+  color: var(--admin-red) !important;
 }
 
 .admin-theme [class*="bg-yellow-500"],
 .admin-theme [class*="bg-yellow-400"] {
-  background-color: var(--admin-yellow) !important;
-  color: var(--admin-ink) !important;
+  background-color: var(--admin-red) !important;
+  color: #ffffff !important;
 }
 
 .admin-theme [class*="text-yellow"] {
-  color: var(--admin-yellow) !important;
+  color: var(--admin-red) !important;
 }
 
 .admin-theme [class*="border"] {
-  border-color: rgb(250 204 21 / 0.24) !important;
+  border-color: transparent !important;
+  border-width: 0 !important;
 }
 
 .admin-theme [class*="hover:bg-red"]:hover,
 .admin-theme [class*="hover:bg-red-700"]:hover {
-  background-color: #fde047 !important;
+  background-color: #991b1b !important;
 }
