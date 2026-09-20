@@ -6,7 +6,9 @@
     "node": "24.x"
   },
   "scripts": {
+    "prestart": "prisma generate --schema=./prisma/schema.prisma",
     "start": "nest start",
+    "prestart:dev": "prisma generate --schema=./prisma/schema.prisma",
     "start:dev": "nest start --watch",
     "prebuild": "prisma generate --schema=./prisma/schema.prisma",
     "build": "nest build",
