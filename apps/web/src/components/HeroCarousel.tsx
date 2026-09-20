@@ -53,7 +53,7 @@ export default function HeroCarousel({ items }: { items: any[] }) {
           return (
             <Link
               key={it.id || i}
-              href={it.id ? `/buyer/vehicles/${it.id}` : '#'}
+              href={it.id ? `/vehicles/${it.id}` : '#'}
               className="relative flex h-full w-full flex-shrink-0 items-end justify-start overflow-hidden rounded-[24px] bg-[#070707]"
             >
               {img ? (
@@ -66,13 +66,13 @@ export default function HeroCarousel({ items }: { items: any[] }) {
 
               <div className="relative z-10 w-full p-6 sm:p-8">
                 <div className="max-w-xl">
-                  <p className="text-sm uppercase text-slate-300">{it.forSale ? 'For Sale' : it.forHire ? 'For Hire' : 'Featured'}</p>
+                  <p className="text-sm uppercase text-slate-300">{it.status === 'SOLD' ? 'Sold' : it.forSale ? 'For Sale' : it.forHire ? 'For Hire' : 'Featured'}</p>
                   <h3 className="mt-2 text-2xl font-bold text-white">{(it.make ? `${it.make} ` : '') + (it.model || it.name || '')}</h3>
                   <p className="mt-1 text-sm text-slate-300">{it.year ? String(it.year) : it.location || ''}</p>
                   <div className="mt-4 flex items-center gap-4">
-                    <div className="text-lg font-semibold text-red-400">{price}</div>
+                    <div className={`text-lg font-semibold ${it.status === 'SOLD' ? 'text-slate-400' : 'text-red-400'}`}>{it.status === 'SOLD' ? 'Sold' : price}</div>
                     <div className="ml-auto">
-                      <span className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">View</span>
+                      <span className="rounded-[18px] bg-yellow-500 px-4 py-2 text-sm font-semibold text-[#0b0b0b]">View details</span>
                     </div>
                   </div>
                 </div>

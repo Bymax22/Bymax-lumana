@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { publicApi } from '@/lib/publicApi';
-import { getCurrentUserId } from '@/lib/auth';
+import { getCurrentUserId, getStoredSessionToken } from '@/lib/auth';
 import ConvertedAmount from '@/components/ConvertedAmount';
 
 export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
@@ -13,32 +13,25 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    try {
-      const list = JSON.parse(localStorage.getItem('savedVehicles') || '[]');
-      setSaved(list.includes(vehicle.id));
-    } catch (e) {
-      setSaved(false);
-    }
+    const endpoint = getStoredSessionToken() ? `/vehicles/${vehicle.id}/save-status` : `/vehicles/${vehicle.id}/save-count`;
+    publicApi<{ saved?: boolean }>(endpoint)
+      .then((result) => setSaved(Boolean(result.saved)))
+      .catch(() => setSaved(false));
   }, [vehicle?.id]);
 
-  function toggleSave() {
+  async function toggleSave() {
+    if (!getStoredSessionToken()) {
+      setMessage('Please log in to save this vehicle');
+      return;
+    }
+
     try {
-      const raw = localStorage.getItem('savedVehicles') || '[]';
-      const list: string[] = JSON.parse(raw);
-      const idx = list.indexOf(vehicle.id);
-      if (idx === -1) {
-        list.push(vehicle.id);
-        setSaved(true);
-        setMessage('Saved to favorites');
-      } else {
-        list.splice(idx, 1);
-        setSaved(false);
-        setMessage('Removed from favorites');
-      }
-      localStorage.setItem('savedVehicles', JSON.stringify(list));
+      const result = await publicApi<{ saved: boolean }>(`/vehicles/${vehicle.id}/save`, { method: 'POST' });
+      setSaved(result.saved);
+      setMessage(result.saved ? 'Saved to favorites' : 'Removed from favorites');
       setTimeout(() => setMessage(''), 2000);
-    } catch (e) {
-      setMessage('Unable to update saved items');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to update saved items');
     }
   }
 
@@ -118,7 +111,7 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
             <button onClick={toggleSave} className="rounded bg-gray-800 px-4 py-2">{saved ? 'Unsave' : 'Save'}</button>
             <button onClick={contactSeller} className="rounded bg-red-600 px-4 py-2">Contact Seller</button>
             <button onClick={placeBid} className="rounded bg-gray-800 px-4 py-2">Place Bid</button>
-            <button onClick={buyNow} className="ml-2 rounded bg-emerald-600 px-4 py-2">Buy Now</button>
+            <button onClick={buyNow} disabled={vehicle.status === 'SOLD'} className="ml-2 rounded bg-emerald-600 px-4 py-2 disabled:cursor-not-allowed disabled:bg-slate-700">{vehicle.status === 'SOLD' ? 'Sold' : 'Buy Now'}</button>
           </div>
           {message ? <div className="mt-3 text-sm text-emerald-300">{message}</div> : null}
           <div className="mt-6 text-sm text-slate-300">

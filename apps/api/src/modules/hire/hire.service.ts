@@ -26,7 +26,7 @@ export class HireService {
     return this.prisma.rentalVehicle.create({
       data: {
         ...dto,
-        status: 'AVAILABLE',
+        status: dto.status || 'AVAILABLE',
       },
     });
   }

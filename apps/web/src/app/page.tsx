@@ -2,6 +2,7 @@ import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import ConvertedAmount from '@/components/ConvertedAmount';
 import HeroCarousel from '@/components/HeroCarousel';
+import VehicleCard from '@/components/VehicleCard';
 import { publicApi } from '@/lib/publicApi';
 
 function normalizeArrayPayload(payload: unknown): any[] {
@@ -112,25 +113,8 @@ export default async function HomePage() {
                 <p className="mb-3 text-sm text-slate-400">Trending Now</p>
                 <div className="flex gap-4 overflow-x-auto pb-2">
                   {vehicles.slice(0,6).map((v: any) => {
-                    const img = getItemImageUrl(v);
-                    const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
-
                     return (
-                      <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="min-w-[12rem] w-48 flex-shrink-0 rounded-lg bg-[#0b0b0b] p-3 shadow-[0_6px_18px_rgba(0,0,0,0.45)] transition-transform duration-200 hover:scale-105">
-                        <div className="h-24 w-full overflow-hidden rounded-md bg-[#0d0d0d]">
-                          {img ? (
-                            <img src={img} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-sm text-slate-500">No Image</div>
-                          )}
-                        </div>
-
-                        <div className="mt-2">
-                          <p className="text-sm font-semibold text-white">{v.make} {v.model}</p>
-                          <p className="text-xs text-slate-400">{v.year || '—'}</p>
-                          <p className="mt-1 text-sm text-red-400">{price}</p>
-                        </div>
-                      </Link>
+                      <VehicleCard key={v.id} vehicle={v} compact />
                     );
                   })}
                 </div>
@@ -320,54 +304,8 @@ export default async function HomePage() {
           <div className="mt-6 overflow-x-auto pb-2">
             <div className="flex gap-4 pr-1">
               {vehicles.slice(0, 8).map((v: any) => {
-                const imageUrl = getItemImageUrl(v);
-                const price = v.price ? <ConvertedAmount amountUsd={v.price} /> : 'Contact';
-
                 return (
-                  <Link key={v.id} href={`/buyer/vehicles/${v.id}`} className="group block w-[88vw] max-w-[320px] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
-                    <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
-                      {imageUrl ? (
-                        <img src={imageUrl} alt={`${v.make || 'Vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#1f1f1f] via-[#111] to-[#0d0d0d] text-sm uppercase tracking-[0.2em] text-slate-500">
-                          No Image
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                      <div className="absolute left-4 top-4 rounded-full bg-red-600/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                        {v.condition || 'Featured'}
-                      </div>
-                    </div>
-
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="text-base font-semibold text-white">{v.make} {v.model}</h3>
-                          <p className="text-sm text-slate-400">{v.year || '—'} • {v.mileage ? `${v.mileage.toLocaleString()} km` : 'Mileage available on request'}</p>
-                        </div>
-                        <span className="rounded-full border border-slate-700 px-2 py-1 text-[10px] uppercase text-slate-400">{v.transmission || 'Auto'}</span>
-                      </div>
-
-                      <div className="mt-3 grid gap-2 rounded-[14px] bg-[#111111] p-2.5 text-sm text-slate-300">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] uppercase text-slate-500">Fuel</span>
-                          <span className="font-medium text-white">{v.fuelType || 'N/A'}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] uppercase text-slate-500">Location</span>
-                          <span className="font-medium text-white">{v.location || v.city || 'Contact us'}</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-slate-400">Starting from</p>
-                          <p className="text-base font-semibold text-red-400">{price}</p>
-                        </div>
-                        <span className="rounded-[12px] bg-yellow-500/10 px-2.5 py-1.5 text-[10px] font-semibold uppercase text-yellow-400">View</span>
-                      </div>
-                    </div>
-                  </Link>
+                  <VehicleCard key={v.id} vehicle={v} />
                 );
               })}
             </div>

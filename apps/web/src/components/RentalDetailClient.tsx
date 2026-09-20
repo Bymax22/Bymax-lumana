@@ -70,6 +70,8 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
           driverPhone,
           emergencyContact,
           specialRequirements,
+          durationType: durationType.toUpperCase(),
+          durationDays,
         },
       };
 

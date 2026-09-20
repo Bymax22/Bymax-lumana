@@ -99,7 +99,7 @@ export default function VehicleGrid({ vehicles, errorMessage, refreshEndpoint = 
         const imageUrl = getVehicleImageUrl(vehicle);
 
         return (
-          <Link key={vehicle.id} href={`/buyer/vehicles/${vehicle.id}`} className="block overflow-hidden rounded-[24px] bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:-translate-y-1">
+          <Link key={vehicle.id} href={`/vehicles/${vehicle.id}`} className="block overflow-hidden rounded-[24px] bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:-translate-y-1">
             <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
               {imageUrl ? (
                 <img src={imageUrl} alt={`${vehicle.make || 'Vehicle'} ${vehicle.model || ''}`} className="h-full w-full object-cover" loading="lazy" />

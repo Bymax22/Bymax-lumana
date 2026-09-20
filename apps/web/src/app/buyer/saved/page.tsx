@@ -2,26 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { publicApi } from '@/lib/publicApi';
 
 export default function SavedPage() {
-  const [list, setList] = useState<string[]>([]);
+  const [list, setList] = useState<any[]>([]);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('savedVehicles') || '[]';
-      setList(JSON.parse(raw));
-    } catch (e) {
-      setList([]);
-    }
+    publicApi('/vehicles/saved').then((vehicles) => setList(Array.isArray(vehicles) ? vehicles : [])).catch(() => setList([]));
   }, []);
 
-  function remove(id: string) {
+  async function remove(id: string) {
     try {
-      const next = list.filter((i) => i !== id);
-      localStorage.setItem('savedVehicles', JSON.stringify(next));
-      setList(next);
-    } catch (e) {
-      // ignore
+      await publicApi(`/vehicles/${id}/save`, { method: 'POST' });
+      setList((current) => current.filter((vehicle) => vehicle.id !== id));
+    } catch {
+      // Keep the saved list visible if the request fails.
     }
   }
 
@@ -35,10 +30,10 @@ export default function SavedPage() {
           {list.length === 0 ? (
             <div className="text-sm text-slate-400">No saved vehicles yet.</div>
           ) : (
-            list.map((id) => (
-              <div key={id} className="flex items-center justify-between rounded bg-[#0b0b0b] p-3">
-                <Link href={`/buyer/vehicles/${id}`} className="text-white">View {id}</Link>
-                <button onClick={() => remove(id)} className="text-sm text-red-400">Remove</button>
+            list.map((vehicle) => (
+              <div key={vehicle.id} className="flex items-center justify-between rounded bg-[#0b0b0b] p-3">
+                <Link href={`/vehicles/${vehicle.id}`} className="text-white">{vehicle.make} {vehicle.model}</Link>
+                <button onClick={() => void remove(vehicle.id)} className="text-sm text-red-400">Remove</button>
               </div>
             ))
           )}
