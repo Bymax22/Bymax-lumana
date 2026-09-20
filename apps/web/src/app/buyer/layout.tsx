@@ -26,7 +26,6 @@ export default function BuyerLayout({ children }: { children: React.ReactNode })
           <main className="min-w-0 flex-1">{children}</main>
           </div>
         </div>
-      </div>
     </BuyerGuard>
   );
 }
