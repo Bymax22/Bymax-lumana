@@ -1,6 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { publicApi } from '@/lib/publicApi';
-import ConvertedAmount from '@/components/ConvertedAmount';
+import AuctionCard from '@/components/AuctionCard';
 
 export default async function AuctionsPage() {
   let auctions = [];
@@ -29,23 +29,7 @@ export default async function AuctionsPage() {
           <div className="rounded-[24px] bg-[#121212] p-6 text-slate-300">No auctions are available yet. Check back later to populate this page.</div>
         ) : (
           <div className="grid gap-6 xl:grid-cols-2">
-            {auctions.map((auction: any) => (
-              <div key={auction.id} className="rounded-[24px] bg-[#121212] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm uppercase text-slate-500">{auction.status || 'Unknown'}</p>
-                    <h2 className="mt-2 text-xl font-semibold text-white">{auction.title || auction.vehicle?.make + ' ' + auction.vehicle?.model}</h2>
-                  </div>
-                  <span className="rounded-full bg-red-600 px-3 py-1 text-xs uppercase text-white">Auction</span>
-                </div>
-                <div className="mt-5 space-y-3 text-sm text-slate-300">
-                  <p><span className="font-semibold text-white">Start:</span> {new Date(auction.startAt).toLocaleString()}</p>
-                  <p><span className="font-semibold text-white">End:</span> {new Date(auction.endAt).toLocaleString()}</p>
-                  <p><span className="font-semibold text-white">Starting Price:</span> {auction.startingPrice ? <ConvertedAmount amountUsd={auction.startingPrice} /> : 'N/A'}</p>
-                  <p><span className="font-semibold text-white">Current Price:</span> {auction.currentPrice ? <ConvertedAmount amountUsd={auction.currentPrice} /> : 'N/A'}</p>
-                </div>
-              </div>
-            ))}
+            {auctions.map((auction: any) => <AuctionCard key={auction.id} auction={auction} />)}
           </div>
         )}
       </div>

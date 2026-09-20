@@ -11,6 +11,7 @@ export default function BuyerDashboard() {
   const [auctions, setAuctions] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [savedCount, setSavedCount] = useState(0);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -25,17 +26,19 @@ export default function BuyerDashboard() {
     async function load() {
       setLoading(true);
       try {
-        const [vehicleRes, auctionRes, orderRes, bookingRes] = await Promise.all([
+        const [vehicleRes, auctionRes, orderRes, bookingRes, notificationRes] = await Promise.all([
           publicApi('/vehicles').catch(() => []),
           publicApi('/auctions').catch(() => []),
           userId ? publicApi(`/shop/orders/${userId}`).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
           userId ? publicApi(`/hire/bookings?userId=${userId}`).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+          publicApi('/notifications').catch(() => []),
         ]);
 
         setVehicles(Array.isArray(vehicleRes) ? vehicleRes : []);
         setAuctions(Array.isArray(auctionRes) ? auctionRes : []);
         setOrders(Array.isArray(orderRes?.data) ? orderRes.data : []);
         setBookings(Array.isArray(bookingRes?.data) ? bookingRes.data : []);
+        setNotifications(Array.isArray(notificationRes) ? notificationRes : []);
         setError('');
       } catch (loadError) {
         console.error('Failed to load buyer dashboard', loadError);
@@ -61,6 +64,7 @@ export default function BuyerDashboard() {
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-red-300">Buyer overview</p><h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome back{user?.name ? `, ${user.name}` : ''}</h1><p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">Find your next vehicle, keep an eye on auctions, and stay on top of every purchase.</p></div><div className="flex gap-3"><button type="button" onClick={() => window.location.reload()} className="flex items-center gap-2 rounded-xl bg-[#171a1d] px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-[#202428] hover:text-white" title="Refresh dashboard"><RefreshCw size={16} /><span className="hidden sm:inline">Refresh</span></button><Link href="/buyer/vehicles" className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/10 transition hover:bg-red-400"><Compass size={17} /> Browse cars</Link></div></header>
       {loading ? <div className="flex items-center gap-2 rounded-xl bg-[#15191c] px-4 py-3 text-sm text-slate-400"><RefreshCw className="animate-spin" size={15} /> Updating your activity...</div> : null}
       {error ? <div className="flex items-center gap-2 rounded-xl bg-[#2b2010] px-4 py-3 text-sm text-amber-200"><Clock3 size={16} /> {error}</div> : null}
+      {notifications.length > 0 ? <div className="rounded-2xl bg-[#111416] p-5"><div className="flex items-center gap-2"><Sparkles className="text-yellow-300" size={18} /><p className="font-semibold">Account updates</p></div><div className="mt-4 space-y-3">{notifications.slice(0, 3).map((notification: any) => <div key={notification.id} className="rounded-xl bg-[#171a1d] p-4"><p className="text-sm font-semibold text-white">{notification.payload?.title || 'Notification'}</p><p className="mt-1 text-sm text-slate-400">{notification.payload?.message || 'You have a new account update.'}</p></div>)}</div></div> : null}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Marketplace" value={vehicleCount} helper="Vehicles to explore" icon={<CarFront size={19} />} tone="text-red-300" /><Stat label="Live auctions" value={liveAuctions} helper="Auctions happening now" icon={<Gavel size={19} />} tone="text-amber-300" /><Stat label="Saved vehicles" value={savedCount} helper="Your shortlist" icon={<Bookmark size={19} />} tone="text-sky-300" /><Stat label="Active bookings" value={upcomingBookings} helper="Rental trips ahead" icon={<ShoppingBag size={19} />} tone="text-emerald-300" /></div>
       <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
         <div className="rounded-2xl bg-[#111416] p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-lg font-semibold">Vehicles you may like</p><p className="mt-1 text-sm text-slate-500">A fresh look at what is available now.</p></div><Link href="/buyer/vehicles" className="flex items-center gap-1 text-sm font-semibold text-red-300 hover:text-red-200">Explore all <ArrowUpRight size={15} /></Link></div><div className="mt-5 grid gap-3 sm:grid-cols-3">{featuredVehicles.length === 0 ? <div className="rounded-xl bg-[#171a1d] px-4 py-8 text-center text-sm text-slate-500 sm:col-span-3">No vehicles are available right now.</div> : featuredVehicles.map((vehicle: any) => <Link key={vehicle.id} href={`/vehicles/${vehicle.id}`} className="group rounded-xl bg-[#171a1d] p-3 transition hover:bg-[#202428]"><div className="flex h-24 items-center justify-center rounded-lg bg-[#202428] text-slate-500"><CarFront size={28} /></div><p className="mt-3 truncate text-sm font-semibold text-slate-200">{vehicle.make} {vehicle.model}</p><p className="mt-1 text-xs text-slate-500">{vehicle.year || 'Year not set'} <ChevronRight size={13} className="inline transition group-hover:translate-x-1" /></p></Link>)}</div></div>

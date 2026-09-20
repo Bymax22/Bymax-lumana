@@ -93,9 +93,19 @@ export class HireController {
         ).filter((url): url is string => Boolean(url))
       : [];
 
+    let existingImages: string[] | undefined;
+    if (typeof dto.existingImages === 'string') {
+      try {
+        const parsed = JSON.parse(dto.existingImages);
+        existingImages = Array.isArray(parsed) ? parsed.filter((url): url is string => typeof url === 'string' && Boolean(url.trim())) : [];
+      } catch {
+        existingImages = [];
+      }
+    }
+
     return this.hireService.updateRentalVehicle(id, {
       ...dto,
-      ...(uploadedUrls.length ? { images: uploadedUrls } : {}),
+      ...(existingImages !== undefined || uploadedUrls.length ? { images: [...(existingImages || []), ...uploadedUrls] } : {}),
     });
   }
 

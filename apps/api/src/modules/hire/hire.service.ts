@@ -106,9 +106,11 @@ export class HireService {
       throw new NotFoundException('Rental vehicle not found');
     }
 
+    const { existingImages: _existingImages, ...updateData } = data;
+
     return this.prisma.rentalVehicle.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 
@@ -248,6 +250,7 @@ export class HireService {
           customer: true,
           insurance: true,
           damageReport: true,
+          payments: true,
         },
         orderBy: { createdAt: 'desc' },
       }),

@@ -76,13 +76,7 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
       };
 
       const booking = await publicApi('/hire/bookings', { method: 'POST', body: JSON.stringify(payload) });
-      if (paymentMethod === 'BANK_TRANSFER') {
-        setMessage(`Booking created. Please complete bank transfer with reference ${booking.bookingRef}.`);
-      } else if (paymentMethod === 'CASH') {
-        setMessage('Booking created. Please pay cash when the car is delivered.');
-      } else {
-        setMessage('Booking created and payment completed successfully.');
-      }
+      setMessage(`Booking request sent successfully${booking.bookingRef ? ` with reference ${booking.bookingRef}` : ''}. Our team will review it and confirm your reservation.`);
       setTimeout(() => setMessage(''), 4000);
     } catch (err) {
       setMessage('Unable to create booking');

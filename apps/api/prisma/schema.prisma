@@ -13,6 +13,8 @@ model User {
   phone                  String?              @unique
   name                   String?
   role                   UserRole             @default(CUSTOMER)
+  approvalStatus         UserApprovalStatus   @default(APPROVED)
+  emailVerified          Boolean              @default(false)
   password               String?
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
@@ -598,6 +600,12 @@ enum UserRole {
   INSPECTOR
   DRIVER
   ADMIN
+}
+
+enum UserApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum AuctionStatus {

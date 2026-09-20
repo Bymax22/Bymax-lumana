@@ -122,6 +122,10 @@ export class AdminVehicleService {
   }
 
   async updateStatus(id: string, status: string) {
-    return this.prisma.vehicle.findUnique({ where: { id } });
+    return this.prisma.vehicle.update({
+      where: { id },
+      data: { status: status.toUpperCase() as any },
+      include: { brand: true, category: true, images: true },
+    });
   }
 }

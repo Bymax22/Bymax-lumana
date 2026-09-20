@@ -95,6 +95,7 @@ export class AuthService {
       email,
       password,
       role: data?.role,
+      ...(data?.role?.toUpperCase() === 'CUSTOMER' ? { approvalStatus: 'PENDING' } : {}),
     });
 
     const verificationToken = `verify_${randomBytes(20).toString('hex')}`;
@@ -128,6 +129,18 @@ export class AuthService {
     const valid = await bcrypt.compare(data.password, user.password);
     if (!valid) {
       throw new UnauthorizedException('Invalid email or password.');
+    }
+
+    if (user.role === 'CUSTOMER' && user.approvalStatus !== 'APPROVED') {
+      throw new UnauthorizedException(
+        user.approvalStatus === 'REJECTED'
+          ? 'Your buyer account was not approved. Please contact support.'
+          : 'Your buyer account is awaiting admin approval.',
+      );
+    }
+
+    if (!user.emailVerified) {
+      throw new UnauthorizedException('Please verify your email before signing in.');
     }
 
     const otpCode = `${Math.floor(100000 + Math.random() * 900000)}`;
@@ -172,6 +185,11 @@ export class AuthService {
     await this.prisma.passwordReset.update({
       where: { id: challenge.id },
       data: { used: true },
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true },
     });
 
     return { message: 'Email verified successfully. You can now sign in.' };

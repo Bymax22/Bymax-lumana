@@ -19,9 +19,10 @@ import { AdminUserService } from './services/admin-user.service';
 import { AdminSupportService } from './services/admin-support.service';
 import { AdminPageService } from './services/admin-page.service';
 import { AdminDashboardService } from './services/admin-dashboard.service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationModule],
   controllers: [
     AdminVehicleController,
     AdminAuctionController,

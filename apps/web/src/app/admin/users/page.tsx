@@ -10,6 +10,7 @@ interface User {
   email: string;
   phone?: string | null;
   role: string;
+  approvalStatus: string;
   createdAt: string;
 }
 
@@ -58,6 +59,18 @@ export default function AdminUsers() {
       setUsers((current) => current.map((u) => (u.id === id ? { ...u, role: updated.role || role } : u)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update role');
+    }
+  };
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      const updated = await adminApi(`/admin/users/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+      setUsers((current) => current.map((user) => (user.id === id ? { ...user, approvalStatus: updated.approvalStatus || status } : user)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update approval status');
     }
   };
 
@@ -144,6 +157,7 @@ export default function AdminUsers() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Email</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Role</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Buyer approval</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Created</th>
                 <th className="px-6 py-3 text-right text-sm font-semibold text-slate-300">Actions</th>
               </tr>
@@ -165,6 +179,19 @@ export default function AdminUsers() {
                       <option value="INSPECTOR">Inspector</option>
                       <option value="DRIVER">Driver</option>
                     </select>
+                  </td>
+                  <td className="px-6 py-4">
+                    {user.role === 'CUSTOMER' ? (
+                      <select
+                        value={user.approvalStatus || 'PENDING'}
+                        onChange={(event) => void handleUpdateStatus(user.id, event.target.value)}
+                        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+                      >
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                      </select>
+                    ) : <span className="text-sm text-slate-500">Not required</span>}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-400">{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">

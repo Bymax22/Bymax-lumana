@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { UserRole } from '@prisma/client';
+import { UserApprovalStatus, UserRole } from '@prisma/client';
 import { buildUserDeletionCleanupPlan } from '../../user/user.service';
+import { NotificationService } from '../../notification/notification.service';
+import { sendBrevoMail } from '../../auth/email.service';
 
 @Injectable()
 export class AdminUserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notifications: NotificationService) {}
 
   async findAll(skip = 0, take = 10) {
     return this.prisma.user.findMany({
@@ -80,6 +82,30 @@ export class AdminUserService {
   }
 
   async updateStatus(id: string, status: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+    const approvalStatus = status.toUpperCase() as UserApprovalStatus;
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { approvalStatus },
+    });
+    const approved = approvalStatus === UserApprovalStatus.APPROVED;
+    const message = approved
+      ? 'Your buyer account has been approved. You can now sign in and use the Lumana dashboard.'
+      : approvalStatus === UserApprovalStatus.REJECTED
+        ? 'Your buyer account application was not approved. Please contact Lumana support for assistance.'
+        : 'Your buyer account is awaiting admin approval.';
+
+    await this.notifications.create({
+      userId: user.id,
+      channel: 'ACCOUNT_APPROVAL',
+      payload: { title: approved ? 'Buyer account approved' : 'Buyer account status updated', message, status: approvalStatus },
+    });
+    await sendBrevoMail({
+      to: user.email,
+      name: user.name || undefined,
+      subject: approved ? 'Your Lumana buyer account is approved' : 'Update on your Lumana buyer account',
+      html: `<p>Hello ${user.name || 'there'},</p><p>${message}</p>`,
+    });
+
+    return user;
   }
 }

@@ -29,14 +29,12 @@ select {
 
 /* The admin workspace uses color and spacing for hierarchy instead of outlines. */
 .admin-theme {
-  --admin-red: #dc2626;
+  --admin-red: #facc15;
   --admin-yellow: #facc15;
-  --admin-ink: #171717;
-  --admin-muted: #525252;
-}
-
-.admin-theme [class*="border"] {
-  border-width: 0 !important;
+  --admin-ink: #f8fafc;
+  --admin-muted: #a1a1aa;
+  background: #050505;
+  color: #f8fafc;
 }
 
 .admin-theme [class*="bg-slate-950"],
@@ -51,12 +49,12 @@ select {
 .admin-theme [class*="bg-[#111111]"],
 .admin-theme [class*="bg-gray-50"],
 .admin-theme [class*="bg-gray-100"] {
-  background-color: #ffffff !important;
+  background-color: #111111 !important;
 }
 
 .admin-theme [class*="bg-slate-700"],
 .admin-theme [class*="bg-slate-600"] {
-  background-color: #f5f5f5 !important;
+  background-color: #1c1c1c !important;
 }
 
 .admin-theme [class*="text-slate-100"],
@@ -72,31 +70,34 @@ select {
 }
 
 .admin-theme [class*="text-white"] {
-  color: var(--admin-ink) !important;
+  color: #ffffff !important;
 }
 
 .admin-theme [class*="text-cyan"],
 .admin-theme [class*="text-emerald"],
 .admin-theme [class*="text-violet"],
 .admin-theme [class*="text-sky"] {
-  color: var(--admin-red) !important;
+  color: var(--admin-yellow) !important;
 }
 
 .admin-theme [class*="bg-cyan"],
 .admin-theme [class*="bg-emerald"],
 .admin-theme [class*="bg-violet"],
 .admin-theme [class*="bg-sky"] {
-  background-color: rgb(220 38 38 / 0.1) !important;
+  background-color: rgb(250 204 21 / 0.12) !important;
 }
 
 .admin-theme [class*="bg-red-600"],
-.admin-theme [class*="bg-red-500"] {
-  background-color: var(--admin-red) !important;
-  color: #ffffff !important;
+.admin-theme [class*="bg-red-500"],
+.admin-theme [class*="bg-red-400"],
+.admin-theme [class*="bg-red-100"],
+.admin-theme [class*="bg-red-50"] {
+  background-color: var(--admin-yellow) !important;
+  color: #050505 !important;
 }
 
 .admin-theme [class*="text-red"] {
-  color: var(--admin-red) !important;
+  color: var(--admin-yellow) !important;
 }
 
 .admin-theme [class*="bg-yellow-500"],
@@ -106,5 +107,14 @@ select {
 }
 
 .admin-theme [class*="text-yellow"] {
-  color: #a16207 !important;
+  color: var(--admin-yellow) !important;
+}
+
+.admin-theme [class*="border"] {
+  border-color: rgb(250 204 21 / 0.24) !important;
+}
+
+.admin-theme [class*="hover:bg-red"]:hover,
+.admin-theme [class*="hover:bg-red-700"]:hover {
+  background-color: #fde047 !important;
 }

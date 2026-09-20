@@ -6,9 +6,9 @@ import { adminApi } from '@/lib/adminApi';
 interface Auction {
   id: string;
   status: string;
-  startPrice: number;
-  startTime: string;
-  endTime: string;
+  startingPrice: number;
+  startAt: string;
+  endAt: string;
   vehicle?: { make: string; model: string };
   seller?: { name: string };
   createdAt: string;
@@ -106,9 +106,9 @@ export default function AdminAuctions() {
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded text-sm ${
-                        auction.status === 'active'
+                        auction.status.toUpperCase() === 'LIVE'
                           ? 'bg-green-100 text-green-800'
-                          : auction.status === 'pending'
+                          : auction.status.toUpperCase() === 'DRAFT' || auction.status.toUpperCase() === 'SCHEDULED'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}
@@ -117,7 +117,7 @@ export default function AdminAuctions() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    {auction.status === 'pending' && (
+                    {(auction.status.toUpperCase() === 'DRAFT' || auction.status.toUpperCase() === 'SCHEDULED') && (
                       <>
                         <button
                           onClick={() => handleApprove(auction.id)}
@@ -135,7 +135,7 @@ export default function AdminAuctions() {
                     )}
                     <button
                       onClick={() => handleDelete(auction.id)}
-                      className="text-red-600 hover:underline"
+                      className="text-yellow-600 hover:underline"
                     >
                       Delete
                     </button>

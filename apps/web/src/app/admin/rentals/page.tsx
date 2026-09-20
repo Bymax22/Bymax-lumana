@@ -54,11 +54,13 @@ export default function RentalsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [images, setImages] = useState<File[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [trackingVehicleId, setTrackingVehicleId] = useState<string>('');
   const [trackingLocation, setTrackingLocation] = useState<any>(null);
   const [vehicleEditingId, setVehicleEditingId] = useState<string | null>(null);
   const [vehicleForm, setVehicleForm] = useState({
+    vin: '',
     make: '',
     model: '',
     year: '2025',
@@ -140,7 +142,7 @@ export default function RentalsAdminPage() {
 
     try {
       const formData = new FormData();
-      formData.append('vin', `VIN-${Date.now()}`);
+      formData.append('vin', vehicleForm.vin || `VIN-${Date.now()}`);
       formData.append('make', vehicleForm.make);
       formData.append('model', vehicleForm.model);
       formData.append('year', String(Number(vehicleForm.year)));
@@ -154,6 +156,7 @@ export default function RentalsAdminPage() {
       formData.append('transmission', 'Automatic');
       formData.append('seatingCapacity', '5');
       formData.append('status', vehicleForm.status);
+      formData.append('existingImages', JSON.stringify(existingImageUrls));
       images.forEach((image) => formData.append('images', image));
 
       let created: RentalVehicle;
@@ -231,15 +234,17 @@ export default function RentalsAdminPage() {
   }
 
   function resetVehicleForm() {
-    setVehicleForm({ make: '', model: '', year: '2025', basePrice: '120', location: 'Lagos', licensePlate: '', description: '', status: 'AVAILABLE' });
+    setVehicleForm({ vin: '', make: '', model: '', year: '2025', basePrice: '120', location: 'Lagos', licensePlate: '', description: '', status: 'AVAILABLE' });
     setVehicleEditingId(null);
     setImages([]);
+    setExistingImageUrls([]);
     setImagePreviews([]);
   }
 
   function startEditVehicle(vehicle: RentalVehicle) {
     setVehicleEditingId(vehicle.id);
     setVehicleForm({
+      vin: vehicle.vin || '',
       make: vehicle.make,
       model: vehicle.model,
       year: String(vehicle.year || 2025),
@@ -249,6 +254,9 @@ export default function RentalsAdminPage() {
       description: vehicle.description || '',
       status: vehicle.status || 'AVAILABLE',
     });
+    const currentImages = Array.isArray(vehicle.images) ? vehicle.images : [];
+    setExistingImageUrls(currentImages);
+    setImagePreviews(currentImages);
   }
 
   return (
@@ -294,6 +302,7 @@ export default function RentalsAdminPage() {
 
               <form onSubmit={handleCreateVehicle} className="mt-6 space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
+                  <input value={vehicleForm.vin} onChange={(event) => setVehicleForm({ ...vehicleForm, vin: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="VIN" required />
                   <input value={vehicleForm.make} onChange={(event) => setVehicleForm({ ...vehicleForm, make: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Make" required />
                   <input value={vehicleForm.model} onChange={(event) => setVehicleForm({ ...vehicleForm, model: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Model" required />
                   <input value={vehicleForm.year} type="number" onChange={(event) => setVehicleForm({ ...vehicleForm, year: event.target.value })} className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3" placeholder="Year" required />
@@ -317,8 +326,8 @@ export default function RentalsAdminPage() {
                     accept="image/*"
                     onChange={(event) => {
                       const files = Array.from(event.target.files || []);
-                      setImages(files);
-                      setImagePreviews(files.map((file) => URL.createObjectURL(file)));
+                      setImages((current) => [...current, ...files]);
+                      setImagePreviews((current) => [...current, ...files.map((file) => URL.createObjectURL(file))]);
                     }}
                     className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3"
                   />
@@ -329,6 +338,22 @@ export default function RentalsAdminPage() {
                       <div key={preview} className="h-24 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
                         <img src={preview} alt={`Selected vehicle image ${index + 1}`} className="h-full w-full object-cover" />
                       </div>
+                    ))}
+                  </div>
+                ) : null}
+                {imagePreviews.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <button type="button" key={`${preview}-remove`} onClick={() => {
+                        if (index < existingImageUrls.length) {
+                          setExistingImageUrls((current) => current.filter((_, imageIndex) => imageIndex !== index));
+                        } else {
+                          const fileIndex = index - existingImageUrls.length;
+                          setImages((current) => current.filter((_, imageIndex) => imageIndex !== fileIndex));
+                          URL.revokeObjectURL(preview);
+                        }
+                        setImagePreviews((current) => current.filter((_, imageIndex) => imageIndex !== index));
+                      }} className="text-xs text-red-300 hover:text-red-200">Remove image {index + 1}</button>
                     ))}
                   </div>
                 ) : null}
@@ -497,15 +522,25 @@ export default function RentalsAdminPage() {
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="font-semibold text-slate-100">{booking.vehicle?.make || 'Rental'} {booking.vehicle?.model || ''}</p>
-                    <p className="text-sm text-slate-400">{booking.customer?.name || 'Customer'} • {booking.customer?.email || 'No email'}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-500">{booking.metadata?.durationType || 'DAILY'} • {booking.metadata?.effectiveDays || booking.metadata?.durationDays || 'n/a'} days</p>
+                    <p className="text-sm text-slate-400">{booking.customer?.name || 'Customer'} • {booking.customer?.email || 'No email'}{booking.customer?.phone ? ` • ${booking.customer.phone}` : ''}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">{booking.bookingRef || booking.id} • {booking.metadata?.durationType || 'DAILY'} • {booking.metadata?.effectiveDays || booking.metadata?.durationDays || 'n/a'} days</p>
+                    <div className="mt-3 grid gap-x-6 gap-y-1 text-sm text-slate-400 sm:grid-cols-2">
+                      <p><span className="text-slate-200">Driver:</span> {booking.metadata?.driverName || booking.customer?.name || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">License:</span> {booking.metadata?.driverLicense || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Driver phone:</span> {booking.metadata?.driverPhone || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Emergency:</span> {booking.metadata?.emergencyContact || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Pickup:</span> {booking.pickupDate ? new Date(booking.pickupDate).toLocaleString() : 'Not supplied'} at {booking.pickupLocation || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Return:</span> {booking.returnDate ? new Date(booking.returnDate).toLocaleString() : 'Not supplied'} at {booking.returnLocation || 'Not supplied'}</p>
+                      <p><span className="text-slate-200">Requirements:</span> {booking.metadata?.specialRequirements || 'None'}</p>
+                      <p><span className="text-slate-200">Notes:</span> {booking.notes || 'None'}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="rounded-full bg-red-500/10 px-3 py-1 text-sm text-red-300">${booking.totalPrice || 0}</span>
                     <select value={booking.status} onChange={(event) => void handleBookingStatus(booking.id, event.target.value)} className="rounded-2xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
                       <option value="PENDING">PENDING</option>
                       <option value="CONFIRMED">CONFIRMED</option>
-                      <option value="ACTIVE">ACTIVE</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
                       <option value="COMPLETED">COMPLETED</option>
                       <option value="CANCELLED">CANCELLED</option>
                     </select>

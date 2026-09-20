@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { AuctionService } from './auction.service';
+import { SessionAuthGuard } from '../auth/session.guard';
 
 @Controller('auctions')
 export class AuctionController {
@@ -18,5 +19,11 @@ export class AuctionController {
   @Post()
   create(@Body() body: any) {
     return this.service.create(body);
+  }
+
+  @Post(':id/bids')
+  @UseGuards(SessionAuthGuard)
+  placeBid(@Param('id') id: string, @Body('amount') amount: number, @Req() request: any) {
+    return this.service.placeBid(id, request.user.id, Number(amount));
   }
 }

@@ -53,6 +53,9 @@ export class CreateRentalVehicleDto {
   images?: string[];
   @IsOptional()
   @IsString()
+  existingImages?: string;
+  @IsOptional()
+  @IsString()
   description?: string;
   @IsOptional()
   @IsString()

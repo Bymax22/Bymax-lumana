@@ -5,11 +5,18 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class NotificationService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.notification.findMany();
+  findAll(userId: string) {
+    return this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   findOne(id: string) {
     return this.prisma.notification.findUnique({ where: { id } });
+  }
+
+  create(data: { userId: string; channel: string; payload: any }) {
+    return this.prisma.notification.create({ data });
   }
 }
