@@ -130,7 +130,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [showSessionOffer, setShowSessionOffer] = useState(false);
-  const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
+  const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
 
   useEffect(() => {
     const offerKey = 'lumana-session-offer-seen';
@@ -210,12 +210,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="mx-auto flex min-h-screen w-full max-w-[1660px] min-w-0 gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
-        <aside className={`sidebar-desktop hidden flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-3 shadow-[0_40px_80px_rgba(0,0,0,0.45)] transition-[width] duration-300 lg:flex ${desktopSidebarExpanded ? 'w-[280px]' : 'w-[76px]'}`}>
-          <button type="button" onClick={() => setDesktopSidebarExpanded((expanded) => !expanded)} className="flex h-11 w-full items-center justify-center rounded-[16px] bg-[#101010] text-slate-300 transition hover:bg-red-600 hover:text-white" aria-label={desktopSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'} title={desktopSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>
-            <PanelLeft className="h-5 w-5" />
-          </button>
-
-          <nav className="space-y-1">
+        <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
+          <nav className="space-y-0.5">
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
               return (
@@ -223,17 +219,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={
-                    'flex w-full items-center rounded-[18px] py-2 text-left text-sm transition ' + (desktopSidebarExpanded ? 'justify-between px-2' : 'justify-center px-1') +
+                    'flex w-full items-center justify-between rounded-[18px] px-2 py-1 text-left text-sm transition ' +
                     (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
                   }
-                  aria-label={item.label}
-                  title={desktopSidebarExpanded ? undefined : item.label}
                 >
-                  <span className={`flex items-center font-medium ${desktopSidebarExpanded ? 'gap-2' : 'justify-center'}`}>
-                    {item.icon}
-                    {desktopSidebarExpanded ? <span>{item.label}</span> : null}
+                  <span className="flex items-center gap-2 font-medium">
+                    <span className="text-red-400">{item.icon}</span>
+                    <span>{item.label}</span>
                   </span>
-                  {desktopSidebarExpanded && item.badge ? (
+                  {item.badge ? (
                     <span className="rounded-[14px] bg-red-600 px-2 py-1 text-[11px] font-semibold uppercase text-white">
                       {item.badge}
                     </span>
@@ -243,16 +237,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-4">
+          <div className="space-y-4 rounded-[24px] bg-[#101010] p-4">
             <p className="text-sm uppercase text-yellow-400">Need Help?</p>
             <p className="text-sm text-slate-300">Our support team is ready to assist you 24/7.</p>
             <Link href="/contact" className="inline-flex w-full items-center justify-center gap-2 rounded-[18px] bg-yellow-500 px-2 py-1 text-sm font-semibold text-[#0b0b0b] transition hover:bg-yellow-400">
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-600/10 text-red-500">?</span>
               Chat With Us
             </Link>
-          </div> : null}
+          </div>
 
-          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
+          <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
             <h2 className="text-sm uppercase text-slate-400">Popular Brands</h2>
             <div className="space-y-3">
               {popularBrands.length > 0 ? (
@@ -288,9 +282,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
             <Link href="/vehicles" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
-          </div> : null}
+          </div>
 
-          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
+          <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
             <div className="rounded-[20px] bg-[#111111] p-4">
               <div className="h-44 rounded-[20px] bg-[#121212] p-4">
                 <div className="mb-4 flex items-center justify-between text-[11px] uppercase text-slate-500">
@@ -304,9 +298,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p className="text-sm uppercase text-slate-400">Download Our App</p>
               <p className="text-sm text-slate-300">Buy, track and manage vehicles on the go.</p>
             </div>
-          </div> : null}
+          </div>
 
-          {desktopSidebarExpanded ? <div className="rounded-[24px] bg-[#101010] p-5 text-sm text-slate-400">
+          <div className="rounded-[24px] bg-[#101010] p-5 text-sm text-slate-400">
             <p className="font-semibold text-white">Lumana AutoPlanet</p>
             <p className="mt-2 text-sm">Your all-in-one platform to buy, import, and manage vehicles worldwide.</p>
             <div className="mt-4 space-y-1 text-xs text-slate-500">
@@ -315,7 +309,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p>Phone</p>
               <p className="text-slate-300">+260 977635060</p>
             </div>
-          </div> : null}
+          </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 gap-3">
@@ -328,7 +322,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 flex h-full w-[72vw] max-w-[220px] flex-col transform overflow-hidden rounded-r-[20px] bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <nav className={`fixed left-0 top-0 z-50 flex h-full ${mobileSidebarExpanded ? 'w-[82vw] max-w-[280px]' : 'w-[72vw] max-w-[220px]'} flex-col transform overflow-hidden rounded-r-[20px] bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-[width,transform] duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="bg-black p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -337,9 +331,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     <p className="text-xs text-slate-400">Premium marketplace</p>
                   </div>
                 </div>
-                <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10">
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button type="button" aria-label={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'} onClick={() => setMobileSidebarExpanded((expanded) => !expanded)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10" title={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'}>
+                    <PanelLeft className="h-4 w-4" />
+                  </button>
+                  <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-2">
@@ -363,15 +362,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         href={item.href}
                         onClick={() => setMobileNavOpen(false)}
                         className={
-                          'flex items-center gap-2.5 rounded-[14px] px-2.5 py-2.5 text-sm transition ' +
+                          `flex items-center rounded-[14px] py-2.5 text-sm transition ${mobileSidebarExpanded ? 'gap-2.5 px-2.5' : 'justify-center px-2'} ` +
                           (active ? 'bg-red-600/90 text-white shadow-sm' : 'text-slate-300 hover:bg-white/5')
                         }
+                        aria-label={item.label}
+                        title={mobileSidebarExpanded ? undefined : item.label}
                       >
-                        <span className={'flex h-8 w-8 items-center justify-center rounded-[12px] ' + (active ? 'bg-white/15 text-white' : 'bg-[#191f2a] text-red-400')}>
+                        <span className={mobileSidebarExpanded ? (active ? 'text-white' : 'text-red-400') : `flex h-9 w-9 items-center justify-center ${active ? 'text-white' : 'text-red-400'}`}>
                           {item.icon}
                         </span>
-                        <span className="flex-1 font-medium">{item.label}</span>
-                        {item.badge ? (
+                        {mobileSidebarExpanded ? <span className="flex-1 font-medium">{item.label}</span> : null}
+                        {mobileSidebarExpanded && item.badge ? (
                           <span className="rounded-[12px] bg-red-600 px-2 py-1 text-[10px] font-semibold uppercase text-white">
                             {item.badge}
                           </span>
