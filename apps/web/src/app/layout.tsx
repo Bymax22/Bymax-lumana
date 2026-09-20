@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import AppShell from "./AppShell";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: "Lumana AutoPlanet",
   description: "Enterprise-first vehicle marketplace starter",
   icons: {

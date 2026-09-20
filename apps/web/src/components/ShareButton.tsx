@@ -12,7 +12,7 @@ type ShareButtonProps = {
 
 export default function ShareButton({ title, description, url, imageUrl }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
-  const text = [title, description, imageUrl].filter(Boolean).join('\n');
+  const text = [title, description].filter(Boolean).join('\n');
 
   function getShareUrl() {
     return new URL(url, window.location.origin).toString();
@@ -21,7 +21,21 @@ export default function ShareButton({ title, description, url, imageUrl }: Share
   async function shareNative() {
     const shareUrl = getShareUrl();
     if (navigator.share) {
-      await navigator.share({ title, text, url: shareUrl });
+      const shareData: ShareData = { title, text, url: shareUrl };
+      if (imageUrl && navigator.canShare) {
+        try {
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const extension = blob.type.split('/')[1] || 'jpg';
+          const file = new File([blob], `lumana-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}.${extension}`, { type: blob.type || 'image/jpeg' });
+          if (navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        } catch {
+          // Keep URL sharing available when the image host blocks browser downloads.
+        }
+      }
+      await navigator.share(shareData);
       return;
     }
     setOpen((current) => !current);

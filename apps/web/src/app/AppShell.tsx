@@ -181,19 +181,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="overflow-hidden border-b border-black/10 bg-[linear-gradient(90deg,#facc15_0%,#fde68a_100%)] px-3 py-2.5 text-sm text-[#0b0b0b] shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-4">
           <div className="mx-auto max-w-[1660px]">
             <div className="relative overflow-hidden rounded-full border border-black/10 bg-white/30 px-3 py-2 backdrop-blur-sm">
-              <div className="flex w-max animate-[marquee_22s_linear_infinite] items-center gap-10 whitespace-nowrap font-medium tracking-[0.02em]">
-                <span className="rounded-full bg-[#0b0b0b] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">New</span>
-                <span className="text-sm sm:text-[15px]">Lumana AutoPlanet by Lumana Investment Ltd is under development</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">We are still setting up your premium experience.</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">Order any car from Lumana with just 30% down payment.</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">For more info click to chat with us on WhatsApp +260 977635060.</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">We are still setting up your premium experience.</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b0b0b]" />
-                <span className="text-sm sm:text-[15px]">Order any car from Lumana with just 30% down payment.</span>
+              <div className="flex w-max animate-[marquee_22s_linear_infinite] items-center whitespace-nowrap font-medium tracking-[0.02em]">
+                <span className="px-3 text-sm sm:text-[15px]">Did you know that you can buy any vehicle of your choice from Lumana with just 30% downpayment and the balance only paid when your vehicle reaches the PORT?</span>
               </div>
             </div>
           </div>
@@ -320,8 +309,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 flex h-full w-[80vw] max-w-[280px] flex-col transform overflow-hidden rounded-r-[24px] bg-[linear-gradient(180deg,#0b0d12_0%,#12161e_100%)] shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="bg-[#0f1218] p-4">
+          <nav className={`fixed left-0 top-0 z-50 flex h-full w-[72vw] max-w-[220px] flex-col transform overflow-hidden rounded-r-[20px] bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-transform duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className="bg-black p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[16px] bg-[#161b24] p-2">
@@ -348,7 +337,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
-              <div className="rounded-[18px] bg-[#11151c] p-2">
+              <div className="rounded-[16px] bg-black p-2">
                 <div className="space-y-1.5">
                   {navItems.map((item) => {
                     const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
@@ -377,7 +366,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              <div className="mt-3 rounded-[18px] bg-[#11151c] p-4 text-sm text-slate-300">
+              <div className="mt-3 rounded-[16px] bg-black p-3 text-sm text-slate-300">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Need Help?</p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">Speak to our team for vehicle sourcing, import support, and account help.</p>
                 <Link href="/contact" onClick={() => setMobileNavOpen(false)} className="mt-3 inline-flex items-center justify-center rounded-[14px] bg-yellow-500 px-3 py-2 text-sm font-semibold text-[#0b0b0b]">
@@ -390,16 +379,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <section className="flex-1 min-w-0 space-y-6 pb-24 lg:pb-0">
             <div className="rounded-[24px] bg-[#0d0d0d] p-4 shadow-[0_30px_60px_rgba(0,0,0,0.35)] sm:p-6">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
-                  <button
-                    type="button"
-                    aria-label="Open navigation"
-                    onClick={() => setMobileNavOpen(true)}
-                    className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#121212] text-slate-100 lg:hidden"
-                  >
-                    {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                  </button>
-                  <div className="w-full sm:flex-1">
+                <div className="flex w-full flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3 lg:hidden">
+                    <Link href="/" aria-label="Lumana AutoPlanet home" className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[18px] bg-[#121212] p-2">
+                      <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="max-h-full max-w-full object-contain" />
+                    </Link>
+                    <button
+                      type="button"
+                      aria-label="Open navigation"
+                      onClick={() => setMobileNavOpen(true)}
+                      className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-[#121212] text-slate-100"
+                    >
+                      {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <div className="w-full">
                     <SearchBox />
                   </div>
                 </div>

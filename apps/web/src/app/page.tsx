@@ -302,10 +302,12 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-6 overflow-x-auto pb-2">
-            <div className="flex gap-4 pr-1">
+            <div className="flex min-w-max gap-4 pr-1">
               {vehicles.slice(0, 8).map((v: any) => {
                 return (
-                  <VehicleCard key={v.id} vehicle={v} />
+                  <div key={v.id} className="w-[calc(50vw-2.5rem)] min-w-[calc(50vw-2.5rem)] sm:w-[280px] sm:min-w-[280px]">
+                    <VehicleCard vehicle={v} />
+                  </div>
                 );
               })}
             </div>
@@ -331,7 +333,7 @@ export default async function HomePage() {
                 const price = v.basePrice ? <ConvertedAmount amountUsd={v.basePrice} /> : 'Contact';
 
                 return (
-                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[88vw] max-w-[320px] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
+                  <Link key={v.id} href={`/hire/${v.id}`} className="group block w-[calc(50vw-2.5rem)] min-w-[calc(50vw-2.5rem)] flex-shrink-0 overflow-hidden rounded-[20px] bg-[#111111] shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(0,0,0,0.24)] sm:w-[280px] sm:min-w-[280px] xl:w-[calc(25%-0.75rem)]">
                     <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
                       {imageUrl ? (
                         <img src={imageUrl} alt={`${v.make || 'Rental vehicle'} ${v.model || ''}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
