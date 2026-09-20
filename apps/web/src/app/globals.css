@@ -53,6 +53,12 @@ select {
   flex-shrink: 0;
 }
 
+.sidebar-mobile nav svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+}
+
 /* Admin surfaces use a red workspace, white panels, and quiet form controls. */
 .admin-theme {
   --admin-red: #b91c1c;

@@ -211,6 +211,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="mx-auto flex min-h-screen w-full max-w-[1660px] min-w-0 gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
         <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
+          <div className="flex items-center justify-center rounded-[22px] bg-[#101010] px-4 py-4">
+            <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="h-24 w-full object-contain" />
+          </div>
           <nav className="space-y-0.5">
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
@@ -322,26 +325,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             />
           ) : null}
 
-          <nav className={`fixed left-0 top-0 z-50 flex h-full ${mobileSidebarExpanded ? 'w-[82vw] max-w-[280px]' : 'w-[72vw] max-w-[220px]'} flex-col transform overflow-hidden rounded-r-[20px] bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-[width,transform] duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <nav className={`sidebar-mobile fixed left-0 top-0 z-50 flex h-full ${mobileSidebarExpanded ? 'w-[82vw] max-w-[280px]' : 'w-[64px]'} flex-col transform overflow-hidden rounded-r-[20px] bg-black shadow-[0_30px_80px_rgba(0,0,0,0.55)] transition-[width,transform] duration-300 lg:hidden ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="bg-black p-3">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div>
+                <div className={`flex items-center gap-3 ${mobileSidebarExpanded ? '' : 'w-full justify-center'}`}>
+                  <div className={mobileSidebarExpanded ? '' : 'hidden'}>
                     <p className="text-sm font-semibold text-white">Lumana AutoPlanet</p>
                     <p className="text-xs text-slate-400">Premium marketplace</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button type="button" aria-label={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'} onClick={() => setMobileSidebarExpanded((expanded) => !expanded)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10" title={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'}>
+                <div className={`flex items-center gap-2 ${mobileSidebarExpanded ? '' : 'flex-col'}`}>
+                  <button type="button" aria-label={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'} onClick={() => setMobileSidebarExpanded((expanded) => !expanded)} className={`flex items-center justify-center rounded-[10px] bg-white/5 text-slate-200 transition hover:bg-white/10 ${mobileSidebarExpanded ? 'h-9 w-9' : 'h-7 w-7'}`} title={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'}>
                     <PanelLeft className="h-4 w-4" />
                   </button>
-                  <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-white/5 text-slate-200 transition hover:bg-white/10">
+                  <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className={`flex items-center justify-center rounded-[10px] bg-white/5 text-slate-200 transition hover:bg-white/10 ${mobileSidebarExpanded ? 'h-9 w-9' : 'h-7 w-7'}`}>
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className={`mt-4 ${mobileSidebarExpanded ? 'grid grid-cols-2 gap-2' : 'hidden'}`}>
                 <Link href="/vehicles" onClick={() => setMobileNavOpen(false)} className="rounded-[14px] bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white">
                   Browse Cars
                 </Link>
