@@ -26,3 +26,85 @@ select {
 .shadow-glow-red {
   box-shadow: 0 0 0 4px rgba(255, 34, 34, 0.08), 0 18px 50px rgba(255, 34, 34, 0.15);
 }
+
+/* The admin workspace uses color and spacing for hierarchy instead of outlines. */
+.admin-theme {
+  --admin-red: #dc2626;
+  --admin-yellow: #facc15;
+  --admin-ink: #171717;
+  --admin-muted: #525252;
+}
+
+.admin-theme [class*="border"] {
+  border-width: 0 !important;
+}
+
+.admin-theme [class*="bg-slate-950"],
+.admin-theme [class*="bg-slate-900"],
+.admin-theme [class*="bg-slate-800"],
+.admin-theme [class*="bg-[#090d0d]"],
+.admin-theme [class*="bg-[#111817]"],
+.admin-theme [class*="bg-[#121918]"],
+.admin-theme [class*="bg-[#0d0d0d]"],
+.admin-theme [class*="bg-[#0b0b0b]"],
+.admin-theme [class*="bg-[#121212]"],
+.admin-theme [class*="bg-[#111111]"],
+.admin-theme [class*="bg-gray-50"],
+.admin-theme [class*="bg-gray-100"] {
+  background-color: #ffffff !important;
+}
+
+.admin-theme [class*="bg-slate-700"],
+.admin-theme [class*="bg-slate-600"] {
+  background-color: #f5f5f5 !important;
+}
+
+.admin-theme [class*="text-slate-100"],
+.admin-theme [class*="text-slate-200"],
+.admin-theme [class*="text-slate-300"] {
+  color: var(--admin-ink) !important;
+}
+
+.admin-theme [class*="text-slate-400"],
+.admin-theme [class*="text-slate-500"],
+.admin-theme [class*="text-slate-600"] {
+  color: var(--admin-muted) !important;
+}
+
+.admin-theme [class*="text-white"] {
+  color: var(--admin-ink) !important;
+}
+
+.admin-theme [class*="text-cyan"],
+.admin-theme [class*="text-emerald"],
+.admin-theme [class*="text-violet"],
+.admin-theme [class*="text-sky"] {
+  color: var(--admin-red) !important;
+}
+
+.admin-theme [class*="bg-cyan"],
+.admin-theme [class*="bg-emerald"],
+.admin-theme [class*="bg-violet"],
+.admin-theme [class*="bg-sky"] {
+  background-color: rgb(220 38 38 / 0.1) !important;
+}
+
+.admin-theme [class*="bg-red-600"],
+.admin-theme [class*="bg-red-500"] {
+  background-color: var(--admin-red) !important;
+  color: #ffffff !important;
+}
+
+.admin-theme [class*="text-red"] {
+  color: var(--admin-red) !important;
+}
+
+.admin-theme [class*="bg-yellow-500"],
+.admin-theme [class*="bg-yellow-400"] {
+  background-color: var(--admin-yellow) !important;
+  color: var(--admin-ink) !important;
+}
+
+.admin-theme [class*="text-yellow"] {
+  color: #a16207 !important;
+}

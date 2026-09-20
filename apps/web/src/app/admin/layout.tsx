@@ -49,7 +49,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-[#090d0d] text-slate-100">
+      <div className="admin-theme flex min-h-screen bg-white text-slate-900">
       <aside className="hidden w-72 flex-shrink-0 bg-[#090d0d] px-4 py-6 lg:flex lg:flex-col">
         <div className="rounded-2xl bg-[#121918] p-4 shadow-lg shadow-black/20">
           <p className="text-xs uppercase tracking-[0.35em] text-cyan-300">Lumana</p>

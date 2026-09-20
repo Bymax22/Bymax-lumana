@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -146,6 +145,7 @@ export class VehicleService {
     if (!data.userId) {
       throw new Error('A logged-in buyer is required to purchase a vehicle');
     }
+    const userId = data.userId;
 
     const vehicle = await this.prisma.vehicle.findUnique({ where: { id }, include: { images: true } });
 
@@ -160,7 +160,7 @@ export class VehicleService {
       return transaction.order.create({
         data: {
           orderRef: `VEH-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          userId: data.userId,
+          userId,
           subtotal: amount,
           tax: 0,
           shippingCost: 0,
