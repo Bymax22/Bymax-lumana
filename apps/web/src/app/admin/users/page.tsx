@@ -157,7 +157,7 @@ export default function AdminUsers() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Email</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Role</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Buyer approval</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Account approval</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">Created</th>
                 <th className="px-6 py-3 text-right text-sm font-semibold text-slate-300">Actions</th>
               </tr>
@@ -181,7 +181,7 @@ export default function AdminUsers() {
                     </select>
                   </td>
                   <td className="px-6 py-4">
-                    {user.role === 'CUSTOMER' ? (
+                    {user.role === 'DEALER' ? (
                       <select
                         value={user.approvalStatus || 'PENDING'}
                         onChange={(event) => void handleUpdateStatus(user.id, event.target.value)}
@@ -191,7 +191,7 @@ export default function AdminUsers() {
                         <option value="APPROVED">Approved</option>
                         <option value="REJECTED">Rejected</option>
                       </select>
-                    ) : <span className="text-sm text-slate-500">Not required</span>}
+                    ) : <span className="text-sm text-slate-500">{user.role === 'CUSTOMER' ? 'Customer access' : 'Not applicable'}</span>}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-400">{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-right">

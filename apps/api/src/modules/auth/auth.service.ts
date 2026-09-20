@@ -95,7 +95,7 @@ export class AuthService {
       email,
       password,
       role: data?.role,
-      ...(data?.role?.toUpperCase() === 'CUSTOMER' ? { approvalStatus: 'PENDING' } : {}),
+      ...(data?.role?.toUpperCase() === 'DEALER' ? { approvalStatus: 'PENDING' } : {}),
     });
 
     const verificationToken = `verify_${randomBytes(20).toString('hex')}`;
@@ -108,7 +108,9 @@ export class AuthService {
     );
 
     return {
-      message: 'Account created successfully. Please verify your email before continuing.',
+      message: data?.role?.toUpperCase() === 'DEALER'
+        ? 'Account created successfully. Please verify your email, then wait for admin approval before signing in.'
+        : 'Account created successfully. Please verify your email before signing in.',
       requiresVerification: true,
       emailSent: sendResult.ok,
       user: this.safeUser(user),
@@ -131,16 +133,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password.');
     }
 
-    if (user.role === 'CUSTOMER' && user.approvalStatus !== 'APPROVED') {
-      throw new UnauthorizedException(
-        user.approvalStatus === 'REJECTED'
-          ? 'Your buyer account was not approved. Please contact support.'
-          : 'Your buyer account is awaiting admin approval.',
-      );
-    }
-
     if (!user.emailVerified) {
       throw new UnauthorizedException('Please verify your email before signing in.');
+    }
+
+    if (user.role === 'DEALER' && user.approvalStatus !== 'APPROVED') {
+      throw new UnauthorizedException(
+        user.approvalStatus === 'REJECTED'
+          ? 'Your account was not approved. Please contact support.'
+          : 'Your account is awaiting admin approval.',
+      );
     }
 
     const otpCode = `${Math.floor(100000 + Math.random() * 900000)}`;
@@ -192,7 +194,33 @@ export class AuthService {
       data: { emailVerified: true },
     });
 
-    return { message: 'Email verified successfully. You can now sign in.' };
+    if (user.role === 'DEALER') {
+      const admins = await this.prisma.user.findMany({
+        where: { role: 'ADMIN' },
+        select: { id: true },
+      });
+      if (admins.length) {
+        await this.prisma.notification.createMany({
+          data: admins.map((admin) => ({
+            userId: admin.id,
+            channel: 'ACCOUNT_APPROVAL_REQUEST',
+            payload: {
+              title: 'New account approval request',
+              message: `${user.name || user.email} verified their email and is waiting for approval.`,
+              userId: user.id,
+              email: user.email,
+              role: user.role,
+            },
+          })),
+        });
+      }
+    }
+
+    return {
+      message: user.role === 'DEALER'
+        ? 'Email verified successfully. Your account is now waiting for admin approval.'
+        : 'Email verified successfully. You can now sign in.',
+    };
   }
 
   async verifyLoginOtp(email: string, token: string) {
@@ -204,6 +232,14 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (!user) {
       throw new NotFoundException('No account found with that email.');
+    }
+
+    if (user.role === 'DEALER' && user.approvalStatus !== 'APPROVED') {
+      throw new UnauthorizedException(
+        user.approvalStatus === 'REJECTED'
+          ? 'Your account was not approved. Please contact support.'
+          : 'Your account is awaiting admin approval.',
+      );
     }
 
     const challenge = await this.prisma.passwordReset.findFirst({

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
+import ShareButton from '@/components/ShareButton';
 
 interface ProductGridProps {
   products: any[];
@@ -73,13 +74,16 @@ function ProductCard({ product }: { product: any }) {
         <p className="mt-2">{product.description ? product.description.slice(0, 120) : ''}</p>
       </div>
 
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <ShareButton title={product.name} description={product.description || `${product.category?.name || 'Product'} available from Lumana.`} imageUrl={product.imageUrl || product.images?.[0]?.url || product.images?.[0]} url={`/shop/${product.id}`} />
+        <div className="flex items-center gap-3">
         <Link href={`/shop/${product.id}`} className="rounded bg-gray-800 px-4 py-2 text-sm">View</Link>
         {inCart ? (
           <Link href="/shop/cart" className="rounded bg-emerald-600 px-4 py-2 text-sm text-white">View Cart</Link>
         ) : (
           <button onClick={handleAddToCart} className="ml-2 rounded bg-red-600 px-4 py-2 text-sm text-white">Add to Cart</button>
         )}
+        </div>
       </div>
     </div>
   );

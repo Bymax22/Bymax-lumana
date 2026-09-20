@@ -53,7 +53,7 @@ export default function SignupPage() {
         <div className="space-y-2">
           <p className="text-sm uppercase text-yellow-400">Create your profile</p>
           <h1 className="text-3xl font-bold text-white">Register for Lumana AutoPlanet</h1>
-          <p className="max-w-2xl text-sm text-slate-400">Pick the role that matches your account and start using the marketplace in real time.</p>
+          <p className="max-w-2xl text-sm text-slate-400">After email verification, every new non-admin account must be approved by an administrator before signing in.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

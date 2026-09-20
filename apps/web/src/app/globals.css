@@ -136,3 +136,41 @@ select {
 .admin-theme [class*="hover:bg-red-700"]:hover {
   background-color: #991b1b !important;
 }
+
+/* Keep editable controls visually distinct from the white admin panels. */
+.admin-theme input:not([type="checkbox"]):not([type="radio"]),
+.admin-theme select,
+.admin-theme textarea {
+  background-color: #e5e7eb !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #171717 !important;
+}
+
+.admin-theme input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-theme select:focus,
+.admin-theme textarea:focus {
+  border-color: #991b1b !important;
+  outline: 2px solid rgb(153 27 27 / 0.15) !important;
+  outline-offset: 0;
+}
+
+.admin-theme input[type="file"] {
+  background-color: #e5e7eb !important;
+  color: #525252 !important;
+}
+
+/* Action controls use white text against the red admin action background. */
+.admin-theme button[class*="bg-red"],
+.admin-theme button[class*="bg-yellow"],
+.admin-theme button[class*="bg-emerald"],
+.admin-theme button[class*="bg-cyan"],
+.admin-theme button[class*="bg-violet"],
+.admin-theme button[class*="bg-sky"],
+.admin-theme a[class*="bg-red"],
+.admin-theme a[class*="bg-yellow"],
+.admin-theme a[class*="bg-emerald"],
+.admin-theme a[class*="bg-cyan"],
+.admin-theme a[class*="bg-violet"],
+.admin-theme a[class*="bg-sky"] {
+  color: #ffffff !important;
+}

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import ConvertedAmount from '@/components/ConvertedAmount';
 import { publicApi } from '@/lib/publicApi';
 import { getStoredSessionToken } from '@/lib/auth';
+import ShareButton from '@/components/ShareButton';
 
 type VehicleCardProps = {
   vehicle: any;
@@ -89,7 +90,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
           <div className="mt-3 flex items-center justify-between"><p className={`text-sm font-semibold ${vehicle.status === 'SOLD' ? 'text-slate-500' : 'text-red-400'}`}>{vehicle.status === 'SOLD' ? 'Sold' : price}</p><span className="text-xs text-slate-500">{saveCount} saved</span></div>
         </div>
       </Link>
-      <div className="flex items-center justify-between bg-[#0d0d0d] px-4 py-2"><button type="button" onClick={(event) => void toggleSaved(event)} className={`flex items-center gap-1.5 text-xs transition ${saved ? 'text-red-300' : 'text-slate-500 hover:text-white'}`} aria-label={saved ? 'Remove from saved vehicles' : 'Save vehicle'}><Heart size={15} fill={saved ? 'currentColor' : 'none'} /> {saveMessage || (saved ? 'Saved' : 'Save')}</button><span className="text-[11px] text-slate-600">{saveCount} {saveCount === 1 ? 'save' : 'saves'}</span></div>
+      <div className="flex items-center justify-between bg-[#0d0d0d] px-4 py-2"><button type="button" onClick={(event) => void toggleSaved(event)} className={`flex items-center gap-1.5 text-xs transition ${saved ? 'text-red-300' : 'text-slate-500 hover:text-white'}`} aria-label={saved ? 'Remove from saved vehicles' : 'Save vehicle'}><Heart size={15} fill={saved ? 'currentColor' : 'none'} /> {saveMessage || (saved ? 'Saved' : 'Save')}</button><div className="flex items-center gap-3"><span className="text-[11px] text-slate-600">{saveCount} {saveCount === 1 ? 'save' : 'saves'}</span><ShareButton title={`${vehicle.year || ''} ${vehicle.make} ${vehicle.model}`} description={`${vehicle.condition || 'Vehicle'} available for ${price}.`} imageUrl={coverImage} url={`/vehicles/${vehicle.id}`} /></div></div>
     </article>
   );
 }

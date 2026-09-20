@@ -4,6 +4,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { publicApi } from '@/lib/publicApi';
+import ShareButton from '@/components/ShareButton';
 
 interface VehicleGridProps {
   vehicles: any[];
@@ -116,7 +117,7 @@ export default function VehicleGrid({ vehicles, errorMessage, refreshEndpoint = 
                   <p className="text-sm uppercase text-slate-500">{vehicle.condition || 'Unknown'}</p>
                   <h2 className="mt-2 text-xl font-semibold text-white">{vehicle.year || '—'} {vehicle.make || 'Unknown'} {vehicle.model || ''}</h2>
                 </div>
-                <span className="rounded-full bg-red-600 px-3 py-1 text-xs uppercase text-white">Vehicle</span>
+                <div className="flex items-center gap-2"><ShareButton title={`${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`} description={`${vehicle.condition || 'Vehicle'} available for ${price || 'contact'}.`} imageUrl={imageUrl || undefined} url={`/vehicles/${vehicle.id}`} /><span className="rounded-full bg-red-600 px-3 py-1 text-xs uppercase text-white">Vehicle</span></div>
               </div>
               <div className="mt-5 space-y-3 text-sm text-slate-300">
                 <p><span className="font-semibold text-white">VIN:</span> {vehicle.vin || 'N/A'}</p>

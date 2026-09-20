@@ -9,9 +9,9 @@ export default function SellerGuard({ children }: { children: React.ReactNode })
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    publicApi<{ user: { role?: string } }>('/auth/session')
+    publicApi<{ user: { role?: string; approvalStatus?: string } }>('/auth/session')
       .then(({ user }) => {
-        if (user.role !== 'DEALER') {
+        if (user.role !== 'DEALER' || (user.approvalStatus && user.approvalStatus !== 'APPROVED')) {
           router.replace('/auth/login');
           return;
         }

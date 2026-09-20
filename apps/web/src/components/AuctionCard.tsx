@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Gavel } from 'lucide-react';
 import { publicApi } from '@/lib/publicApi';
 import ConvertedAmount from '@/components/ConvertedAmount';
+import ShareButton from '@/components/ShareButton';
 
 export default function AuctionCard({ auction }: { auction: any }) {
   const minimum = Number(auction.currentPrice ?? auction.startingPrice ?? 0);
@@ -36,7 +37,7 @@ export default function AuctionCard({ auction }: { auction: any }) {
           <p className="text-sm uppercase text-slate-500">{status || 'Unknown'}</p>
           <h2 className="mt-2 text-xl font-semibold text-white">{auction.title || `${auction.vehicle?.make || ''} ${auction.vehicle?.model || ''}`}</h2>
         </div>
-        <span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-semibold uppercase text-black">Auction</span>
+        <div className="flex items-center gap-2"><ShareButton title={auction.title || `${auction.vehicle?.make || ''} ${auction.vehicle?.model || ''} auction`} description={`Auction status: ${status}. Current price: ${minimum}.`} imageUrl={auction.vehicle?.images?.[0]?.url || auction.vehicle?.images?.[0]} url={auction.vehicle?.id ? `/vehicles/${auction.vehicle.id}` : `/auctions#${auction.id}`} /><span className="rounded-full bg-yellow-400 px-3 py-1 text-xs font-semibold uppercase text-black">Auction</span></div>
       </div>
       <div className="mt-5 space-y-3 text-sm text-slate-300">
         <p><span className="font-semibold text-white">Start:</span> {new Date(auction.startAt).toLocaleString()}</p>
