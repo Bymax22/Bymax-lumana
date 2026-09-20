@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Bell, ChevronDown, LogOut, Menu, PanelLeft, UserRound, X } from 'lucide-react';
+import { ArrowLeft, Bell, ChevronDown, LogOut, Menu, PanelLeft, UserRound, X } from 'lucide-react';
 import { CurrencyProvider, useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { publicApi } from '@/lib/publicApi';
 import { AppUser, getStoredUser } from '@/lib/auth';
@@ -161,6 +161,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setUser(null);
     setAccountMenuOpen(false);
     window.dispatchEvent(new Event('lumana-auth-change'));
+    router.push('/');
+  }
+
+  function handleMobileBack() {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
     router.push('/');
   }
 
@@ -336,10 +345,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
                 <div className={`flex items-center gap-2 ${mobileSidebarExpanded ? '' : 'flex-col'}`}>
                   <button type="button" aria-label={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'} onClick={() => setMobileSidebarExpanded((expanded) => !expanded)} className={`flex items-center justify-center rounded-[10px] bg-white/5 text-slate-200 transition hover:bg-white/10 ${mobileSidebarExpanded ? 'h-9 w-9' : 'h-7 w-7'}`} title={mobileSidebarExpanded ? 'Collapse navigation labels' : 'Expand navigation labels'}>
-                    <PanelLeft className="h-4 w-4" />
+                    <PanelLeft className="h-5 w-5" />
                   </button>
                   <button type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} className={`flex items-center justify-center rounded-[10px] bg-white/5 text-slate-200 transition hover:bg-white/10 ${mobileSidebarExpanded ? 'h-9 w-9' : 'h-7 w-7'}`}>
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
               </div>
@@ -356,7 +365,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
             <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
               <div className="rounded-[16px] bg-black p-2">
-                <div className="space-y-1.5">
+                <div className="space-y-0.5">
                   {navItems.map((item) => {
                     const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                     return (
@@ -365,7 +374,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         href={item.href}
                         onClick={() => setMobileNavOpen(false)}
                         className={
-                          `flex items-center rounded-[14px] py-2.5 text-sm transition ${mobileSidebarExpanded ? 'gap-2.5 px-2.5' : 'justify-center px-2'} ` +
+                          `flex items-center rounded-[14px] py-1.5 text-sm transition ${mobileSidebarExpanded ? 'gap-2.5 px-2.5' : 'justify-center px-2'} ` +
                           (active ? 'bg-red-600/90 text-white shadow-sm' : 'text-slate-300 hover:bg-white/5')
                         }
                         aria-label={item.label}
@@ -401,9 +410,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex w-full flex-col gap-3">
                   <div className="flex items-center justify-between gap-3 lg:hidden">
-                    <Link href="/" aria-label="Lumana AutoPlanet home" className="flex items-center">
-                      <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="h-14 w-auto max-w-[180px] object-contain" />
-                    </Link>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <button type="button" onClick={handleMobileBack} aria-label="Go back" title="Go back" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[#121212] text-slate-100 transition hover:bg-red-600">
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
+                      <Link href="/" aria-label="Lumana AutoPlanet home" className="flex min-w-0 items-center">
+                        <img src="/lumana-logo.png" alt="Lumana AutoPlanet" className="h-14 w-auto max-w-[180px] object-contain" />
+                      </Link>
+                    </div>
                     <button
                       type="button"
                       aria-label="Open navigation"
