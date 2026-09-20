@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { BarChart3, CarFront, ClipboardList, LayoutDashboard, Plus, UserRound } from 'lucide-react';
 import SellerGuard from '@/components/SellerGuard';
 
-export const metadata = { title: 'Seller Portal' };
+export const metadata = { title: 'Seller Portal', robots: { index: false, follow: false } };
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   return (

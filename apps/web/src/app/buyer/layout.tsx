@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Bookmark, CarFront, ClipboardList, Compass, Gavel, LayoutDashboard, UserRound } from 'lucide-react';
 import BuyerGuard from '@/components/BuyerGuard';
 
-export const metadata = { title: 'Buyer Portal' };
+export const metadata = { title: 'Buyer Portal', robots: { index: false, follow: false } };
 
 export default function BuyerLayout({ children }: { children: React.ReactNode }) {
   return (

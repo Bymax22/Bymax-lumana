@@ -226,7 +226,7 @@ export default async function HomePage() {
         </div>
 
         {/* Why choose us */}
-        <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
+        <div className="hidden rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg md:block">
           <p className="text-sm uppercase text-slate-400">Why Choose Us</p>
           <h2 className="mt-3 text-2xl font-semibold text-white">Why Choose Us</h2>
           <div className="mt-6 space-y-4 text-sm text-slate-300">

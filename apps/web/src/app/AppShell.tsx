@@ -133,13 +133,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
 
   useEffect(() => {
-    const offerKey = 'lumana-session-offer-seen';
-    if (window.sessionStorage.getItem(offerKey)) return;
+    const showTimeoutId = window.setTimeout(() => {
+      setShowSessionOffer(true);
+    }, 6000);
+    const hideTimeoutId = window.setTimeout(() => {
+      setShowSessionOffer(false);
+    }, 18000);
 
-    window.sessionStorage.setItem(offerKey, 'true');
-    setShowSessionOffer(true);
-    const timeoutId = window.setTimeout(() => setShowSessionOffer(false), 12000);
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(showTimeoutId);
+      window.clearTimeout(hideTimeoutId);
+    };
   }, []);
 
   useEffect(() => {

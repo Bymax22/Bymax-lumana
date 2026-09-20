@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `Location: ${vehicle.location || 'Contact Lumana'}`,
     `Transmission: ${vehicle.transmission || 'Not specified'}`,
   ].filter(Boolean).join(' ');
-  return { title, description, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
+  return { title, description, alternates: { canonical: `/vehicles/${id}` }, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', url: `/vehicles/${id}`, images: image ? [image] : [] } };
 }
 
 export default async function PublicVehicleDetail({ params }: Props) {

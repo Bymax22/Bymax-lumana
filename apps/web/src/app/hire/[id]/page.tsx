@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `Location: ${vehicle.location || 'Lusaka'}`,
     `Base price: ${vehicle.basePrice ?? 'Contact Lumana'}/day`,
   ].filter(Boolean).join(' ');
-  return { title, description, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
+  return { title, description, alternates: { canonical: `/hire/${id}` }, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', url: `/hire/${id}`, images: image ? [image] : [] } };
 }
 
 export default async function HireVehiclePage({ params }: Props) {

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `SKU: ${product.sku || 'Not specified'}`,
     `Stock: ${product.stock ?? 0}`,
   ].filter(Boolean).join(' ');
-  return { title: product.name, description, openGraph: { title: product.name, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
+  return { title: product.name, description, alternates: { canonical: `/shop/${id}` }, openGraph: { title: product.name, description, siteName: 'Lumana AutoPlanet', type: 'website', url: `/shop/${id}`, images: image ? [image] : [] } };
 }
 
 export default async function ProductPage({ params }: Props) {

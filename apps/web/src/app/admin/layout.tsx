@@ -49,6 +49,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <AdminGuard>
+      <meta name="robots" content="noindex,nofollow,noarchive" />
       <div className="admin-theme flex min-h-screen bg-[#050505] text-slate-100">
       <aside className="hidden w-72 flex-shrink-0 bg-[#090d0d] px-4 py-6 lg:flex lg:flex-col">
         <div className="rounded-2xl bg-[#121918] p-4 shadow-lg shadow-black/20">
