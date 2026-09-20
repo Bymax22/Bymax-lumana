@@ -33,6 +33,18 @@ export class AdminUserService {
       const txClient = tx as any;
       const cleanupPlan = buildUserDeletionCleanupPlan(id);
 
+      const sellerAuctions = await txClient.auction.findMany({ where: { sellerId: id }, select: { id: true } });
+      if (sellerAuctions.length > 0) {
+        const auctionIds = sellerAuctions.map((auction: { id: string }) => auction.id);
+        await txClient.bid.deleteMany({ where: { auctionId: { in: auctionIds } } });
+      }
+
+      const rentalBookings = await txClient.rentalBooking.findMany({ where: { userId: id }, select: { id: true } });
+      if (rentalBookings.length > 0) {
+        const bookingIds = rentalBookings.map((booking: { id: string }) => booking.id);
+        await txClient.damageReport.deleteMany({ where: { bookingId: { in: bookingIds } } });
+      }
+
       for (const step of cleanupPlan) {
         if (step.updateMany) {
           await txClient[step.model].updateMany(step.updateMany);
@@ -47,26 +59,14 @@ export class AdminUserService {
         await txClient[step.model].deleteMany({ where: step.where });
       }
 
-      const sellerAuctions = await txClient.auction.findMany({ where: { sellerId: id }, select: { id: true } });
-      if (sellerAuctions.length > 0) {
-        const auctionIds = sellerAuctions.map((auction: { id: string }) => auction.id);
-        await txClient.bid.deleteMany({ where: { auctionId: { in: auctionIds } } });
-      }
-
       await txClient.auction.deleteMany({ where: { sellerId: id } });
       await txClient.bid.deleteMany({ where: { bidderId: id } });
-
-      const rentalBookings = await txClient.rentalBooking.findMany({ where: { userId: id }, select: { id: true } });
-      if (rentalBookings.length > 0) {
-        const bookingIds = rentalBookings.map((booking: { id: string }) => booking.id);
-        await txClient.damageReport.deleteMany({ where: { bookingId: { in: bookingIds } } });
-      }
-
       await txClient.rentalBooking.deleteMany({ where: { userId: id } });
       await txClient.shoppingCart.deleteMany({ where: { userId: id } });
       await txClient.order.deleteMany({ where: { userId: id } });
       await txClient.payment.deleteMany({ where: { userId: id } });
       await txClient.notification.deleteMany({ where: { userId: id } });
+      await txClient.user.delete({ where: { id } });
 
       return { success: true, deletedUserId: id };
     });

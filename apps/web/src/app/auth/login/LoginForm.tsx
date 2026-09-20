@@ -16,6 +16,23 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  function getRedirectPath(user: { role?: string } | undefined) {
+    const requestedPath = searchParams.get('next');
+    if (requestedPath?.startsWith('/')) {
+      return requestedPath;
+    }
+
+    switch (user?.role) {
+      case 'ADMIN':
+        return '/admin';
+      case 'DEALER':
+        return '/seller';
+      case 'CUSTOMER':
+      default:
+        return '/buyer';
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
@@ -33,7 +50,7 @@ export function LoginForm() {
         }
 
         setSuccess('Logged in successfully. Redirecting...');
-        const next = searchParams.get('next') || '/';
+        const next = getRedirectPath(data?.user);
         setTimeout(() => router.push(next), 400);
         return;
       }
@@ -57,7 +74,7 @@ export function LoginForm() {
       }
 
       setSuccess('Logged in successfully. Redirecting...');
-      const next = searchParams.get('next') || '/';
+      const next = getRedirectPath(data?.user);
       setTimeout(() => router.push(next), 400);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed.');
