@@ -1,10 +1,14 @@
 'use client';
 
 import { useCurrency } from '@/context/CurrencyContext';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { publicApi } from '@/lib/publicApi';
 
 interface VehicleGridProps {
   vehicles: any[];
   errorMessage: string;
+  refreshEndpoint?: string;
 }
 
 function normalizeVehiclePayload(payload: unknown): any[] {
@@ -57,9 +61,28 @@ function getVehicleImageUrl(vehicle: any): string | null {
   return null;
 }
 
-export default function VehicleGrid({ vehicles, errorMessage }: VehicleGridProps) {
+export default function VehicleGrid({ vehicles, errorMessage, refreshEndpoint = '/vehicles' }: VehicleGridProps) {
   const { formatAmount } = useCurrency();
-  const normalizedVehicles = normalizeVehiclePayload(vehicles);
+  const [liveVehicles, setLiveVehicles] = useState(vehicles);
+  const normalizedVehicles = normalizeVehiclePayload(liveVehicles);
+
+  useEffect(() => {
+    setLiveVehicles(vehicles);
+  }, [vehicles]);
+
+  useEffect(() => {
+    const refresh = async () => {
+      try {
+        const nextVehicles = await publicApi(refreshEndpoint);
+        setLiveVehicles(normalizeVehiclePayload(nextVehicles));
+      } catch {
+        // Keep the last successful list visible when a refresh is unavailable.
+      }
+    };
+
+    const intervalId = window.setInterval(() => void refresh(), 15000);
+    return () => window.clearInterval(intervalId);
+  }, [refreshEndpoint]);
 
   if (errorMessage) {
     return <div className="rounded-[24px] bg-[#121212] p-6 text-red-400">Unable to load vehicles: {errorMessage}</div>;
@@ -76,7 +99,7 @@ export default function VehicleGrid({ vehicles, errorMessage }: VehicleGridProps
         const imageUrl = getVehicleImageUrl(vehicle);
 
         return (
-          <div key={vehicle.id} className="overflow-hidden rounded-[24px] bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
+          <Link key={vehicle.id} href={`/buyer/vehicles/${vehicle.id}`} className="block overflow-hidden rounded-[24px] bg-[#121212] shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:-translate-y-1">
             <div className="relative h-48 overflow-hidden bg-[#0d0d0d]">
               {imageUrl ? (
                 <img src={imageUrl} alt={`${vehicle.make || 'Vehicle'} ${vehicle.model || ''}`} className="h-full w-full object-cover" loading="lazy" />
@@ -103,7 +126,8 @@ export default function VehicleGrid({ vehicles, errorMessage }: VehicleGridProps
                 <p><span className="font-semibold text-white">Dealer:</span> {vehicle.dealer?.name || 'Unassigned'}</p>
               </div>
             </div>
-          </div>
+            <div className="px-6 pb-6"><span className="inline-flex rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white">View details and buy</span></div>
+          </Link>
         );
       })}
     </div>

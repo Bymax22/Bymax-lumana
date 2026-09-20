@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { publicApi } from '@/lib/publicApi';
+import { getCurrentUserId } from '@/lib/auth';
 import ConvertedAmount from '@/components/ConvertedAmount';
 
 export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
@@ -83,25 +84,22 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
 
   async function buyNow() {
     if (!confirm('Proceed to purchase this vehicle?')) return;
-    const payload = { vehicleId: vehicle.id, amount: vehicle.price || 0 };
+    const userId = getCurrentUserId();
+    if (!userId) {
+      setMessage('Please log in before purchasing a vehicle');
+      return;
+    }
+
+    const payload = { userId, shippingAddress: 'To be confirmed', paymentMethod: 'BANK_TRANSFER' };
     try {
-      await publicApi('/orders', { method: 'POST', body: JSON.stringify(payload) });
+      const order = await publicApi(`/vehicles/${vehicle.id}/purchase`, { method: 'POST', body: JSON.stringify(payload) });
       setMessage('Order placed successfully');
-      // add to local orders as well
       const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.push({ ...payload, id: Date.now().toString(), createdAt: new Date().toISOString() });
+      orders.push({ ...order, vehicleId: vehicle.id, amount: vehicle.price || 0, createdAt: new Date().toISOString() });
       localStorage.setItem('orders', JSON.stringify(orders));
       setTimeout(() => router.push('/buyer/orders'), 800);
     } catch (err) {
-      try {
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        orders.push({ ...payload, id: Date.now().toString(), createdAt: new Date().toISOString(), local: true });
-        localStorage.setItem('orders', JSON.stringify(orders));
-        setMessage('Order saved locally (no API)');
-        setTimeout(() => router.push('/buyer/orders'), 800);
-      } catch (e) {
-        setMessage('Unable to place order');
-      }
+      setMessage(err instanceof Error ? err.message : 'Unable to place order');
     }
   }
 
@@ -109,7 +107,9 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
     <div className="rounded bg-[#0d0d0d] p-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="col-span-1">
-          <div className="h-64 w-full rounded-md bg-[#0d0d0d]" />
+          <div className="h-64 w-full overflow-hidden rounded-md bg-[#0d0d0d]">
+            {vehicle.images?.[0]?.url ? <img src={vehicle.images[0].url} alt={`${vehicle.make} ${vehicle.model}`} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-sm text-slate-500">No image available</div>}
+          </div>
         </div>
         <div className="col-span-2">
           <h2 className="text-2xl font-semibold">{vehicle.make} {vehicle.model}</h2>

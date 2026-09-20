@@ -129,7 +129,7 @@ export default async function VehiclesPage({ searchParams }: VehiclesPageProps) 
           ) : null}
         </div>
 
-        <VehicleGrid vehicles={vehicles} errorMessage={errorMessage} />
+        <VehicleGrid vehicles={vehicles} errorMessage={errorMessage} refreshEndpoint={`/vehicles${query.toString() ? `?${query.toString()}` : ''}`} />
       </div>
     </main>
   );

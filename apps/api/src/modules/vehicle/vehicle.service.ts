@@ -108,8 +108,46 @@ export class VehicleService {
     });
   }
 
+  async purchase(id: string, data: { userId?: string; shippingAddress?: string; paymentMethod?: string }) {
+    if (!data.userId) {
+      throw new Error('A logged-in buyer is required to purchase a vehicle');
+    }
+
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: { id },
+      include: { images: true },
+    });
+
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+
+    const amount = vehicle.price ?? 0;
+    const order = await this.prisma.order.create({
+      data: {
+        orderRef: `VEH-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        userId: data.userId,
+        subtotal: amount,
+        tax: 0,
+        shippingCost: 0,
+        totalAmount: amount,
+        status: 'PENDING',
+        paymentStatus: 'PENDING',
+        shippingAddress: data.shippingAddress || 'To be confirmed',
+        metadata: {
+          type: 'VEHICLE_PURCHASE',
+          vehicleId: vehicle.id,
+          vehicle: `${vehicle.make} ${vehicle.model}`,
+          paymentMethod: data.paymentMethod || null,
+        },
+      },
+    });
+
+    return { ...order, vehicle };
+  }
+
   async create(data: any) {
-    const { dealerId, images, imageUrl, year, mileage, ...rest } = data;
+    const { dealerId, images, imageUrl, year, mileage, fuelType: _fuelType, ...rest } = data;
     const resolvedDealerId = await this.resolveDealerId(dealerId);
 
     const vehicle = await this.prisma.vehicle.create({
@@ -137,7 +175,7 @@ export class VehicleService {
   }
 
   async update(id: string, data: any) {
-    const { year, mileage, ...rest } = data;
+    const { year, mileage, fuelType: _fuelType, images: _images, imageUrl: _imageUrl, ...rest } = data;
 
     return this.prisma.vehicle.update({
       where: { id },

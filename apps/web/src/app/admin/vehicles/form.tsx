@@ -114,8 +114,28 @@ export default function VehicleForm() {
       return;
     }
 
-    setSelectedFiles(files);
-    setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
+    const nextFiles = [...selectedFiles, ...files];
+    setSelectedFiles(nextFiles);
+    setPreviewUrls((current) => [...current, ...files.map((file) => URL.createObjectURL(file))]);
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    const preview = previewUrls[index];
+    if (preview?.startsWith('blob:')) {
+      URL.revokeObjectURL(preview);
+    }
+
+    setPreviewUrls((current) => current.filter((_, currentIndex) => currentIndex !== index));
+    setSelectedFiles((current) => {
+      const uploadedImageCount = previewUrls.length - selectedFiles.length;
+      if (index < uploadedImageCount) {
+        return current;
+      }
+
+      const fileIndex = index - uploadedImageCount;
+      return current.filter((_, currentIndex) => currentIndex !== fileIndex);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -387,12 +407,20 @@ export default function VehicleForm() {
             onChange={handleFilesChange}
             className="w-full text-sm text-slate-400 file:mr-4 file:rounded-full file:border-0 file:bg-red-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
           />
-          <p className="mt-2 text-sm text-slate-500">You can select several images at once. New uploads replace the current preview set.</p>
+          <p className="mt-2 text-sm text-slate-500">Add images in batches, remove any preview, then save when the gallery is ready.</p>
           {previewUrls.length > 0 && (
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {previewUrls.map((preview, index) => (
-                <div key={`${preview}-${index}`} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70">
+                <div key={`${preview}-${index}`} className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70">
                   <img src={preview} alt={`Preview ${index + 1}`} className="h-32 w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute right-2 top-2 rounded-full bg-black/75 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-red-600"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>

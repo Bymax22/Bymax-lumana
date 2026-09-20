@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Bell, ChevronDown, Menu, X } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, UserRound, X } from 'lucide-react';
 import { CurrencyProvider, useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { publicApi } from '@/lib/publicApi';
+import { AppUser, getStoredUser } from '@/lib/auth';
 
 const navItems = [
   { href: '/', label: 'Home', badge: null, icon: (
@@ -123,8 +124,33 @@ function normalizeBrandPayload(payload: unknown) {
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [popularBrands, setPopularBrands] = useState<any[]>([]);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const syncUser = () => setUser(getStoredUser());
+
+    syncUser();
+    window.addEventListener('storage', syncUser);
+    window.addEventListener('lumana-auth-change', syncUser);
+
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('lumana-auth-change', syncUser);
+    };
+  }, [pathname]);
+
+  function handleLogout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('refreshToken');
+    setUser(null);
+    setAccountMenuOpen(false);
+    window.dispatchEvent(new Event('lumana-auth-change'));
+    router.push('/');
+  }
 
   useEffect(() => {
     let active = true;
@@ -381,8 +407,44 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <CurrencySwitcher />
                   <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300">♡</button>
                   <button className="rounded-[18px] bg-[#121212] px-2 py-1 text-sm text-slate-300"><Bell className="h-4 w-4" /></button>
-                  <Link href="/auth/login" className="rounded-[18px] bg-[#141414] px-2 py-1 text-sm text-white">Login</Link>
-                  <Link href="/auth/signup" className="rounded-[18px] bg-yellow-500 px-3 py-1 text-sm font-semibold text-[#0b0b0b]">Sign Up</Link>
+                  {user ? (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        aria-expanded={accountMenuOpen}
+                        aria-haspopup="menu"
+                        onClick={() => setAccountMenuOpen((open) => !open)}
+                        className="flex items-center gap-2 rounded-[18px] bg-[#141414] px-2 py-1 text-left text-sm text-white transition hover:bg-[#1d1d1d]"
+                      >
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+                          {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                        </span>
+                        <span className="hidden max-w-28 truncate sm:inline">{user.name || user.email}</span>
+                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                      </button>
+                      {accountMenuOpen ? (
+                        <div role="menu" className="absolute right-0 top-full z-30 mt-2 w-56 rounded-[18px] border border-white/10 bg-[#151515] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+                          <div className="border-b border-white/10 px-3 pb-2">
+                            <p className="truncate text-sm font-semibold text-white">{user.name || 'Your account'}</p>
+                            <p className="truncate text-xs text-slate-400">{user.email}</p>
+                          </div>
+                          <AccountLink href={user.role === 'ADMIN' ? '/admin' : user.role === 'DEALER' ? '/seller' : '/buyer'} label="Dashboard" icon={<UserRound className="h-4 w-4" />} onClick={() => setAccountMenuOpen(false)} />
+                          <AccountLink href={user.role === 'DEALER' ? '/seller/profile' : '/buyer/profile'} label="Profile" icon={<UserRound className="h-4 w-4" />} onClick={() => setAccountMenuOpen(false)} />
+                          <AccountLink href={user.role === 'DEALER' ? '/seller/orders' : '/buyer/orders'} label="Orders" icon={<span className="text-sm">▣</span>} onClick={() => setAccountMenuOpen(false)} />
+                          {user.role !== 'DEALER' && user.role !== 'ADMIN' ? <AccountLink href="/buyer/saved" label="Saved vehicles" icon={<span className="text-sm">♡</span>} onClick={() => setAccountMenuOpen(false)} /> : null}
+                          <button type="button" role="menuitem" onClick={handleLogout} className="mt-1 flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-sm text-red-300 transition hover:bg-red-500/10">
+                            <LogOut className="h-4 w-4" />
+                            Log out
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <>
+                      <Link href="/auth/login" className="rounded-[18px] bg-[#141414] px-2 py-1 text-sm text-white">Login</Link>
+                      <Link href="/auth/signup" className="rounded-[18px] bg-yellow-500 px-3 py-1 text-sm font-semibold text-[#0b0b0b]">Sign Up</Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -393,6 +455,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
     </main>
     </CurrencyProvider>
+  );
+}
+
+function AccountLink({ href, label, icon, onClick }: { href: string; label: string; icon: React.ReactNode; onClick: () => void }) {
+  return (
+    <Link href={href} role="menuitem" onClick={onClick} className="flex items-center gap-3 rounded-[12px] px-3 py-2 text-sm text-slate-200 transition hover:bg-white/5">
+      {icon}
+      {label}
+    </Link>
   );
 }
 

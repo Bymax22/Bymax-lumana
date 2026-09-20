@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { ArrowUpRight, Bookmark, CarFront, CheckCircle2, ChevronRight, Clock3, Compass, Gavel, PackageCheck, RefreshCw, ShoppingBag, Sparkles } from 'lucide-react';
 import { publicApi } from '@/lib/publicApi';
 import { getCurrentUserId, getStoredUser } from '@/lib/auth';
 
@@ -10,6 +11,7 @@ export default function BuyerDashboard() {
   const [auctions, setAuctions] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [savedCount, setSavedCount] = useState(0);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,6 +20,7 @@ export default function BuyerDashboard() {
     const currentUser = getStoredUser();
     setUser(currentUser);
     const userId = getCurrentUserId();
+    try { setSavedCount(JSON.parse(localStorage.getItem('savedVehicles') || '[]').length); } catch { setSavedCount(0); }
 
     async function load() {
       setLoading(true);
@@ -50,55 +53,23 @@ export default function BuyerDashboard() {
   const vehicleCount = vehicles.length;
   const liveAuctions = auctions.filter((a: any) => a.status === 'LIVE').length;
   const upcomingBookings = bookings.filter((b: any) => b.status !== 'CANCELLED').length;
+  const featuredVehicles = vehicles.slice(0, 3);
+  const recentOrders = orders.slice(0, 3);
 
   return (
-    <section className="space-y-6">
-      <div className="rounded-[24px] bg-[#0d0d0d] p-6 shadow-lg">
-        <p className="text-sm uppercase text-red-400">Buyer Portal</p>
-        <h2 className="mt-2 text-2xl font-semibold text-white">Welcome back{user?.name ? `, ${user.name}` : ''}</h2>
-        <p className="mt-2 text-slate-400">Keep track of your marketplace activity, orders, and rental bookings in one place.</p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[18px] bg-[#121212] p-4">
-            <div className="text-sm text-slate-400">Vehicles</div>
-            <div className="text-xl font-bold text-white">{vehicleCount}</div>
-          </div>
-          <div className="rounded-[18px] bg-[#121212] p-4">
-            <div className="text-sm text-slate-400">Live Auctions</div>
-            <div className="text-xl font-bold text-white">{liveAuctions}</div>
-          </div>
-          <div className="rounded-[18px] bg-[#121212] p-4">
-            <div className="text-sm text-slate-400">Orders</div>
-            <div className="text-xl font-bold text-white">{orders.length}</div>
-          </div>
-          <div className="rounded-[18px] bg-[#121212] p-4">
-            <div className="text-sm text-slate-400">Active Hire Bookings</div>
-            <div className="text-xl font-bold text-white">{upcomingBookings}</div>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-[20px] bg-[#121212] p-4">
-            <h3 className="text-lg font-semibold text-white">Hire Services</h3>
-            <p className="mt-2 text-sm text-slate-400">Book rentals, track your requests, and share extra driver details for a smoother experience.</p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link href="/hire" className="rounded bg-red-600 px-4 py-2 text-sm text-white">Browse Rentals</Link>
-              <Link href="/buyer/bookings" className="rounded bg-gray-800 px-4 py-2 text-sm text-white">My Bookings</Link>
-            </div>
-          </div>
-          <div className="rounded-[20px] bg-[#121212] p-4">
-            <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link href="/buyer/vehicles" className="rounded bg-yellow-500 px-4 py-2 text-sm text-[#0b0b0b]">Marketplace</Link>
-              <Link href="/buyer/orders" className="rounded bg-gray-800 px-4 py-2 text-sm text-white">Orders</Link>
-              <Link href="/buyer/profile" className="rounded bg-gray-800 px-4 py-2 text-sm text-white">Profile</Link>
-            </div>
-          </div>
-        </div>
-
-        {loading ? <div className="mt-6 text-sm text-slate-400">Loading your dashboard…</div> : null}
-        {error ? <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">{error}</div> : null}
+    <section className="space-y-6 pb-10">
+      <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-red-300">Buyer overview</p><h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome back{user?.name ? `, ${user.name}` : ''}</h1><p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">Find your next vehicle, keep an eye on auctions, and stay on top of every purchase.</p></div><div className="flex gap-3"><button type="button" onClick={() => window.location.reload()} className="flex items-center gap-2 rounded-xl bg-[#171a1d] px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-[#202428] hover:text-white" title="Refresh dashboard"><RefreshCw size={16} /><span className="hidden sm:inline">Refresh</span></button><Link href="/buyer/vehicles" className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/10 transition hover:bg-red-400"><Compass size={17} /> Browse cars</Link></div></header>
+      {loading ? <div className="flex items-center gap-2 rounded-xl bg-[#15191c] px-4 py-3 text-sm text-slate-400"><RefreshCw className="animate-spin" size={15} /> Updating your activity...</div> : null}
+      {error ? <div className="flex items-center gap-2 rounded-xl bg-[#2b2010] px-4 py-3 text-sm text-amber-200"><Clock3 size={16} /> {error}</div> : null}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Marketplace" value={vehicleCount} helper="Vehicles to explore" icon={<CarFront size={19} />} tone="text-red-300" /><Stat label="Live auctions" value={liveAuctions} helper="Auctions happening now" icon={<Gavel size={19} />} tone="text-amber-300" /><Stat label="Saved vehicles" value={savedCount} helper="Your shortlist" icon={<Bookmark size={19} />} tone="text-sky-300" /><Stat label="Active bookings" value={upcomingBookings} helper="Rental trips ahead" icon={<ShoppingBag size={19} />} tone="text-emerald-300" /></div>
+      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+        <div className="rounded-2xl bg-[#111416] p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-lg font-semibold">Vehicles you may like</p><p className="mt-1 text-sm text-slate-500">A fresh look at what is available now.</p></div><Link href="/buyer/vehicles" className="flex items-center gap-1 text-sm font-semibold text-red-300 hover:text-red-200">Explore all <ArrowUpRight size={15} /></Link></div><div className="mt-5 grid gap-3 sm:grid-cols-3">{featuredVehicles.length === 0 ? <div className="rounded-xl bg-[#171a1d] px-4 py-8 text-center text-sm text-slate-500 sm:col-span-3">No vehicles are available right now.</div> : featuredVehicles.map((vehicle: any) => <Link key={vehicle.id} href={`/buyer/vehicles/${vehicle.id}`} className="group rounded-xl bg-[#171a1d] p-3 transition hover:bg-[#202428]"><div className="flex h-24 items-center justify-center rounded-lg bg-[#202428] text-slate-500"><CarFront size={28} /></div><p className="mt-3 truncate text-sm font-semibold text-slate-200">{vehicle.make} {vehicle.model}</p><p className="mt-1 text-xs text-slate-500">{vehicle.year || 'Year not set'} <ChevronRight size={13} className="inline transition group-hover:translate-x-1" /></p></Link>)}</div></div>
+        <div className="rounded-2xl bg-[#111416] p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-lg font-semibold">Recent orders</p><p className="mt-1 text-sm text-slate-500">Your latest purchase activity.</p></div><PackageCheck className="text-emerald-300" size={20} /></div><div className="mt-5 space-y-4">{recentOrders.length === 0 ? <div className="rounded-xl bg-[#171a1d] px-4 py-7 text-center text-sm text-slate-500">No orders yet. Your next one starts here.</div> : recentOrders.map((order: any) => <div key={order.id} className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300"><CheckCircle2 size={17} /></span><div className="min-w-0"><p className="truncate text-sm font-medium text-slate-200">Order #{order.id}</p><p className="text-xs text-slate-500">{order.status || 'Processing'}</p></div></div><span className="shrink-0 text-sm font-semibold text-slate-200">{order.total ? `$${Number(order.total).toLocaleString()}` : 'View'}</span></div>)}</div><Link href="/buyer/orders" className="mt-6 flex items-center justify-center gap-1 rounded-xl bg-[#171a1d] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-[#202428] hover:text-white">View orders <ChevronRight size={15} /></Link></div>
       </div>
+      <div className="grid gap-4 md:grid-cols-3"><Action href="/hire" icon={<CarFront size={19} />} title="Plan a rental" description="Choose a car for your next trip." /><Action href="/buyer/saved" icon={<Bookmark size={19} />} title="Review saved cars" description={`${savedCount} vehicle${savedCount === 1 ? '' : 's'} waiting in your shortlist.`} /><Action href="/auctions" icon={<Gavel size={19} />} title="Watch live auctions" description={`${liveAuctions} auction${liveAuctions === 1 ? '' : 's'} are live right now.`} /></div>
     </section>
   );
 }
+
+function Stat({ label, value, helper, icon, tone }: { label: string; value: number; helper: string; icon: React.ReactNode; tone: string }) { return <div className="rounded-2xl bg-[#111416] p-5"><div className={`mb-5 flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] ${tone}`}>{icon}</div><p className="text-sm text-slate-500">{label}</p><p className="mt-1 text-2xl font-semibold tracking-tight text-white">{value}</p><p className="mt-1 text-xs text-slate-600">{helper}</p></div>; }
+function Action({ href, icon, title, description }: { href: string; icon: React.ReactNode; title: string; description: string }) { return <Link href={href} className="group rounded-2xl bg-[#111416] p-5 transition hover:bg-[#171a1d]"><span className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl bg-red-400/10 text-red-300">{icon}</span><p className="flex items-center gap-1 font-semibold text-slate-200">{title}<ChevronRight size={15} className="transition group-hover:translate-x-1" /></p><p className="mt-2 text-sm leading-5 text-slate-500">{description}</p></Link>; }

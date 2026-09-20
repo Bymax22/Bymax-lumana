@@ -45,6 +45,7 @@ export function LoginForm() {
         try {
           if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
           if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+          window.dispatchEvent(new Event('lumana-auth-change'));
         } catch (e) {
           // ignore storage errors
         }
@@ -69,6 +70,7 @@ export function LoginForm() {
       try {
         if (data?.user) localStorage.setItem('user', JSON.stringify(data.user));
         if (data?.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+        window.dispatchEvent(new Event('lumana-auth-change'));
       } catch (e) {
         // ignore storage errors
       }

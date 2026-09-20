@@ -50,10 +50,10 @@ export default function AdminDashboard() {
   ];
 
   const metricCards = useMemo<MetricCard[]>(() => [
-    { label: 'Users', value: String(stats.users ?? 0), description: 'Registered accounts', icon: Users, accent: 'from-cyan-500 to-blue-600' },
-    { label: 'Vehicles', value: String(stats.vehicles ?? 0), description: 'Inventory records', icon: Boxes, accent: 'from-violet-500 to-fuchsia-600' },
-    { label: 'Auctions', value: String(stats.auctions ?? 0), description: 'Open & pending', icon: Sparkles, accent: 'from-amber-500 to-orange-600' },
-    { label: 'Support', value: String(stats.support ?? 0), description: 'Open tickets', icon: MessageCircle, accent: 'from-rose-500 to-red-600' },
+    { label: 'Users', value: String(stats.users ?? 0), description: 'Registered accounts', icon: Users, accent: 'bg-cyan-400/15 text-cyan-300' },
+    { label: 'Vehicles', value: String(stats.vehicles ?? 0), description: 'Inventory records', icon: Boxes, accent: 'bg-emerald-400/15 text-emerald-300' },
+    { label: 'Auctions', value: String(stats.auctions ?? 0), description: 'Open & pending', icon: Sparkles, accent: 'bg-amber-400/15 text-amber-300' },
+    { label: 'Support', value: String(stats.support ?? 0), description: 'Open tickets', icon: MessageCircle, accent: 'bg-orange-400/15 text-orange-300' },
   ], [stats]);
 
   const loadStats = async (showLoading = true) => {
@@ -120,15 +120,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 shadow-2xl shadow-black/30">
+      <div className="rounded-3xl bg-[#121918] p-8 shadow-2xl shadow-black/30">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-red-400">Control center</p>
+            <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">Control center</p>
             <h1 className="mt-2 text-3xl font-semibold text-white">Admin dashboard</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-400">Monitor customers, vehicles, auctions, rentals, shop activity, and content from one live control panel.</p>
                       {error ? <p className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">{error}</p> : null}
           </div>
-          <button onClick={() => void loadStats(false)} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950/60 px-4 py-2 text-sm text-slate-300 transition hover:border-red-500 hover:text-white">
+          <button onClick={() => void loadStats(false)} className="inline-flex items-center gap-2 rounded-full bg-[#090d0d] px-4 py-2 text-sm text-slate-300 transition hover:bg-[#192321] hover:text-white">
             <RefreshCcw className="h-4 w-4" />
             Refresh now
           </button>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
           const Icon = card.icon;
           return (
             <div key={card.label} className="rounded-3xl bg-slate-900/80 p-5 shadow-lg shadow-black/20">
-              <div className={`inline-flex rounded-2xl bg-gradient-to-r ${card.accent} p-3 text-white`}>
+              <div className={`inline-flex rounded-2xl p-3 ${card.accent}`}>
                 <Icon className="h-5 w-5" />
               </div>
               <p className="mt-4 text-sm text-slate-400">{card.label}</p>
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
           return (
             <Link key={action.href} href={action.href} className="rounded-3xl bg-slate-900/80 p-5 transition hover:bg-slate-800">
               <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-red-500/10 p-2 text-red-400">
+                <div className="rounded-2xl bg-cyan-400/10 p-2 text-cyan-300">
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl bg-slate-900/80 p-6">
           <div className="flex items-center gap-2 text-lg font-semibold text-white">
-            <ShieldCheck className="h-5 w-5 text-red-400" />
+            <ShieldCheck className="h-5 w-5 text-cyan-300" />
             Commerce & operations
           </div>
           <div className="mt-6 space-y-3 text-sm text-slate-400">
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
 
         <div className="rounded-3xl bg-slate-900/80 p-6">
           <div className="flex items-center gap-2 text-lg font-semibold text-white">
-            <FileText className="h-5 w-5 text-red-400" />
+            <FileText className="h-5 w-5 text-cyan-300" />
             Schema-backed modules
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
               return (
                 <div key={item.label} className="rounded-2xl bg-slate-950/70 p-4">
                   <div className="flex items-center gap-3 text-slate-100">
-                    <Icon className="h-4 w-4 text-red-400" />
+                    <Icon className="h-4 w-4 text-cyan-300" />
                     <span className="font-medium">{item.label}</span>
                   </div>
                   <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>

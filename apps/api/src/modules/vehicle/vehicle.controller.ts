@@ -34,6 +34,14 @@ export class VehicleController {
     return this.service.findOne(id);
   }
 
+  @Post(':id/purchase')
+  purchase(
+    @Param('id') id: string,
+    @Body() body: { userId?: string; shippingAddress?: string; paymentMethod?: string },
+  ) {
+    return this.service.purchase(id, body);
+  }
+
   @Post()
   @UseInterceptors(FileFieldsInterceptor([
     { name: 'images', maxCount: 10 },

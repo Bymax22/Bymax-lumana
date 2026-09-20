@@ -40,7 +40,7 @@ export class AdminVehicleService {
   }
 
   async create(data: CreateVehicleDto & { imageUrl?: string; images?: string[] }) {
-    const { imageUrl, images, dealerId, year, mileage, ...rest } = data;
+    const { imageUrl, images, dealerId, year, mileage, fuelType: _fuelType, ...rest } = data;
     const resolvedDealerId = await this.resolveDealerId(dealerId);
 
     const vehicle = await this.prisma.vehicle.create({
@@ -83,7 +83,7 @@ export class AdminVehicleService {
   }
 
   async update(id: string, data: UpdateVehicleDto & { imageUrl?: string; images?: string[] }) {
-    const { imageUrl, images, year, mileage, ...rest } = data;
+    const { imageUrl, images, year, mileage, fuelType: _fuelType, ...rest } = data;
 
     const updateData: Record<string, unknown> = { ...rest };
     if (year !== undefined) {
