@@ -61,7 +61,7 @@ export default function RentalGrid({ vehicles, errorMessage }: RentalGridProps) 
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <ShareButton title={`${v.make} ${v.model} rental`} description={`${v.year || ''} rental vehicle available in ${v.location || 'Lusaka'}.`} imageUrl={v.images?.[0]} url={`/hire/${v.id}`} />
+            <ShareButton title={`${v.make} ${v.model} rental`} description={`${v.year || ''} rental vehicle available in ${v.location || 'Lusaka'}.`} details={[`Mileage: ${v.mileage ?? 'Not specified'}`, `Location: ${v.location || 'Lusaka'}`, `Base price: ${v.basePrice ?? 'Contact Lumana'}/day`, `Status: ${v.status || 'Available'}`]} imageUrl={v.images?.[0]} url={`/hire/${v.id}`} />
             <div className="flex items-center gap-3">
             <Link href={`/hire/${v.id}`} className="rounded bg-gray-800 px-4 py-2 text-sm">View</Link>
             <Link href={`/hire/${v.id}`} className="ml-2 rounded bg-emerald-600 px-4 py-2 text-sm text-white">Book Now</Link>

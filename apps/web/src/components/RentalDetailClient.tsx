@@ -94,21 +94,21 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
   }
 
   return (
-    <div className="rounded bg-[#0d0d0d] p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full min-w-0 overflow-hidden rounded bg-[#0d0d0d] p-4 sm:p-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-3">
         <div className="col-span-1">
           <div className="h-64 w-full rounded-md bg-[#0d0d0d]" />
         </div>
-        <div className="col-span-2">
-          <h2 className="text-2xl font-semibold">{vehicle.make} {vehicle.model}</h2>
+        <div className="min-w-0 md:col-span-2">
+          <h2 className="break-words text-2xl font-semibold">{vehicle.make} {vehicle.model}</h2>
           <p className="text-slate-400">{vehicle.year}</p>
 
-          <div className="mt-6 text-sm text-slate-300">
+          <div className="mt-6 min-w-0 break-words text-sm text-slate-300">
             <p>{vehicle.description || 'No description available'}</p>
             <p className="mt-2">Base Price: {vehicle.basePrice ? <ConvertedAmount amountUsd={vehicle.basePrice} /> : '—'}</p>
           </div>
 
-          <div className="mt-6 rounded-[20px] bg-[#121212] p-4">
+          <div className="mt-6 min-w-0 rounded-[20px] bg-[#121212] p-3 sm:p-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label className="text-sm text-slate-400">Pickup Location</label>
@@ -161,18 +161,18 @@ export default function RentalDetailClient({ vehicle }: { vehicle: any }) {
               ) : null}
             </div>
 
-            <div className="mt-4 rounded-[16px] bg-[#0d0d0d] p-4 text-sm text-slate-300">
+            <div className="mt-4 min-w-0 overflow-hidden rounded-[16px] bg-[#0d0d0d] p-3 text-sm text-slate-300 sm:p-4">
               <p className="text-xs uppercase text-slate-500">Pricing summary</p>
               <div className="mt-3 grid gap-3 text-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>Active rate</span>
                   <span className="font-semibold text-white">{isOutsideLusaka ? 'Outside Lusaka' : 'Within Lusaka'}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>Daily rate</span>
                   <span className="font-semibold text-white"><ConvertedAmount amountUsd={activeDailyRate} /></span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span>Duration</span>
                   <span className="font-semibold text-white">{durationDays} {durationDays === 1 ? 'day' : 'days'}</span>
                 </div>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Bell, ChevronDown, LogOut, Menu, UserRound, X } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, PanelLeft, UserRound, X } from 'lucide-react';
 import { CurrencyProvider, useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { publicApi } from '@/lib/publicApi';
 import { AppUser, getStoredUser } from '@/lib/auth';
@@ -130,6 +130,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [showSessionOffer, setShowSessionOffer] = useState(false);
+  const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
 
   useEffect(() => {
     const offerKey = 'lumana-session-offer-seen';
@@ -137,7 +138,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     window.sessionStorage.setItem(offerKey, 'true');
     setShowSessionOffer(true);
-    const timeoutId = window.setTimeout(() => setShowSessionOffer(false), 6200);
+    const timeoutId = window.setTimeout(() => setShowSessionOffer(false), 12000);
     return () => window.clearTimeout(timeoutId);
   }, []);
 
@@ -190,8 +191,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <CurrencyProvider>
       <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
         {showSessionOffer ? (
-          <div className="pointer-events-none fixed inset-0 z-[60] flex items-center justify-center px-6 text-center animate-[sessionOfferFade_6.2s_ease-out_forwards]" aria-live="polite">
-            <div className="drop-shadow-[0_8px_24px_rgba(0,0,0,0.85)]">
+          <div className="pointer-events-none fixed inset-0 z-[60] flex items-center justify-center px-6 text-center animate-[sessionOfferFade_12s_ease-out_forwards]" aria-live="polite">
+            <div className="drop-shadow-[0_8px_30px_rgba(0,0,0,0.95)] [text-shadow:0_3px_18px_rgba(0,0,0,0.95)]">
               <p className="text-[clamp(5rem,24vw,13rem)] font-black leading-none tracking-tight text-yellow-400">30%</p>
               <p className="mt-3 max-w-xl text-base font-semibold leading-6 text-white sm:text-xl">Downpayment gets you any car you want with Lumana.</p>
             </div>
@@ -209,8 +210,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="mx-auto flex min-h-screen w-full max-w-[1660px] min-w-0 gap-3 overflow-x-hidden px-3 py-3 sm:px-4 lg:gap-6 lg:px-8 lg:py-6">
-        <aside className="hidden w-[280px] flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] lg:flex">
-          <nav className="space-y-0.5">
+        <aside className={`sidebar-desktop hidden flex-col gap-6 rounded-[26px] bg-[#0b0b0b] p-3 shadow-[0_40px_80px_rgba(0,0,0,0.45)] transition-[width] duration-300 lg:flex ${desktopSidebarExpanded ? 'w-[280px]' : 'w-[76px]'}`}>
+          <button type="button" onClick={() => setDesktopSidebarExpanded((expanded) => !expanded)} className="flex h-11 w-full items-center justify-center rounded-[16px] bg-[#101010] text-slate-300 transition hover:bg-red-600 hover:text-white" aria-label={desktopSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'} title={desktopSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}>
+            <PanelLeft className="h-5 w-5" />
+          </button>
+
+          <nav className="space-y-1">
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
               return (
@@ -218,17 +223,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={
-                    'flex w-full items-center justify-between rounded-[18px] px-2 py-1 text-left text-sm transition ' +
+                    'flex w-full items-center rounded-[18px] py-2 text-left text-sm transition ' + (desktopSidebarExpanded ? 'justify-between px-2' : 'justify-center px-1') +
                     (active ? 'bg-red-600 text-white shadow-lg shadow-red-500/20' : 'text-slate-300 hover:bg-white/5')
                   }
+                  aria-label={item.label}
+                  title={desktopSidebarExpanded ? undefined : item.label}
                 >
-                  <span className="flex items-center gap-2 font-medium">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-[14px] bg-transparent text-red-400">
-                      {item.icon}
-                    </span>
-                    {item.label}
+                  <span className={`flex items-center font-medium ${desktopSidebarExpanded ? 'gap-2' : 'justify-center'}`}>
+                    {item.icon}
+                    {desktopSidebarExpanded ? <span>{item.label}</span> : null}
                   </span>
-                  {item.badge ? (
+                  {desktopSidebarExpanded && item.badge ? (
                     <span className="rounded-[14px] bg-red-600 px-2 py-1 text-[11px] font-semibold uppercase text-white">
                       {item.badge}
                     </span>
@@ -238,16 +243,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="space-y-4 rounded-[24px] bg-[#101010] p-4">
+          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-4">
             <p className="text-sm uppercase text-yellow-400">Need Help?</p>
             <p className="text-sm text-slate-300">Our support team is ready to assist you 24/7.</p>
             <Link href="/contact" className="inline-flex w-full items-center justify-center gap-2 rounded-[18px] bg-yellow-500 px-2 py-1 text-sm font-semibold text-[#0b0b0b] transition hover:bg-yellow-400">
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-600/10 text-red-500">?</span>
               Chat With Us
             </Link>
-          </div>
+          </div> : null}
 
-          <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
+          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
             <h2 className="text-sm uppercase text-slate-400">Popular Brands</h2>
             <div className="space-y-3">
               {popularBrands.length > 0 ? (
@@ -283,9 +288,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
             <Link href="/vehicles" className="text-sm font-semibold text-yellow-400 hover:text-white">View All Brands</Link>
-          </div>
+          </div> : null}
 
-          <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
+          {desktopSidebarExpanded ? <div className="space-y-4 rounded-[24px] bg-[#101010] p-5">
             <div className="rounded-[20px] bg-[#111111] p-4">
               <div className="h-44 rounded-[20px] bg-[#121212] p-4">
                 <div className="mb-4 flex items-center justify-between text-[11px] uppercase text-slate-500">
@@ -299,9 +304,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p className="text-sm uppercase text-slate-400">Download Our App</p>
               <p className="text-sm text-slate-300">Buy, track and manage vehicles on the go.</p>
             </div>
-          </div>
+          </div> : null}
 
-          <div className="rounded-[24px] bg-[#101010] p-5 text-sm text-slate-400">
+          {desktopSidebarExpanded ? <div className="rounded-[24px] bg-[#101010] p-5 text-sm text-slate-400">
             <p className="font-semibold text-white">Lumana AutoPlanet</p>
             <p className="mt-2 text-sm">Your all-in-one platform to buy, import, and manage vehicles worldwide.</p>
             <div className="mt-4 space-y-1 text-xs text-slate-500">
@@ -310,7 +315,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p>Phone</p>
               <p className="text-slate-300">+260 977635060</p>
             </div>
-          </div>
+          </div> : null}
         </aside>
 
         <div className="flex min-w-0 flex-1 gap-3">

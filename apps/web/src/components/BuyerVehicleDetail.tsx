@@ -97,24 +97,24 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
   }
 
   return (
-    <div className="rounded bg-[#0d0d0d] p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full min-w-0 overflow-hidden rounded bg-[#0d0d0d] p-4 sm:p-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-3">
         <div className="col-span-1">
           <div className="h-64 w-full overflow-hidden rounded-md bg-[#0d0d0d]">
             {vehicle.images?.[0]?.url ? <img src={vehicle.images[0].url} alt={`${vehicle.make} ${vehicle.model}`} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-sm text-slate-500">No image available</div>}
           </div>
         </div>
-        <div className="col-span-2">
-          <h2 className="text-2xl font-semibold">{vehicle.make} {vehicle.model}</h2>
-          <p className="text-slate-400">{vehicle.year} • {vehicle.mileage ? `${vehicle.mileage} km` : ''}</p>
-          <div className="mt-4 flex items-center gap-3">
+        <div className="min-w-0 md:col-span-2">
+          <h2 className="break-words text-2xl font-semibold">{vehicle.make} {vehicle.model}</h2>
+          <p className="break-words text-slate-400">{vehicle.year} • {vehicle.mileage ? `${vehicle.mileage} km` : ''}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <button onClick={toggleSave} className="rounded bg-gray-800 px-4 py-2">{saved ? 'Unsave' : 'Save'}</button>
             <button onClick={contactSeller} className="rounded bg-red-600 px-4 py-2">Contact Seller</button>
             <button onClick={placeBid} className="rounded bg-gray-800 px-4 py-2">Place Bid</button>
             <button onClick={buyNow} disabled={vehicle.status === 'SOLD'} className="ml-2 rounded bg-emerald-600 px-4 py-2 disabled:cursor-not-allowed disabled:bg-slate-700">{vehicle.status === 'SOLD' ? 'Sold' : 'Buy Now'}</button>
           </div>
           {message ? <div className="mt-3 text-sm text-emerald-300">{message}</div> : null}
-          <div className="mt-6 text-sm text-slate-300">
+          <div className="mt-6 min-w-0 break-words text-sm text-slate-300">
             <h4 className="font-semibold">Details</h4>
             <p>{vehicle.description || 'No description available'}</p>
             <p className="mt-2">Price: {vehicle.price ? <ConvertedAmount amountUsd={Number(vehicle.price)} /> : '—'}</p>
@@ -127,7 +127,7 @@ export default function BuyerVehicleDetail({ vehicle }: { vehicle: any }) {
         </div>
       </div>
       <div className="mt-6">
-        <Link href="/buyer/vehicles" className="text-sm text-slate-400 hover:underline">Back to marketplace</Link>
+        <Link href="/buyer/vehicles" className="inline-flex rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500">Back to Marketplace</Link>
       </div>
     </div>
   );

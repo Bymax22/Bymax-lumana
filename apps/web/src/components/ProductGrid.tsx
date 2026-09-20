@@ -75,7 +75,7 @@ function ProductCard({ product }: { product: any }) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <ShareButton title={product.name} description={product.description || `${product.category?.name || 'Product'} available from Lumana.`} imageUrl={product.imageUrl || product.images?.[0]?.url || product.images?.[0]} url={`/shop/${product.id}`} />
+        <ShareButton title={product.name} intro="With just 30% down payment, you can get what you need from Lumana." description={product.description || `${product.category?.name || 'Product'} available from Lumana.`} details={[`SKU: ${product.sku || 'Not specified'}`, `Stock: ${product.stock ?? 0}`, `Price: ${product.price ?? 'Contact Lumana'}`]} imageUrl={product.imageUrl || product.images?.[0]?.url || product.images?.[0]} url={`/shop/${product.id}`} />
         <div className="flex items-center gap-3">
         <Link href={`/shop/${product.id}`} className="rounded bg-gray-800 px-4 py-2 text-sm">View</Link>
         {inCart ? (

@@ -11,7 +11,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await publicApi(`/shop/products/${id}`).catch(() => null);
   if (!product) return { title: 'Product | Lumana AutoPlanet' };
   const image = product.imageUrl || product.images?.[0]?.url || product.images?.[0];
-  return { title: product.name, description: product.description || `${product.name} available from Lumana AutoPlanet.`, openGraph: { title: product.name, description: product.description || product.name, images: image ? [image] : [] } };
+  const description = [
+    'With just 30% down payment, you can get what you need from Lumana.',
+    product.description,
+    `SKU: ${product.sku || 'Not specified'}`,
+    `Stock: ${product.stock ?? 0}`,
+  ].filter(Boolean).join(' ');
+  return { title: product.name, description, openGraph: { title: product.name, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
 }
 
 export default async function ProductPage({ params }: Props) {

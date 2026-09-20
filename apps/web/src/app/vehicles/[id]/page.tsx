@@ -10,7 +10,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!vehicle) return { title: 'Vehicle | Lumana AutoPlanet' };
   const title = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim();
   const image = vehicle.images?.[0]?.url || vehicle.images?.[0];
-  return { title, description: vehicle.description || `${title} available from Lumana AutoPlanet.`, openGraph: { title, description: vehicle.description || title, images: image ? [image] : [] } };
+  const description = [
+    'With just 30% down payment, you can buy this vehicle from Lumana.',
+    vehicle.description,
+    `Mileage: ${vehicle.mileage ?? 'Not specified'}`,
+    `Location: ${vehicle.location || 'Contact Lumana'}`,
+    `Transmission: ${vehicle.transmission || 'Not specified'}`,
+  ].filter(Boolean).join(' ');
+  return { title, description, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
 }
 
 export default async function PublicVehicleDetail({ params }: Props) {

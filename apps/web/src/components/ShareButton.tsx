@@ -6,13 +6,15 @@ import { useState } from 'react';
 type ShareButtonProps = {
   title: string;
   description?: string;
+  details?: string[];
+  intro?: string;
   url: string;
   imageUrl?: string;
 };
 
-export default function ShareButton({ title, description, url, imageUrl }: ShareButtonProps) {
+export default function ShareButton({ title, description, details = [], intro = 'With just 30% down payment, you can buy this vehicle from Lumana.', url, imageUrl }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
-  const text = [title, description].filter(Boolean).join('\n');
+  const text = [intro, title, description, ...details.filter(Boolean)].filter(Boolean).join('\n');
 
   function getShareUrl() {
     return new URL(url, window.location.origin).toString();

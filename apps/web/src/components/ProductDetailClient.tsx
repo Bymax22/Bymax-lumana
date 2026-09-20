@@ -69,13 +69,13 @@ export default function ProductDetailClient({ product }: { product: any }) {
   }
 
   return (
-    <div className="rounded bg-[#0d0d0d] p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full min-w-0 overflow-hidden rounded bg-[#0d0d0d] p-4 sm:p-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-3">
         <div className="col-span-1">
           <div className="h-64 w-full rounded-md bg-[#0d0d0d]" />
         </div>
-        <div className="col-span-2">
-          <h2 className="text-2xl font-semibold">{product.name}</h2>
+        <div className="min-w-0 md:col-span-2">
+          <h2 className="break-words text-2xl font-semibold">{product.name}</h2>
           <p className="text-slate-400">{product.sku}</p>
           <div className="mt-4 space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -92,7 +92,7 @@ export default function ProductDetailClient({ product }: { product: any }) {
             {message ? <div className="mt-3 text-sm text-emerald-300">{message}</div> : null}
           </div>
 
-          <div className="mt-6 text-sm text-slate-300">
+          <div className="mt-6 min-w-0 break-words text-sm text-slate-300">
             <h4 className="font-semibold">Details</h4>
             <p>{product.description || 'No description available'}</p>
             <p className="mt-2">Price: {product.price ? <ConvertedAmount amountUsd={product.price} /> : '—'}</p>

@@ -12,7 +12,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!vehicle) return { title: 'Rental vehicle | Lumana AutoPlanet' };
   const title = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''} rental`.trim();
   const image = vehicle.images?.[0];
-  return { title, description: vehicle.description || `${title} available in ${vehicle.location || 'Lusaka'}.`, openGraph: { title, description: vehicle.description || title, images: image ? [image] : [] } };
+  const description = [
+    'With just 30% down payment, you can hire this vehicle from Lumana.',
+    vehicle.description,
+    `Mileage: ${vehicle.mileage ?? 'Not specified'}`,
+    `Location: ${vehicle.location || 'Lusaka'}`,
+    `Base price: ${vehicle.basePrice ?? 'Contact Lumana'}/day`,
+  ].filter(Boolean).join(' ');
+  return { title, description, openGraph: { title, description, siteName: 'Lumana AutoPlanet', type: 'website', images: image ? [image] : [] } };
 }
 
 export default async function HireVehiclePage({ params }: Props) {
